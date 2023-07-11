@@ -6,8 +6,8 @@ import { theme } from "../../theme";
 import { Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import { APP_NAME } from "@/constants";
-import Sizes from "@/components/layout/sizes";
 import Link from "@/components/common/Link";
+import VaccinesIcon from "@mui/icons-material/Vaccines";
 
 const Header = () => {
   const router = useRouter();
@@ -23,7 +23,9 @@ const Header = () => {
         <Container>
           <Toolbar disableGutters>
             <Typography variant="h3" color={theme.palette.text.primary}>
-              <Link href="/">{APP_NAME.toUpperCase()}</Link>
+              <Link href="/">
+                {APP_NAME} <VaccinesIcon fontSize="inherit" />
+              </Link>
             </Typography>
           </Toolbar>
         </Container>

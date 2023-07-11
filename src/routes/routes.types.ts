@@ -1,10 +1,12 @@
-import React from "react";
+import React, { CSSProperties } from "react";
 
 type PageBase = {
   // The title of the page, that is also displayed in the meta tag.
   title: string;
   // The description of the page, that is also displayed in the meta tag.
   description: string;
+  // Page specific styling for the Page Wrapper
+  __dangerousPageSpecificStyling?: CSSProperties;
 };
 
 export type Page = PageBase & {

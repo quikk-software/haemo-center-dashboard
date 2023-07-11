@@ -1,6 +1,7 @@
 import { Roboto } from "next/font/google";
 import { createTheme } from "@mui/material/styles";
-import { deDE } from "@mui/material/locale";
+import { deDE as CommonDE } from "@mui/material/locale";
+import { deDE as GridDE } from "@mui/x-data-grid";
 
 export const roboto = Roboto({
   weight: ["300", "400", "500", "700"],
@@ -16,5 +17,8 @@ export const theme = createTheme(
       secondary: { main: "#FFDFDF" },
     },
   },
-  deDE,
+  {
+    ...CommonDE,
+    ...GridDE,
+  },
 );

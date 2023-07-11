@@ -9,13 +9,14 @@ import { Provider } from "react-redux";
 import store from "@/redux";
 import { ThemeProvider } from "@mui/material";
 import { theme } from "@/theme";
+import page from "@/components/layout/Page";
 
 const MyApp: React.FC<AppProps> = (props) => {
   const { Component, pageProps } = props;
 
   const router = useRouter();
   const currentPage = pages.find((page) => page.pathname === router.pathname)!;
-  const { title, description } = currentPage;
+  const { title, description, __dangerousPageSpecificStyling } = currentPage;
 
   return (
     <ThemeProvider theme={theme}>
@@ -33,7 +34,11 @@ const MyApp: React.FC<AppProps> = (props) => {
         <Head>
           <meta name="viewport" content="initial-scale=1, width=device-width" />
         </Head>
-        <Page title={title} description={description}>
+        <Page
+          title={title}
+          description={description}
+          styleOverwrite={__dangerousPageSpecificStyling}
+        >
           <Component {...pageProps} />
         </Page>
       </Provider>

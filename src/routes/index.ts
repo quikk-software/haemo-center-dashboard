@@ -1,5 +1,6 @@
 import type { Page } from "./routes.types";
 import errorPages from "@/routes/errorPages";
+import { center } from "@/routes/routes.styles";
 
 const pages: Page[] = [
   {
@@ -11,11 +12,13 @@ const pages: Page[] = [
     title: "Anmeldung",
     pathname: "/auth/login",
     description: "Beschreibung",
+    __dangerousPageSpecificStyling: center,
   },
   {
     title: "Registrierung",
     pathname: "/auth/signup",
     description: "Beschreibung",
+    __dangerousPageSpecificStyling: center,
   },
   ...errorPages,
 ];
