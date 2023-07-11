@@ -7,6 +7,8 @@ import pages from "@/routes";
 import { useRouter } from "next/router";
 import { Provider } from "react-redux";
 import store from "@/redux";
+import { ThemeProvider } from "@mui/material";
+import { theme } from "@/theme";
 
 const MyApp: React.FC<AppProps> = (props) => {
   const { Component, pageProps } = props;
@@ -16,24 +18,26 @@ const MyApp: React.FC<AppProps> = (props) => {
   const { title, description } = currentPage;
 
   return (
-    <Provider store={store}>
-      <CssBaseline />
-      <style jsx global>
-        {`
-          #__next > div {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-          }
-        `}
-      </style>
-      <Head>
-        <meta name="viewport" content="initial-scale=1, width=device-width" />
-      </Head>
-      <Page title={title} description={description}>
-        <Component {...pageProps} />
-      </Page>
-    </Provider>
+    <ThemeProvider theme={theme}>
+      <Provider store={store}>
+        <CssBaseline />
+        <style jsx global>
+          {`
+            #__next > div {
+              display: flex;
+              flex-direction: column;
+              min-height: 100vh;
+            }
+          `}
+        </style>
+        <Head>
+          <meta name="viewport" content="initial-scale=1, width=device-width" />
+        </Head>
+        <Page title={title} description={description}>
+          <Component {...pageProps} />
+        </Page>
+      </Provider>
+    </ThemeProvider>
   );
 };
 
