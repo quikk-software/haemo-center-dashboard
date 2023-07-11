@@ -7,6 +7,7 @@ import { Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import { APP_NAME } from "@/constants";
 import Sizes from "@/components/layout/sizes";
+import Link from "@/components/common/Link";
 
 const Header = () => {
   const router = useRouter();
@@ -22,7 +23,7 @@ const Header = () => {
         <Container>
           <Toolbar disableGutters>
             <Typography variant="h3" color={theme.palette.text.primary}>
-              {APP_NAME.toUpperCase()}
+              <Link href="/">{APP_NAME.toUpperCase()}</Link>
             </Typography>
           </Toolbar>
         </Container>

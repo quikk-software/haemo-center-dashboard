@@ -1,5 +1,7 @@
 import React, { PropsWithChildren } from "react";
+// eslint-disable-next-line no-restricted-imports
 import NextLink, { LinkProps as NextLinkProps } from "next/link";
+// eslint-disable-next-line no-restricted-imports
 import { Link as MUILink, LinkProps as MUILinkProps } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
@@ -34,7 +36,12 @@ const Link: React.FC<PropsWithChildren<Props>> = ({
       {...nextLinkProps}
       style={{ textDecoration: "none" }}
     >
-      <MUILink {...externalHrefProps} {...muiLinkProps} underline="hover">
+      <MUILink
+        {...externalHrefProps}
+        {...muiLinkProps}
+        underline="hover"
+        component="span"
+      >
         {displayText ?? children}
         {isExternal && !hideIcon && (
           <>

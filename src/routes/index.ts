@@ -7,6 +7,16 @@ const pages: Page[] = [
     pathname: "/",
     description: "Beschreibung",
   },
+  {
+    title: "Anmeldung",
+    pathname: "/auth/login",
+    description: "Beschreibung",
+  },
+  {
+    title: "Registrierung",
+    pathname: "/auth/signup",
+    description: "Beschreibung",
+  },
   ...errorPages,
 ];
 
