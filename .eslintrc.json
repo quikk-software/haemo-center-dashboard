@@ -4,6 +4,7 @@
     "prettier"
   ],
   "rules": {
+    "no-console": "error",
     "no-restricted-imports": ["error", {
       "patterns": [{
         "group": ["@mui/material"],

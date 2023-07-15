@@ -14,12 +14,6 @@ const pages: Page[] = [
     description: "Beschreibung",
     __dangerousPageSpecificStyling: center,
   },
-  {
-    title: "Registrierung",
-    pathname: "/auth/signup",
-    description: "Beschreibung",
-    __dangerousPageSpecificStyling: center,
-  },
   ...errorPages,
 ];
 

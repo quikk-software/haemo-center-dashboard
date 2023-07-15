@@ -4,6 +4,7 @@ import {
   GridValueGetterParams,
 } from "@mui/x-data-grid";
 import { Button, Chip } from "@mui/material";
+import logger from "@/core/logger";
 
 // Apply this to all columns
 const columnMapper = (c: GridColDef): GridColDef => ({ ...c, flex: 1 });
@@ -46,7 +47,7 @@ export const columns: GridColDef[] = [
         <Button
           color={inactive ? "error" : verified ? "success" : "info"}
           variant="outlined"
-          onClick={() => console.log(params)}
+          onClick={() => logger.debug(params)}
           key={`${params.id}-button`}
         >
           Click

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FormEvent } from "react";
 import {
   Box,
   Button,
@@ -10,10 +10,33 @@ import {
 } from "@mui/material";
 import Sizes from "@/components/layout/sizes";
 import Link from "@/components/common/Link";
+import { signIn } from "next-auth/react";
+import useRedirect from "@/core/useRedirect";
+import logger from "@/core/logger";
 
 const LoginScreen: React.FC = () => {
-  const handleSubmit = () => {
-    console.log("sheesh!");
+  const { redirectUrl } = useRedirect();
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+
+    const res = await signIn("keycloak", {
+      redirect: true,
+      callbackUrl: redirectUrl,
+    });
+
+    logger.debug({ res }, "\n\n################################");
+
+    if (!res) return;
+
+    if (res.status === 401) {
+      logger.warn(401);
+      return;
+    }
+
+    if (res.status > 400) {
+      logger.warn({ res });
+    }
   };
 
   return (
@@ -68,13 +91,8 @@ const LoginScreen: React.FC = () => {
         </Button>
         <Grid container>
           <Grid item xs>
-            <Link href="#" muiLinkProps={{ variant: "body2" }}>
+            <Link href="/forgot-password" muiLinkProps={{ variant: "body2" }}>
               Forgot password?
-            </Link>
-          </Grid>
-          <Grid item>
-            <Link href="/auth/signup" muiLinkProps={{ variant: "body2" }}>
-              {"Don't have an account? Sign Up"}
             </Link>
           </Grid>
         </Grid>
