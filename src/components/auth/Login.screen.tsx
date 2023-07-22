@@ -1,4 +1,4 @@
-import React, { FormEvent } from "react";
+import React from "react";
 import {
   Box,
   Button,
@@ -10,34 +10,18 @@ import {
 } from "@mui/material";
 import Sizes from "@/components/layout/sizes";
 import Link from "@/components/common/Link";
-import { signIn } from "next-auth/react";
 import useRedirect from "@/core/useRedirect";
-import logger from "@/core/logger";
+import useAuth from "@/components/auth/useAuth";
+import { setPassword, setUsername } from "@/components/auth/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { Store } from "@/redux";
 
 const LoginScreen: React.FC = () => {
+  const dispatch = useDispatch();
   const { redirectUrl } = useRedirect();
+  const { password, username } = useSelector((store: Store) => store.auth);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-
-    const res = await signIn("keycloak", {
-      redirect: true,
-      callbackUrl: redirectUrl,
-    });
-
-    logger.debug({ res }, "\n\n################################");
-
-    if (!res) return;
-
-    if (res.status === 401) {
-      logger.warn(401);
-      return;
-    }
-
-    if (res.status > 400) {
-      logger.warn({ res });
-    }
-  };
+  const { handleLogin } = useAuth(username, password);
 
   return (
     <Box
@@ -51,41 +35,32 @@ const LoginScreen: React.FC = () => {
       <Typography component="h1" variant="h5">
         Sign in
       </Typography>
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        noValidate
-        sx={{ mt: Sizes.SMALL }}
-      >
+      <Box sx={{ mt: Sizes.SMALL }}>
         <TextField
           margin="normal"
-          required
           fullWidth
-          id="email"
           label="Email Address"
-          name="email"
           autoComplete="email"
           autoFocus
+          onChange={(e) => dispatch(setUsername(e.target.value))}
         />
         <TextField
           margin="normal"
-          required
           fullWidth
-          name="password"
           label="Password"
           type="password"
-          id="password"
           autoComplete="current-password"
+          onChange={(e) => dispatch(setPassword(e.target.value))}
         />
         <FormControlLabel
-          control={<Checkbox value="remember" color="primary" />}
+          control={<Checkbox color="primary" />}
           label="Remember me"
         />
         <Button
-          type="submit"
           fullWidth
           variant="contained"
           sx={{ mt: Sizes.MEDIUM, mb: Sizes.SMALL }}
+          onClick={handleLogin}
         >
           Sign In
         </Button>

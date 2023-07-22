@@ -5,24 +5,48 @@
   ],
   "rules": {
     "no-console": "error",
-    "no-restricted-imports": ["error", {
-      "patterns": [{
-        "group": ["@mui/material"],
-        "importNames": ["Link"],
-        "message": "Use 'Link' from src/components/common/Link instead."
-      },{
-        "group": ["@mui/material/Link"],
-        "importNames": ["default"],
-        "message": "Use 'Link' from src/components/common/Link instead."
-      },{
-        "group": ["next"],
-        "importNames": ["Link"],
-        "message": "Use 'Link' from src/components/common/Link instead."
-      },{
-        "group": ["next/link"],
-        "importNames": ["default"],
-        "message": "Use 'Link' from src/components/common/Link instead."
-      }]
-    }]
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": [
+              "@mui/material"
+            ],
+            "importNames": [
+              "Link"
+            ],
+            "message": "Use 'Link' from src/components/common/Link instead."
+          },
+          {
+            "group": [
+              "@mui/material/Link"
+            ],
+            "importNames": [
+              "default"
+            ],
+            "message": "Use 'Link' from src/components/common/Link instead."
+          },
+          {
+            "group": [
+              "next"
+            ],
+            "importNames": [
+              "Link"
+            ],
+            "message": "Use 'Link' from src/components/common/Link instead."
+          },
+          {
+            "group": [
+              "next/link"
+            ],
+            "importNames": [
+              "default"
+            ],
+            "message": "Use 'Link' from src/components/common/Link instead."
+          }
+        ]
+      }
+    ]
   }
 }

@@ -1,5 +1,5 @@
 import type { AppProps } from "next/app";
-import React, { useEffect } from "react";
+import React from "react";
 import Head from "next/head";
 import CssBaseline from "@mui/material/CssBaseline";
 import Page from "@/components/layout/Page";
@@ -9,8 +9,8 @@ import { Provider } from "react-redux";
 import store from "@/redux";
 import { ThemeProvider } from "@mui/material";
 import { theme } from "@/theme";
-import { useSession, signIn, SessionProvider } from "next-auth/react";
 import ErrorBoundary from "@/core/ErrorBoundary";
+import AuthGate from "@/components/auth/AuthGate";
 
 const MyApp: React.FC<AppProps> = (props) => {
   const { Component, pageProps } = props;
@@ -24,23 +24,23 @@ const MyApp: React.FC<AppProps> = (props) => {
     <ErrorBoundary>
       <ThemeProvider theme={theme}>
         <Provider store={store}>
-          <SessionProvider session={session}>
-            <CssBaseline />
-            <style jsx global>
-              {`
-                #__next > div {
-                  display: flex;
-                  flex-direction: column;
-                  min-height: 100vh;
-                }
-              `}
-            </style>
-            <Head>
-              <meta
-                name="viewport"
-                content="initial-scale=1, width=device-width"
-              />
-            </Head>
+          <CssBaseline />
+          <style jsx global>
+            {`
+              #__next > div {
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+              }
+            `}
+          </style>
+          <Head>
+            <meta
+              name="viewport"
+              content="initial-scale=1, width=device-width"
+            />
+          </Head>
+          <AuthGate>
             <Page
               title={title}
               description={description}
@@ -48,7 +48,7 @@ const MyApp: React.FC<AppProps> = (props) => {
             >
               <Component {...pageProps} />
             </Page>
-          </SessionProvider>
+          </AuthGate>
         </Provider>
       </ThemeProvider>
     </ErrorBoundary>

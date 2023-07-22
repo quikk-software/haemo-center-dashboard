@@ -3,16 +3,13 @@ import logger from "@/core/logger";
 
 const useRedirect = () => {
   const router = useRouter();
-  const { query, push } = router;
+  const { query } = router;
 
   const redirectParam = query["redirect"];
   const redirectTo = typeof redirectParam === "string" ? redirectParam : "/";
 
   return {
-    redirect: async () => {
-      logger.debug("redirecting to", redirectTo);
-      await push(redirectTo);
-    },
+    // Taken from Query Parameter `redirect`. Defaults to "/", if no `redirect` Query Parameter is provided.
     redirectUrl: redirectTo,
   };
 };

@@ -9,8 +9,11 @@ export const executeAwaitableFunction = async (
   return fn();
 };
 
+// https://developer.school/snippets/react/localstorage-is-not-defined-nextjs
+export const hasPageBeenMounted = () => typeof window !== "undefined";
+
 export const loadEnvVariable = (key: string) => {
-  if (typeof window === "undefined") {
+  if (!hasPageBeenMounted()) {
     const value = process.env[key];
 
     if (value === undefined) {
@@ -24,7 +27,7 @@ export const loadEnvVariable = (key: string) => {
     return value ?? "";
   }
   logger.warn(
-    `Cannot access .env in DOM. Will be using empty string as value.`,
+    `Cannot access .env in DOM. Will be using empty string as value for ${key}.`,
   );
   return "";
 };

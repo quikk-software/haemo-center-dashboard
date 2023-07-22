@@ -2,7 +2,7 @@ import type { Page } from "./routes.types";
 import errorPages from "@/routes/errorPages";
 import { center } from "@/routes/routes.styles";
 
-const pages: Page[] = [
+const pages: readonly Page[] = [
   {
     title: "Zentrumsübersicht",
     pathname: "/",
@@ -15,6 +15,6 @@ const pages: Page[] = [
     __dangerousPageSpecificStyling: center,
   },
   ...errorPages,
-];
+] as const;
 
 export default pages;
