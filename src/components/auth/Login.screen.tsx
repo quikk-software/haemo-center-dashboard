@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   Box,
   Button,
@@ -21,7 +21,12 @@ const LoginScreen: React.FC = () => {
   const { redirectUrl } = useRedirect();
   const { password, username } = useSelector((store: Store) => store.auth);
 
-  const { handleLogin } = useAuth(username, password);
+  const { handleLogin } = useAuth();
+
+  const handleLoginButtonClick = useCallback(
+    () => handleLogin(username, password),
+    [username, password],
+  );
 
   return (
     <Box
@@ -52,15 +57,11 @@ const LoginScreen: React.FC = () => {
           autoComplete="current-password"
           onChange={(e) => dispatch(setPassword(e.target.value))}
         />
-        <FormControlLabel
-          control={<Checkbox color="primary" />}
-          label="Remember me"
-        />
         <Button
           fullWidth
           variant="contained"
           sx={{ mt: Sizes.MEDIUM, mb: Sizes.SMALL }}
-          onClick={handleLogin}
+          onClick={handleLoginButtonClick}
         >
           Sign In
         </Button>

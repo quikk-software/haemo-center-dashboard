@@ -11,12 +11,13 @@ import logger from "@/core/logger";
 import { useRouter } from "next/router";
 import useRedirect from "@/core/useRedirect";
 import { hasPageBeenMounted } from "@/core/utils";
+import useAuth from "@/components/auth/useAuth";
 
 type Props = {};
 
 const publicUrls = ["/auth/login"];
 
-const AuthGate: React.FC<PropsWithChildren<Props>> = ({ children }) => {
+const AuthGuard: React.FC<PropsWithChildren<Props>> = ({ children }) => {
   const { redirectUrl } = useRedirect();
   const router = useRouter();
 
@@ -31,13 +32,17 @@ const AuthGate: React.FC<PropsWithChildren<Props>> = ({ children }) => {
   const dispatch = useDispatch();
   const [isLoggedIn, setIsLoggedIn] = useState(isTokenValid(accessToken));
   const [showChildren, setShowChildren] = useState(isAllowedToAccessPage);
+  const { setUserDataInReduxStore } = useAuth();
 
   const onTokenValid = () => {
-    setIsLoggedIn(true);
-    setShowChildren(true);
-    // redirect if not already on that page
-    if (router.pathname !== redirectUrl) {
-      router.push(redirectUrl);
+    if (accessToken !== null) {
+      setUserDataInReduxStore(accessToken);
+      setIsLoggedIn(true);
+      setShowChildren(true);
+      // redirect if not already on that page
+      if (router.pathname !== redirectUrl) {
+        router.push(redirectUrl);
+      }
     }
   };
 
@@ -124,4 +129,4 @@ const AuthGate: React.FC<PropsWithChildren<Props>> = ({ children }) => {
   return showChildren && children;
 };
 
-export default AuthGate;
+export default AuthGuard;

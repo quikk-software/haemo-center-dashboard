@@ -34,3 +34,7 @@ export function getLocalStorageItem<T, V>(
   }
   return fallbackValue;
 }
+
+export const removeLocalStorageItem = (key: LocalStorageKeys): void => {
+  localStorage.removeItem(JSON.stringify(key));
+};

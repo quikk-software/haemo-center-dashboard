@@ -10,7 +10,7 @@ import store from "@/redux";
 import { ThemeProvider } from "@mui/material";
 import { theme } from "@/theme";
 import ErrorBoundary from "@/core/ErrorBoundary";
-import AuthGate from "@/components/auth/AuthGate";
+import AuthGuard from "@/components/auth/AuthGuard";
 
 const MyApp: React.FC<AppProps> = (props) => {
   const { Component, pageProps } = props;
@@ -40,7 +40,7 @@ const MyApp: React.FC<AppProps> = (props) => {
               content="initial-scale=1, width=device-width"
             />
           </Head>
-          <AuthGate>
+          <AuthGuard>
             <Page
               title={title}
               description={description}
@@ -48,7 +48,7 @@ const MyApp: React.FC<AppProps> = (props) => {
             >
               <Component {...pageProps} />
             </Page>
-          </AuthGate>
+          </AuthGuard>
         </Provider>
       </ThemeProvider>
     </ErrorBoundary>

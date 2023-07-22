@@ -53,7 +53,7 @@ export const authSlice = createSlice({
     setRefreshToken: (state, action: PayloadAction<string>) => {
       state.refreshToken = action.payload;
     },
-    resetLogin: (state) => {
+    reset: (state) => {
       state = initialState;
       return state;
     },
@@ -61,7 +61,6 @@ export const authSlice = createSlice({
 });
 
 export const {
-  changeLoginInfo,
   setUserId,
   setUsername,
   setRoles,
@@ -69,6 +68,6 @@ export const {
   setPassword,
   setAccessToken,
   setRefreshToken,
-  resetLogin,
+  reset,
 } = authSlice.actions;
 export default authSlice.reducer;
