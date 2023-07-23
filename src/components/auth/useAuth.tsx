@@ -18,11 +18,6 @@ import logger from "@/core/logger";
 import { LOGIN_URL, USER_DATA_URL } from "@/constants";
 import useRedirect from "@/core/useRedirect";
 import { useRouter } from "next/router";
-import {
-  LocalStorageKeys,
-  removeLocalStorageItem,
-  setLocalStorageItem,
-} from "@/core/localStorage.utils";
 import { Store } from "@/redux";
 
 const useAuth = () => {
@@ -97,8 +92,6 @@ const useAuth = () => {
           const refreshToken = response.data.refresh_token;
           dispatch(setAccessToken(accessToken));
           dispatch(setRefreshToken(refreshToken));
-          setLocalStorageItem(LocalStorageKeys.accessToken, accessToken);
-          setLocalStorageItem(LocalStorageKeys.refreshToken, refreshToken);
           setUserDataInReduxStore(accessToken);
           router.push({
             pathname: redirectUrl,
@@ -113,8 +106,6 @@ const useAuth = () => {
 
   const handleLogout = useCallback(() => {
     dispatch(reset());
-    removeLocalStorageItem(LocalStorageKeys.accessToken);
-    removeLocalStorageItem(LocalStorageKeys.refreshToken);
     router.push({
       pathname: "/auth/login",
     });

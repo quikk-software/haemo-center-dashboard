@@ -1,5 +1,10 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
+import {
+  LocalStorageKey,
+  removeLocalStorageItem,
+  setLocalStorageItem,
+} from "@/core/localStorage.utils";
 
 export type AuthState = {
   userId: string;
@@ -48,13 +53,17 @@ export const authSlice = createSlice({
       state.password = action.payload;
     },
     setAccessToken: (state, action: PayloadAction<string>) => {
+      setLocalStorageItem(LocalStorageKey.accessToken, action.payload);
       state.accessToken = action.payload;
     },
     setRefreshToken: (state, action: PayloadAction<string>) => {
       state.refreshToken = action.payload;
+      setLocalStorageItem(LocalStorageKey.refreshToken, action.payload);
     },
     reset: (state) => {
       state = initialState;
+      removeLocalStorageItem(LocalStorageKey.accessToken);
+      removeLocalStorageItem(LocalStorageKey.refreshToken);
       return state;
     },
   },

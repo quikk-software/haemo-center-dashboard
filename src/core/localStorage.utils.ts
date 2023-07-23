@@ -1,17 +1,18 @@
 import logger from "@/core/logger";
 import { hasPageBeenMounted } from "@/core/utils";
 
-export enum LocalStorageKeys {
+export enum LocalStorageKey {
   accessToken,
   refreshToken,
+  language,
 }
 
-const handlePageHasNotBeenMounted = (key: LocalStorageKeys) =>
+const handlePageHasNotBeenMounted = (key: LocalStorageKey) =>
   logger.warn(
     `Page has not been mounted. Cannot access ${key} in localStorage.`,
   );
 
-export function setLocalStorageItem<T>(key: LocalStorageKeys, value: T): void {
+export function setLocalStorageItem<T>(key: LocalStorageKey, value: T): void {
   if (hasPageBeenMounted()) {
     localStorage.setItem(JSON.stringify(key), JSON.stringify(value));
   } else {
@@ -20,7 +21,7 @@ export function setLocalStorageItem<T>(key: LocalStorageKeys, value: T): void {
 }
 
 export function getLocalStorageItem<T, V>(
-  key: LocalStorageKeys,
+  key: LocalStorageKey,
   fallbackValue: V,
 ) {
   if (hasPageBeenMounted()) {
@@ -35,6 +36,6 @@ export function getLocalStorageItem<T, V>(
   return fallbackValue;
 }
 
-export const removeLocalStorageItem = (key: LocalStorageKeys): void => {
+export const removeLocalStorageItem = (key: LocalStorageKey): void => {
   localStorage.removeItem(JSON.stringify(key));
 };

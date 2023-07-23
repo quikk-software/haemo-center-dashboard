@@ -17,6 +17,7 @@ import {
 } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import useAuth from "@/components/auth/useAuth";
+import LanguageSelector from "@/components/i18n/LanguageSelector";
 
 type Props = Pick<MenuProps, "open" | "onClose" | "anchorEl">;
 
@@ -26,33 +27,7 @@ const AvatarMenu: React.FC<Props> = ({ open, onClose, anchorEl }) => {
   return (
     <Menu open={open} onClose={onClose} anchorEl={anchorEl}>
       <MenuList>
-        <MenuItem>
-          <ListItemIcon>
-            <ContentCut fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Cut</ListItemText>
-          <Typography variant="body2" color="text.secondary">
-            ⌘X
-          </Typography>
-        </MenuItem>
-        <MenuItem>
-          <ListItemIcon>
-            <ContentCopy fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Copy</ListItemText>
-          <Typography variant="body2" color="text.secondary">
-            ⌘C
-          </Typography>
-        </MenuItem>
-        <MenuItem>
-          <ListItemIcon>
-            <ContentPaste fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Paste</ListItemText>
-          <Typography variant="body2" color="text.secondary">
-            ⌘V
-          </Typography>
-        </MenuItem>
+        <LanguageSelector />
         <Divider />
         <MenuItem onClick={handleLogout}>
           <ListItemIcon>

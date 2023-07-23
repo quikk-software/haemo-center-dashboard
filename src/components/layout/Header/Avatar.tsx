@@ -1,5 +1,10 @@
 import React, { PropsWithChildren, useState } from "react";
-import { Avatar as MUIAvatar, AvatarProps, IconButton } from "@mui/material";
+import {
+  Avatar as MUIAvatar,
+  AvatarProps,
+  IconButton,
+  NoSsr,
+} from "@mui/material";
 import AvatarMenu from "@/components/layout/Header/AvatarMenu";
 
 type Props = {} & AvatarProps;
@@ -15,7 +20,7 @@ const Avatar: React.FC<PropsWithChildren<Props>> = ({ children, ...rest }) => {
   };
 
   return (
-    <>
+    <NoSsr>
       <IconButton onClick={handleOpen}>
         <MUIAvatar {...rest}>{children}</MUIAvatar>
       </IconButton>
@@ -24,7 +29,7 @@ const Avatar: React.FC<PropsWithChildren<Props>> = ({ children, ...rest }) => {
         onClose={handleClose}
         anchorEl={anchorEl}
       />
-    </>
+    </NoSsr>
   );
 };
 

@@ -5,27 +5,38 @@ import {
 } from "../requests/requestSlice";
 import {
   AuthState,
-  initialState,
   initialState as authInitialState,
 } from "../components/auth/authSlice";
+import {
+  I18nState,
+  initialState as i18nInitialState,
+} from "../components/i18n/i18nSlice";
 import { configureStore } from "@reduxjs/toolkit";
 import {
   getLocalStorageItem,
-  LocalStorageKeys,
+  LocalStorageKey,
 } from "@/core/localStorage.utils";
+import { Language } from "@/i18n/i18n.types";
 
 const accessToken = getLocalStorageItem<string, string | null>(
-  LocalStorageKeys.accessToken,
+  LocalStorageKey.accessToken,
   authInitialState.accessToken,
 );
+
 const refreshToken = getLocalStorageItem<string, string | null>(
-  LocalStorageKeys.refreshToken,
+  LocalStorageKey.refreshToken,
   authInitialState.refreshToken,
+);
+
+const language = getLocalStorageItem<Language, Language>(
+  LocalStorageKey.language,
+  i18nInitialState.language,
 );
 
 export interface Store {
   request: RequestState;
   auth: AuthState;
+  i18n: I18nState;
 }
 
 const initialStore: Store = {
@@ -34,6 +45,10 @@ const initialStore: Store = {
     ...authInitialState,
     accessToken,
     refreshToken,
+  },
+  i18n: {
+    ...i18nInitialState,
+    language,
   },
 };
 

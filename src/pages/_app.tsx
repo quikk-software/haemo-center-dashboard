@@ -9,12 +9,12 @@ import { Provider } from "react-redux";
 import store from "@/redux";
 import { ThemeProvider } from "@mui/material";
 import { theme } from "@/theme";
-import ErrorBoundary from "@/core/ErrorBoundary";
+import ErrorBoundary from "@/components/core/ErrorBoundary";
 import AuthGuard from "@/components/auth/AuthGuard";
+import LoadingGuard from "@/components/layout/LoadingGuard";
 
 const MyApp: React.FC<AppProps> = (props) => {
   const { Component, pageProps } = props;
-  const { session } = pageProps;
 
   const router = useRouter();
   const currentPage = pages.find((page) => page.pathname === router.pathname)!;
@@ -40,15 +40,17 @@ const MyApp: React.FC<AppProps> = (props) => {
               content="initial-scale=1, width=device-width"
             />
           </Head>
-          <AuthGuard>
-            <Page
-              title={title}
-              description={description}
-              styleOverwrite={__dangerousPageSpecificStyling}
-            >
-              <Component {...pageProps} />
-            </Page>
-          </AuthGuard>
+          <LoadingGuard>
+            <AuthGuard>
+              <Page
+                title={title}
+                description={description}
+                styleOverwrite={__dangerousPageSpecificStyling}
+              >
+                <Component {...pageProps} />
+              </Page>
+            </AuthGuard>
+          </LoadingGuard>
         </Provider>
       </ThemeProvider>
     </ErrorBoundary>

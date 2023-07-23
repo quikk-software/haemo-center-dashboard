@@ -2,7 +2,7 @@ import React from "react";
 import { View } from "./table.types";
 import { DataGrid, GridRowsProp } from "@mui/x-data-grid";
 import { Stack, Typography } from "@mui/material";
-import Sizes from "@/components/layout/sizes";
+import Size from "@/components/layout/size";
 import { theme } from "@/theme";
 import { columns } from "@/components/overview/table/table.coldef";
 
@@ -50,14 +50,14 @@ export type Props = {
 };
 const Table: React.FC<Props> = ({ type }) => {
   return (
-    <Stack direction="column" spacing={Sizes.SMALL}>
+    <Stack direction="column" spacing={Size.SMALL}>
       <Typography variant="h4" color={theme.palette.text.primary}>
         Übersicht: {type}
       </Typography>
       <DataGrid
         rows={rows}
         columns={columns}
-        sx={{ m: Sizes.MEDIUM }}
+        sx={{ m: Size.MEDIUM }}
         checkboxSelection
         disableRowSelectionOnClick
       />

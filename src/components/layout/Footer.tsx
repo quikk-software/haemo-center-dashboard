@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Container, Typography } from "@mui/material";
 import { theme } from "../../theme";
-import Sizes from "@/components/layout/sizes";
+import Size from "@/components/layout/size";
 import { COMPANY_LEGAL_NAME } from "@/constants";
 
 const Footer = () => {
@@ -10,8 +10,8 @@ const Footer = () => {
       <Box
         textAlign="center"
         bgcolor={theme.palette.grey[100]}
-        pt={Sizes.MEDIUM}
-        pb={Sizes.MEDIUM}
+        pt={Size.MEDIUM}
+        pb={Size.MEDIUM}
       >
         <Container>
           <Typography variant="caption" display="block">

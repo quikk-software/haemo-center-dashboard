@@ -8,7 +8,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import Sizes from "@/components/layout/sizes";
+import Size from "@/components/layout/size";
 import Link from "@/components/common/Link";
 import useRedirect from "@/core/useRedirect";
 import useAuth from "@/components/auth/useAuth";
@@ -40,7 +40,7 @@ const LoginScreen: React.FC = () => {
       <Typography component="h1" variant="h5">
         Sign in
       </Typography>
-      <Box sx={{ mt: Sizes.SMALL }}>
+      <Box sx={{ mt: Size.SMALL }}>
         <TextField
           margin="normal"
           fullWidth
@@ -60,7 +60,7 @@ const LoginScreen: React.FC = () => {
         <Button
           fullWidth
           variant="contained"
-          sx={{ mt: Sizes.MEDIUM, mb: Sizes.SMALL }}
+          sx={{ mt: Size.MEDIUM, mb: Size.SMALL }}
           onClick={handleLoginButtonClick}
         >
           Sign In

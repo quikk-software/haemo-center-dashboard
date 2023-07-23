@@ -4,7 +4,7 @@ import { NextSeo } from "next-seo";
 import { Box, Container } from "@mui/material";
 import { APP_NAME } from "@/constants";
 import Index from "./Header";
-import Sizes from "@/components/layout/sizes";
+import Size from "@/components/layout/size";
 
 type PageProps = {
   title: string;
@@ -32,7 +32,7 @@ const Page: React.FC<PropsWithChildren<PageProps>> = ({
           ...styleOverwrite,
         }}
       >
-        <Box pt={Sizes.MEDIUM} pb={Sizes.MEDIUM} style={styleOverwrite}>
+        <Box pt={Size.MEDIUM} pb={Size.MEDIUM} style={styleOverwrite}>
           {children}
         </Box>
       </Container>
