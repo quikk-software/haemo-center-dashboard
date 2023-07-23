@@ -15,6 +15,7 @@ import useAuth from "@/components/auth/useAuth";
 import { setPassword, setUsername } from "@/components/auth/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { Store } from "@/redux";
+import useLanguage from "@/i18n/useLanguage";
 
 const LoginScreen: React.FC = () => {
   const dispatch = useDispatch();
@@ -28,6 +29,8 @@ const LoginScreen: React.FC = () => {
     [username, password],
   );
 
+  const { t } = useLanguage();
+
   return (
     <Box
       sx={{
@@ -38,7 +41,7 @@ const LoginScreen: React.FC = () => {
       }}
     >
       <Typography component="h1" variant="h5">
-        Sign in
+        {t("auth:loginTitle")}
       </Typography>
       <Box sx={{ mt: Size.SMALL }}>
         <TextField
@@ -63,7 +66,7 @@ const LoginScreen: React.FC = () => {
           sx={{ mt: Size.MEDIUM, mb: Size.SMALL }}
           onClick={handleLoginButtonClick}
         >
-          Sign In
+          {t("auth:login")}
         </Button>
         <Grid container>
           <Grid item xs>

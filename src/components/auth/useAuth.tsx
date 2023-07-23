@@ -59,7 +59,6 @@ const useAuth = () => {
 
   const setUserDataInReduxStore = (accessToken: string) => {
     const decodedToken = jwtDecode(accessToken);
-    logger.info(decodedToken);
     const userId = getUserIdFromAccessToken(accessToken);
     dispatch(setUserId(userId));
     dispatch(

@@ -1,11 +1,12 @@
 import * as React from "react";
 import Document, { Head, Html, Main, NextScript } from "next/document";
-import { roboto, theme } from "../theme";
+import { theme } from "../theme";
+import { DEFAULT_LANGUAGE } from "@/i18n/i18n.constants";
 
 export default class MyDocument extends Document {
   render() {
     return (
-      <Html lang="de" className={roboto.className}>
+      <Html lang={DEFAULT_LANGUAGE}>
         <Head>
           <meta name="theme-color" content={theme.palette.primary.main} />
           <meta name="keywords" content="Keywords" />

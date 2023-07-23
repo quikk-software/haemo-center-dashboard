@@ -7,11 +7,11 @@ import pages from "@/routes";
 import { useRouter } from "next/router";
 import { Provider } from "react-redux";
 import store from "@/redux";
-import { ThemeProvider } from "@mui/material";
-import { theme } from "@/theme";
 import ErrorBoundary from "@/components/core/ErrorBoundary";
 import AuthGuard from "@/components/auth/AuthGuard";
 import LoadingGuard from "@/components/layout/LoadingGuard";
+import LocalizedThemeProvider from "@/components/i18n/LocalizedThemeProvider";
+import "../i18n";
 
 const MyApp: React.FC<AppProps> = (props) => {
   const { Component, pageProps } = props;
@@ -22,8 +22,8 @@ const MyApp: React.FC<AppProps> = (props) => {
 
   return (
     <ErrorBoundary>
-      <ThemeProvider theme={theme}>
-        <Provider store={store}>
+      <Provider store={store}>
+        <LocalizedThemeProvider>
           <CssBaseline />
           <style jsx global>
             {`
@@ -51,8 +51,8 @@ const MyApp: React.FC<AppProps> = (props) => {
               </Page>
             </AuthGuard>
           </LoadingGuard>
-        </Provider>
-      </ThemeProvider>
+        </LocalizedThemeProvider>
+      </Provider>
     </ErrorBoundary>
   );
 };

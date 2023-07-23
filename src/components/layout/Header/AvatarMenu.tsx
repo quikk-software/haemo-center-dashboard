@@ -18,11 +18,13 @@ import {
 import LogoutIcon from "@mui/icons-material/Logout";
 import useAuth from "@/components/auth/useAuth";
 import LanguageSelector from "@/components/i18n/LanguageSelector";
+import useLanguage from "@/i18n/useLanguage";
 
 type Props = Pick<MenuProps, "open" | "onClose" | "anchorEl">;
 
 const AvatarMenu: React.FC<Props> = ({ open, onClose, anchorEl }) => {
   const { handleLogout } = useAuth();
+  const { t } = useLanguage();
 
   return (
     <Menu open={open} onClose={onClose} anchorEl={anchorEl}>
@@ -33,7 +35,7 @@ const AvatarMenu: React.FC<Props> = ({ open, onClose, anchorEl }) => {
           <ListItemIcon>
             <LogoutIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Abmelden</ListItemText>
+          <ListItemText>{t("auth:logout")}</ListItemText>
         </MenuItem>
       </MenuList>
     </Menu>

@@ -9,7 +9,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { Store } from "@/redux";
 import {
   getAccessTokenUsingRefreshToken,
-  isTokenExpired,
   isTokenValid,
 } from "@/auth/auth.utils";
 import { setAccessToken, setRefreshToken } from "@/components/auth/authSlice";
@@ -23,33 +22,30 @@ import LoadingScreen from "@/components/layout/LoadingScreen";
 type Props = {};
 
 const publicUrls = ["/auth/login"];
+const isPublicUrl = (url: string) => publicUrls.includes(url);
 
 const AuthGuard: React.FC<PropsWithChildren<Props>> = ({ children }) => {
-  const { redirectUrl } = useRedirect();
+  const dispatch = useDispatch();
   const router = useRouter();
+  const { redirectUrl } = useRedirect();
+  const { setUserDataInReduxStore, isLoggedIn } = useAuth();
 
-  const isAllowedToAccessPage = useMemo(
-    () => publicUrls.includes(router.pathname),
+  const isAccessibleWithoutAccount = useMemo(
+    () => isPublicUrl(router.pathname),
     [router.pathname],
   );
+
   const { accessToken, refreshToken } = useSelector(
     (store: Store) => store.auth,
   );
 
-  const dispatch = useDispatch();
-  const [isLoggedIn, setIsLoggedIn] = useState(isTokenValid(accessToken));
-  const [showChildren, setShowChildren] = useState(isAllowedToAccessPage);
-  const { setUserDataInReduxStore, isLoggedIn: isLoggedInAuthHook } = useAuth();
-
   const [showLoadingScreen, setShowLoadingScreen] = useState(
-    true && !isLoggedInAuthHook,
+    true && !isLoggedIn,
   );
 
   const onTokenValid = () => {
     if (accessToken !== null) {
       setUserDataInReduxStore(accessToken);
-      setIsLoggedIn(true);
-      setShowChildren(true);
       // redirect if not already on that page
       if (router.pathname !== redirectUrl) {
         router.push(redirectUrl);
@@ -58,7 +54,7 @@ const AuthGuard: React.FC<PropsWithChildren<Props>> = ({ children }) => {
   };
 
   const checkAuth = useCallback(() => {
-    if (isLoggedInAuthHook) {
+    if (isLoggedIn || isAccessibleWithoutAccount) {
       return;
     }
 
@@ -69,7 +65,6 @@ const AuthGuard: React.FC<PropsWithChildren<Props>> = ({ children }) => {
     }
     (async () => {
       if (refreshToken === null) {
-        setIsLoggedIn(false);
         return;
       }
       const res = await getAccessTokenUsingRefreshToken(refreshToken);
@@ -85,25 +80,24 @@ const AuthGuard: React.FC<PropsWithChildren<Props>> = ({ children }) => {
         dispatch(setRefreshToken(newRefreshToken));
         return;
       }
-      setIsLoggedIn(false);
     })();
   }, [
     accessToken,
     dispatch,
-    isLoggedInAuthHook,
+    isLoggedIn,
     onTokenValid,
     refreshToken,
     router.pathname,
   ]);
 
   const hideContent = useCallback(() => {
-    if (isLoggedInAuthHook || isAllowedToAccessPage) {
+    if (isLoggedIn || isAccessibleWithoutAccount) {
+      setShowLoadingScreen(false);
       return;
     }
 
     logger.info(`Hiding children for <${router.pathname}>.`);
-    setShowChildren(false);
-  }, [isAllowedToAccessPage, isLoggedInAuthHook, router.pathname]);
+  }, [isAccessibleWithoutAccount, isLoggedIn, router.pathname]);
 
   /**
    * Taken from https://jasonwatmore.com/post/2021/08/30/next-js-redirect-to-login-page-if-unauthenticated
@@ -114,7 +108,11 @@ const AuthGuard: React.FC<PropsWithChildren<Props>> = ({ children }) => {
     router.events.on("routeChangeStart", hideContent);
     router.events.on("routeChangeComplete", checkAuth);
 
-    if (!isLoggedIn && hasPageBeenMounted()) {
+    if (
+      !isLoggedIn &&
+      hasPageBeenMounted() &&
+      router.pathname !== "/auth/login"
+    ) {
       router.push({
         pathname: `/auth/login`,
       });
@@ -129,15 +127,11 @@ const AuthGuard: React.FC<PropsWithChildren<Props>> = ({ children }) => {
   }, [router.pathname]);
 
   useEffect(() => {
-    setShowChildren(isAllowedToAccessPage);
-  }, [router.pathname, isAllowedToAccessPage]);
-
-  useEffect(() => {
-    setShowChildren(false);
+    setShowLoadingScreen(true);
     if (isTokenValid(accessToken)) {
       onTokenValid();
     }
-    setShowChildren(true);
+    setShowLoadingScreen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.pathname, accessToken]);
 
@@ -145,7 +139,7 @@ const AuthGuard: React.FC<PropsWithChildren<Props>> = ({ children }) => {
     setTimeout(() => setShowLoadingScreen(false), 500);
   });
 
-  if (showChildren && !showLoadingScreen) {
+  if (!showLoadingScreen || isAccessibleWithoutAccount) {
     return children;
   }
 
