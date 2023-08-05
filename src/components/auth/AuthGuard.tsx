@@ -18,6 +18,7 @@ import useRedirect from "@/core/useRedirect";
 import { hasPageBeenMounted } from "@/core/utils";
 import useAuth from "@/components/auth/useAuth";
 import LoadingScreen from "@/components/layout/LoadingScreen";
+import pages from "@/routes";
 
 type Props = {};
 
@@ -46,8 +47,8 @@ const AuthGuard: React.FC<PropsWithChildren<Props>> = ({ children }) => {
   const onTokenValid = () => {
     if (accessToken !== null) {
       setUserDataInReduxStore(accessToken);
-      // redirect if not already on that page
-      if (router.pathname !== redirectUrl) {
+      // redirect to redirect URL if not already on a valid page
+      if (!pages.map(({ pathname }) => pathname).includes(router.pathname)) {
         router.push(redirectUrl);
       }
     }
