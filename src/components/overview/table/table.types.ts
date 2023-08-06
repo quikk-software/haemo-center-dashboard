@@ -1,7 +1,7 @@
 export type View = "patient" | "professional" | "center";
 
-export type MockPatient = {};
-
-export type MockProfessional = {};
-
-export type MockCenter = {};
+export type TableConfig = {
+  query: string;
+  pageNumber: number;
+  pageSize: number;
+};
