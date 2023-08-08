@@ -1,4 +1,5 @@
 import { Api as UserApi } from "./user";
+import { Api as FeedApi } from "./feed";
 import {
   getAccessTokenUsingRefreshToken,
   isTokenExpired,
@@ -9,6 +10,10 @@ import Api from "@/config";
 
 const userApi = new UserApi({
   baseUrl: Api.USER_API,
+});
+
+const feedApi = new FeedApi({
+  baseUrl: Api.FEED_API,
 });
 
 const getApi = async (
@@ -45,4 +50,4 @@ const getApi = async (
   return params;
 };
 
-export { userApi, getApi };
+export { userApi, feedApi, getApi };

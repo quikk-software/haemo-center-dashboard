@@ -3,10 +3,12 @@ import { Button, Card, CardContent, TextField, Typography } from "@mui/material"
 import { useDispatch, useSelector } from "react-redux";
 import { setCreatorName, setHeadline, setText, setImage } from "./newsSlice";
 import NewsItem from "./item";
+import { postNews } from "@/api/feed/usePostNews";
 
 const NewsCreateScreen: React.FC = () => {
-  const dispatch = useDispatch();
   const { headline, creatorName, text, image } = useSelector((store: Store) => store.news);
+  const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
+  const dispatch = useDispatch();
 
   const allowedFileTypes = ["image/jpeg", "image/png"];
 
@@ -20,6 +22,32 @@ const NewsCreateScreen: React.FC = () => {
       return;
     }
     dispatch(setImage(file));
+  }
+
+  const handleCreateNews = () => {
+    if (image === undefined) {
+        return;
+    }
+    const reader = new FileReader();
+    reader.readAsDataURL(image);  // convert to base64
+    reader.onload = () => {
+      if (typeof reader.result === "object") {
+        return;
+      }
+      const readerResult: string | undefined = reader.result;
+      postNews({
+        image: readerResult?.slice(23),
+        headline: headline || "",
+        text: text || "",
+        creatorName: creatorName || "",
+        link: "mylink",
+      }, accessToken, refreshToken, dispatch)
+      .then((response) => {
+        if (response.status === 201) {
+          // TODO: inform user
+        }
+      });
+    };
   }
 
   return (
@@ -52,7 +80,7 @@ const NewsCreateScreen: React.FC = () => {
             Bild auswählen
             <input type="file" hidden onChange={handleFileUpload}/>
           </Button>
-          <Button variant="contained">
+          <Button variant="contained" onClick={handleCreateNews}>
             News erstellen
           </Button>
         </CardContent>
