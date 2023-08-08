@@ -1,6 +1,15 @@
-import { getAccessTokenUsingRefreshToken, isTokenExpired } from "./auth.utils";
+import { Api as UserApi } from "./user";
+import {
+  getAccessTokenUsingRefreshToken,
+  isTokenExpired,
+} from "../auth/auth.utils";
 import type { AnyAction, Dispatch } from "redux";
 import { setAccessToken, setRefreshToken } from "../components/auth/authSlice";
+import Api from "@/config";
+
+const userApi = new UserApi({
+  baseUrl: Api.USER_API,
+});
 
 const getApi = async (
   accessToken: string | null,
@@ -8,9 +17,13 @@ const getApi = async (
   dispatch: Dispatch<AnyAction>,
 ) => {
   if (accessToken === null || refreshToken === null) {
-    return {};
+    return {
+      headers: undefined,
+    };
   }
-  const headers: any = {};
+  const headers: Record<any, any> = {
+    headers: undefined,
+  };
   if (accessToken !== "") {
     headers.Authorization = `Bearer ${accessToken}`;
   }
@@ -32,4 +45,4 @@ const getApi = async (
   return params;
 };
 
-export { getApi };
+export { userApi, getApi };

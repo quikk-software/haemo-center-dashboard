@@ -5,11 +5,12 @@ import {
 } from "@mui/x-data-grid";
 import { Button, Chip } from "@mui/material";
 import logger from "@/core/logger";
+import { GetUserResponse } from "@/@types/user";
 
 // Apply this to all columns
 const columnMapper = (c: GridColDef): GridColDef => ({ ...c, flex: 1 });
 
-export const columns: GridColDef[] = [
+export const columns: GridColDef<GetUserResponse>[] = [
   { field: "col1", headerName: "Column 1" },
   { field: "col2", headerName: "Column 2" },
   {
