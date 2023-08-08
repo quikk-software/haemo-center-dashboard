@@ -1,4 +1,5 @@
 import { Card, CardContent, CardMedia, Typography } from "@mui/material";
+import { useMemo } from "react";
 
 export type Props = {
   headline: string;
@@ -6,11 +7,22 @@ export type Props = {
   textValue: string;
   image: string | undefined;
 };
-const NewsItem: React.FC<Props> = ({ headline, creatorName, textValue, image }) => (
+const NewsItem: React.FC<Props> = ({ headline, creatorName, textValue, image }) => {
+  const imageDataURL = useMemo(() => {
+    if (image === undefined || image === null || image === "") {
+      return undefined;
+    }
+    if (image?.startsWith("data:")) {
+      return image;
+    }
+    return `data:image/jpeg;base64,${image}`;
+  }, [image]);
+
+  return (
   <Card>
     <CardContent>
-      {image !== undefined && (
-        <CardMedia sx={{ height: 250 }} image={image} />
+      {imageDataURL !== undefined && (
+        <CardMedia sx={{ height: 250 }} image={imageDataURL} />
       )}
       <Typography>{headline}</Typography>
       <Typography display="inline">From: </Typography>
@@ -24,6 +36,6 @@ const NewsItem: React.FC<Props> = ({ headline, creatorName, textValue, image }) 
       })}
     </CardContent>
   </Card>
-);
+)};
 
 export default NewsItem;
