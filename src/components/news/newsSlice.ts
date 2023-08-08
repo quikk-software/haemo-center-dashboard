@@ -6,6 +6,7 @@ export type NewsState = {
   text?: string,
   creatorName?: string,
   image?: File,
+  link?: string,
 };
 
 export const initialState: NewsState = {
@@ -27,6 +28,9 @@ export const newsSlice = createSlice({
     setImage: (state, action: PayloadAction<File>) => {
       state.image = action.payload;
     },
+    setLink: (state, action: PayloadAction<string>) => {
+      state.link = action.payload;
+    },
   },
 });
 
@@ -35,5 +39,6 @@ export const {
   setText,
   setCreatorName,
   setImage,
+  setLink,
 } = newsSlice.actions;
 export default newsSlice.reducer;

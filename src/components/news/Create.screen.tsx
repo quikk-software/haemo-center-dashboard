@@ -1,12 +1,12 @@
 import { Store } from "@/redux";
-import { Button, Card, CardContent, TextField, Typography } from "@mui/material";
+import { Button, Card, CardContent, Stack, TextField, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { setCreatorName, setHeadline, setText, setImage } from "./newsSlice";
+import { setCreatorName, setHeadline, setText, setImage, setLink } from "./newsSlice";
 import NewsItem from "./item";
 import { postNews } from "@/api/feed/usePostNews";
 
 const NewsCreateScreen: React.FC = () => {
-  const { headline, creatorName, text, image } = useSelector((store: Store) => store.news);
+  const { headline, creatorName, text, image, link } = useSelector((store: Store) => store.news);
   const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
   const dispatch = useDispatch();
 
@@ -40,7 +40,7 @@ const NewsCreateScreen: React.FC = () => {
         headline: headline || "",
         text: text || "",
         creatorName: creatorName || "",
-        link: "mylink",
+        link: link || "",
       }, accessToken, refreshToken, dispatch)
       .then((response) => {
         if (response.status === 201) {
@@ -60,15 +60,21 @@ const NewsCreateScreen: React.FC = () => {
           <TextField
             id="headline"
             sx={{ display: 'block' }}
-            label="Headline"
+            label="Titel"
             variant="standard"
             onChange={(e) => dispatch(setHeadline(e.target.value))} />
           <TextField
             id="creator"
             sx={{ display: 'block' }}
-            label="Creator"
+            label="Autor"
             variant="standard"
             onChange={(e) => dispatch(setCreatorName(e.target.value))} />
+          <TextField
+            id="link"
+            sx={{ display: 'block' }}
+            label="Link"
+            variant="standard"
+            onChange={(e) => dispatch(setLink(e.target.value))} />
           <TextField
             multiline
             minRows={3}
@@ -76,17 +82,29 @@ const NewsCreateScreen: React.FC = () => {
             label="Content"
             variant="standard"
             onChange={(e) => dispatch(setText(e.target.value))} />
-          <Button variant="contained" component="label">
-            Bild auswählen
-            <input type="file" hidden onChange={handleFileUpload}/>
-          </Button>
-          <Button variant="contained" onClick={handleCreateNews}>
-            News erstellen
-          </Button>
+          <Stack sx={{ "margin": 2}} direction="row" spacing={2}>
+            <Button variant="contained" component="label">
+              {image? "Bild ändern" : "Bild auswählen"}
+              <input type="file" hidden onChange={handleFileUpload}/>
+            </Button>
+            <Button variant="contained" onClick={handleCreateNews}>
+              News erstellen
+            </Button>
+          </Stack>
         </CardContent>
       </Card>
-      <Typography>Deine News werden in Feeds so aussehen:</Typography>
-      <NewsItem headline={headline || ""} creatorName={creatorName || ""} textValue={text || ""} image={image? URL.createObjectURL(image) : undefined}></NewsItem>
+      <Typography sx={{ marginTop: 2}}>Diese News werden in Feeds so aussehen:</Typography>
+      <NewsItem
+        headline={headline || ""}
+        creatorName={creatorName || ""}
+        textValue={text || ""}
+        image={image? URL.createObjectURL(image) : undefined}
+        showEditButton={false}
+        link={link || ""}
+        openInNewTab />
+      <Typography variant="body2" sx={{ "font-style": "italic" }}>
+        Links werden nur von diesem Editor aus in einem neuen Tab geöffnet.
+      </Typography>
     </>
   );
 };
