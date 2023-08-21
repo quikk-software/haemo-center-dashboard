@@ -50,7 +50,18 @@ const NewsCreateScreen: React.FC = () => {
       displayWarning("Kein unterstützes Bildformat");
       return;
     }
-    dispatch(setImage(file));
+    const reader = new FileReader();
+    reader.readAsDataURL(file);  // convert to base64
+    reader.onload = () => {
+      if (typeof reader.result === "object") {
+        return;
+      }
+      const readerResult: string | undefined = reader.result;
+      dispatch(setImage(readerResult || ""));
+    };
+    reader.onerror = () => {
+      displayError("Bild konnte nicht verarbeitet werden");
+    };
   }
 
   const handleCreateNews = () => {
@@ -78,34 +89,22 @@ const NewsCreateScreen: React.FC = () => {
       return;
     }
     setIsCreatingNews(true);
-    const reader = new FileReader();
-    reader.readAsDataURL(image);  // convert to base64
-    reader.onload = () => {
-      if (typeof reader.result === "object") {
-        return;
+    postNews({
+      image: image.slice(23),
+      headline: headline || "",
+      text: text || "",
+      creatorName: creatorName || "",
+      link: link || "",
+    }, accessToken, refreshToken, dispatch)
+    .then((response) => {
+      if (response.status === 201) {
+        displaySuccess("News erfolgreich erstellt!");
+      } else {
+        displayError(`Something went wrong (${response.status})`)
       }
-      const readerResult: string | undefined = reader.result;
-      postNews({
-        image: readerResult?.slice(23),
-        headline: headline || "",
-        text: text || "",
-        creatorName: creatorName || "",
-        link: link || "",
-      }, accessToken, refreshToken, dispatch)
-      .then((response) => {
-        if (response.status === 201) {
-          displaySuccess("News erfolgreich erstellt!");
-        } else {
-          displayError(`Something went wrong (${response.status})`)
-        }
-      })
-      .catch(() => displayError("Something went wrong"))
-      .finally(() => setIsCreatingNews(false));
-    };
-    reader.onerror = () => {
-      displayError("Bild konnte nicht verarbeitet werden");
-      setIsCreatingNews(false);
-    };
+    })
+    .catch(() => displayError("Something went wrong"))
+    .finally(() => setIsCreatingNews(false));
   }
 
   const handleCloseSnackbar = (event?: React.SyntheticEvent | Event, reason?: string) => {
@@ -121,8 +120,8 @@ const NewsCreateScreen: React.FC = () => {
     <>
       <Card>
         <CardContent>
-          {image !== undefined && (
-            <img src={URL.createObjectURL(image)} />
+          {image !== undefined && image !== "" && (
+            <img src={image} />
           )}
           <TextField
             id="headline"
@@ -174,7 +173,7 @@ const NewsCreateScreen: React.FC = () => {
         headline={headline || ""}
         creatorName={creatorName || ""}
         textValue={text || ""}
-        image={image? URL.createObjectURL(image) : undefined}
+        image={(image !== "")? image : undefined}
         showEditButton={false}
         link={link || ""}
         openInNewTab />
