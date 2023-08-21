@@ -24,6 +24,11 @@ const pages: readonly Page[] = [
     pathname: "/news/create",
     description: "News anlegen",
   },
+  {
+    title: "News Editor",
+    pathname: "/news/edit/[id]",
+    description: "News bearbeiten",
+  },
   ...errorPages,
 ] as const;
 

@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "react";
 import NewsItem from "./item";
 import { Box, Button, Fab, Typography } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
-import { Router, useRouter } from "next/router";
+import { useRouter } from "next/router";
 
 const fabStyle = {
   position: 'sticky',
@@ -18,7 +18,7 @@ const NewsScreen: React.FC = () => {
 
   useEffect(() => {
     request();
-  }, []);
+  }, [request]);
 
   const news = useMemo(() => {
     if (response === undefined) {
@@ -46,7 +46,8 @@ const NewsScreen: React.FC = () => {
           creatorName={_newsItem.creatorName || ""}
           textValue={_newsItem.text || ""}
           image={_newsItem.image || ""}
-          link={_newsItem.link} />
+          link={_newsItem.link}
+          id={_newsItem.id} />
       ))}
       {!showNoNewsYetScreen && (
         <Fab
