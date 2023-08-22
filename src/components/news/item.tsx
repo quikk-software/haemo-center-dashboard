@@ -11,8 +11,9 @@ export type Props = {
   showEditButton?: boolean;
   openInNewTab?: boolean;
   id?: string | number;
+  onDelete?: Function;
 };
-const NewsItem: React.FC<Props> = ({ headline, creatorName, textValue, image, link, showEditButton, openInNewTab, id }) => {
+const NewsItem: React.FC<Props> = ({ headline, creatorName, textValue, image, link, showEditButton, openInNewTab, id, onDelete }) => {
   const router = useRouter();
   
   const imageDataURL = useMemo(() => {
@@ -53,6 +54,9 @@ const NewsItem: React.FC<Props> = ({ headline, creatorName, textValue, image, li
         <Button size="small" onClick={onFollowLink}>Mehr lesen</Button>
         {showEditButton !== false && id !== undefined && id !== -1 && (
           <Button size="small" onClick={() => router.push(`/news/edit/${id}`)}>Bearbeiten</Button>
+        )}
+        {onDelete !== undefined && id !== undefined && id !== -1 && (
+          <Button size="small" onClick={() => onDelete(id)}>Löschen</Button>
         )}
       </CardActions>
     </CardContent>

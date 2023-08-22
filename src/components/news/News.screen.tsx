@@ -1,10 +1,14 @@
 import useGetNews from "@/api/feed/useGetNews";
 import logger from "@/core/logger";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import NewsItem from "./item";
 import { Box, Button, Fab, Typography, Pagination } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import { useRouter } from "next/router";
+import DeleteDialog from "./DeleteDialog";
+import { deleteNews } from "@/api/feed/deleteNews";
+import { useDispatch, useSelector } from "react-redux";
+import { Store } from "@/redux";
 
 const fabStyle = {
   position: 'sticky',
@@ -17,8 +21,15 @@ export type Props = {
 };
 
 const NewsScreen: React.FC<Props> = ({ page }) => {
+  const [newsItemIdToDelete, setNewsItemIdToDelete] = useState<number | string | undefined>(undefined);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
+  const dispatch = useDispatch();
+
   const router = useRouter();
   const { request, response } = useGetNews(page);
+
+  const deleteDialogOpen = useMemo(() => newsItemIdToDelete !== undefined, [newsItemIdToDelete]);
 
   useEffect(() => {
     request();
@@ -67,6 +78,34 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
 
   const handlePagination = (_event: React.ChangeEvent<unknown>, value: number) => router.push(`/news?p=${value}`);
 
+  const handleOnDelete = (newsId: number | string) => setNewsItemIdToDelete(newsId);
+
+  const handleDeleteDialogCancel = () => setNewsItemIdToDelete(undefined);
+
+  const handleDeleteDialogDelete = () => {
+    if (isDeleting || newsItemIdToDelete === undefined) {
+      return;
+    }
+    const idAsNumber = (typeof newsItemIdToDelete === "string")? parseInt(newsItemIdToDelete, 10) : newsItemIdToDelete;
+    if (isNaN(idAsNumber)) {
+      return;
+    }
+    setIsDeleting(true);
+    deleteNews(idAsNumber, accessToken, refreshToken, dispatch)
+      .then(() => {
+        setNewsItemIdToDelete(undefined);
+        request();
+      })
+      .finally(() => setIsDeleting(false));
+  };
+
+  const newsItemToDelete = useMemo(() => {
+    if (news === undefined) {
+      return undefined;
+    }
+    return news.find((_news) => _news.id === newsItemIdToDelete);
+  }, [news, newsItemIdToDelete]);
+
   return (
     <p>
       <Typography variant="h3" align="center">News</Typography>
@@ -78,8 +117,25 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
           textValue={_newsItem.text || ""}
           image={_newsItem.image || ""}
           link={_newsItem.link || ""}
-          id={_newsItem.id || -1} />
+          id={_newsItem.id || -1}
+          onDelete={handleOnDelete} />
       ))}
+      {newsItemToDelete !== undefined &&
+        <DeleteDialog
+          open={deleteDialogOpen}
+          onCancel={handleDeleteDialogCancel}
+          onDelete={handleDeleteDialogDelete}
+          isLoading={isDeleting}>
+          <NewsItem
+            headline={newsItemToDelete.headline || ""}
+            creatorName={newsItemToDelete.creatorName || ""}
+            textValue={newsItemToDelete.text || ""}
+            image={newsItemToDelete.image || ""}
+            link={newsItemToDelete.link || ""}
+            id={newsItemToDelete.id || -1}
+            showEditButton={false} />
+        </DeleteDialog>
+      }
       {!showNoNewsYetScreen && !showInvalidPageNumberScreen &&
         <Box sx={{ display: "flex", justifyContent: "flex-end " }}>
           <Pagination page={currentPageValue} count={pageCount} onChange={handlePagination} />
