@@ -41,7 +41,8 @@ export interface ListNewsResponse {
   hasNextPage?: boolean;
   pageNumber?: number;
   pageSize?: number;
-  prescriptions: GetNewsResponse[];
+  news: GetNewsResponse[];
+  totalPages?: number;
 }
 
 export interface PatchNewsRequest {
@@ -344,10 +345,19 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/api/v1/news
      * @secure
      */
-    v1NewsList: (params: RequestParams = {}) =>
+    v1NewsList: (
+      query?: {
+        /** the page to get */
+        pageNumber?: number;
+        /** how many news item to return on a page */
+        pageSize?: number;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<ListNewsResponse, void>({
         path: `/api/v1/news`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
