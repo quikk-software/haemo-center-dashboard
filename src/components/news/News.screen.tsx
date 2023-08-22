@@ -2,7 +2,7 @@ import useGetNews from "@/api/feed/useGetNews";
 import logger from "@/core/logger";
 import { useEffect, useMemo } from "react";
 import NewsItem from "./item";
-import { Box, Button, Fab, Typography } from "@mui/material";
+import { Box, Button, Fab, Typography, Pagination } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import { useRouter } from "next/router";
 
@@ -12,20 +12,38 @@ const fabStyle = {
   right: 16,
 };
 
-const NewsScreen: React.FC = () => {
+export type Props = {
+  page?: number,
+};
+
+const NewsScreen: React.FC<Props> = ({ page }) => {
   const router = useRouter();
-  const { request, response } = useGetNews();
+  const { request, response } = useGetNews(page);
 
   useEffect(() => {
     request();
   }, [request]);
+
+  const currentPageValue = useMemo(() => {
+    if (page === undefined) {
+      return 1;
+    }
+    return page;
+  }, [page]);
 
   const news = useMemo(() => {
     if (response === undefined) {
       return undefined;
     }
     return response.news;
-  }, [response])
+  }, [response]);
+
+  const pageCount = useMemo(() => {
+    if (response === undefined) {
+      return 1;
+    }
+    return response.totalPages;
+  }, [response]);
 
   const showNoNewsYetScreen = useMemo(() => {
     return news === undefined || news.length === 0;
@@ -36,6 +54,8 @@ const NewsScreen: React.FC = () => {
   }, [response]);
 
   const goToNewsCreationSite = () => router.push("/news/create");
+
+  const handlePagination = (_event: React.ChangeEvent<unknown>, value: number) => router.push(`/news?p=${value}`);
 
   return (
     <p>
@@ -49,6 +69,9 @@ const NewsScreen: React.FC = () => {
           link={_newsItem.link}
           id={_newsItem.id} />
       ))}
+      <Box sx={{ display: "flex", justifyContent: "flex-end " }}>
+        <Pagination page={currentPageValue} count={pageCount} onChange={handlePagination} />
+      </Box>
       {!showNoNewsYetScreen && (
         <Fab
           sx={fabStyle}
