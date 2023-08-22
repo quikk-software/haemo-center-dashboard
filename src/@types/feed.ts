@@ -32,7 +32,7 @@ export interface PostNewsRequest {
 }
 
 export interface PostNewsResponse {
-  id?: number;
+  newsId?: number;
 }
 
 export interface ListNewsResponse {
