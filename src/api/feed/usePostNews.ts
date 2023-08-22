@@ -7,15 +7,16 @@ import { Dispatch } from "redux";
 
 export type PostNewsProps = {
   image?: string;
+  imageMIMEType?: string;
   headline: string;
   text: string;
   creatorName: string;
   link: string;
 };
 
-export const postNews = async ({ image, headline, text, creatorName, link }: PostNewsProps, accessToken: string | null, refreshToken: string | null, dispatch: Dispatch) => {
+export const postNews = async ({ image, imageMIMEType, headline, text, creatorName, link }: PostNewsProps, accessToken: string | null, refreshToken: string | null, dispatch: Dispatch) => {
   const response = await feedApi.api.v1NewsCreate(
-    { image, headline, text, creatorName, link },
+    { image, imageMIMEType, headline, text, creatorName, link },
     {
       ...(await getApi(accessToken, refreshToken, dispatch)),
     },
@@ -23,7 +24,7 @@ export const postNews = async ({ image, headline, text, creatorName, link }: Pos
   return response;
 };
 
-const usePostNews = ({ image, headline, text, creatorName, link }: PostNewsProps) => {
+const usePostNews = ({ image, imageMIMEType, headline, text, creatorName, link }: PostNewsProps) => {
   const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
   const dispatch = useDispatch();
 
@@ -31,13 +32,13 @@ const usePostNews = ({ image, headline, text, creatorName, link }: PostNewsProps
 
   const request = useCallback(async () => {
     const response = await feedApi.api.v1NewsCreate(
-      { image, headline, text, creatorName, link },
+      { image, imageMIMEType, headline, text, creatorName, link },
       {
         ...(await getApi(accessToken, refreshToken, dispatch)),
       },
     );
     setResponse({ id: response.data.id });
-  }, [accessToken, dispatch, image, headline, text, creatorName, link, refreshToken]);
+  }, [accessToken, dispatch, image, imageMIMEType, headline, text, creatorName, link, refreshToken]);
 
   return { request, response };
 };

@@ -1,7 +1,7 @@
 import { Store } from "@/redux";
 import { Alert, AlertColor, Box, Button, Card, CardContent, Snackbar, Stack, TextField, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { setCreatorName, setHeadline, setText, setImage, setLink, setSnackbarState } from "./newsSlice";
+import { setCreatorName, setHeadline, setText, setImage, setLink, setSnackbarState, imageDataAndMIMETypeToImage, dataURLToImage, imageToDataURL } from "./newsSlice";
 import NewsItem from "./item";
 import { useEffect, useState } from "react";
 import { SnackbarOrigin } from "notistack";
@@ -48,8 +48,8 @@ const NewsEditScreen: React.FC<Props> = ({ id, msg }) => {
       dispatch(setCreatorName(response?.creatorName || ""));
       dispatch(setText(response?.text || ""));
       dispatch(setLink(response?.link || ""));
-      if (response?.image) {
-        dispatch(setImage(`data:image/jpeg;base64,${response.image}`));
+      if (response?.image && response?.imageMIMEType) {
+        dispatch(setImage(imageDataAndMIMETypeToImage(response.image, response.imageMIMEType)));
       }
     }
   }, [response, idNumber, dispatch]);
@@ -94,7 +94,10 @@ const NewsEditScreen: React.FC<Props> = ({ id, msg }) => {
         return;
       }
       const readerResult: string | undefined = reader.result;
-      dispatch(setImage(readerResult || ""));
+      const image = dataURLToImage(readerResult || "");
+      if (image !== undefined) {
+        dispatch(setImage(image));
+      }
     };
     reader.onerror = () => {
       displayError("Bild konnte nicht verarbeitet werden");
@@ -128,7 +131,8 @@ const NewsEditScreen: React.FC<Props> = ({ id, msg }) => {
     setIsEditingNews(true);
     patchNews({
       newsId: idNumber,
-      image: image.slice(23),
+      image: image.data,
+      imageMIMEType: image.mIMEType,
       headline: headline || "",
       text: text || "",
       creatorName: creatorName || "",
@@ -173,8 +177,8 @@ const NewsEditScreen: React.FC<Props> = ({ id, msg }) => {
     <>
       <Card>
         <CardContent>
-          {image !== undefined && image !== "" && (
-            <img src={image} />
+          {image !== undefined && imageToDataURL(image) !== "" && (
+            <img src={imageToDataURL(image)} />
           )}
           <TextField
             id="headline"
@@ -230,7 +234,7 @@ const NewsEditScreen: React.FC<Props> = ({ id, msg }) => {
         headline={headline || ""}
         creatorName={creatorName || ""}
         textValue={text || ""}
-        image={(image !== "" )? image : undefined}
+        image={(imageToDataURL(image) !== "" )? imageToDataURL(image) : undefined}
         showEditButton={false}
         link={link || ""}
         openInNewTab />

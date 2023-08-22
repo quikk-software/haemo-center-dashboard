@@ -13,6 +13,7 @@ export interface GetNewsResponse {
   id?: number;
   creatorId?: string;
   image?: string;
+  imageMIMEType?: string;
   headline?: string;
   text?: string;
   creatorName?: string;
@@ -23,6 +24,7 @@ export interface GetNewsResponse {
 
 export interface PostNewsRequest {
   image?: string;
+  imageMIMEType?: string;
   headline?: string;
   text?: string;
   creatorName?: string;
@@ -45,6 +47,7 @@ export interface ListNewsResponse {
 export interface PatchNewsRequest {
   newsId: number;
   image?: string;
+  imageMIMEType?: string;
   headline?: string;
   text?: string;
   creatorName?: string;

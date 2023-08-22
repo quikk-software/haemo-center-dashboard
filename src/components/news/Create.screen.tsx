@@ -1,7 +1,7 @@
 import { Store } from "@/redux";
 import { Alert, AlertColor, Button, Card, CardContent, Snackbar, Stack, TextField, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { setCreatorName, setHeadline, setText, setImage, setLink } from "./newsSlice";
+import { setCreatorName, setHeadline, setText, setImage, setLink, dataURLToImage, imageToDataURL } from "./newsSlice";
 import NewsItem from "./item";
 import { postNews } from "@/api/feed/usePostNews";
 import { useState } from "react";
@@ -59,7 +59,10 @@ const NewsCreateScreen: React.FC = () => {
         return;
       }
       const readerResult: string | undefined = reader.result;
-      dispatch(setImage(readerResult || ""));
+      const image = dataURLToImage(readerResult || "");
+      if (image !== undefined) {
+        dispatch(setImage(image));
+      }
     };
     reader.onerror = () => {
       displayError("Bild konnte nicht verarbeitet werden");
@@ -92,7 +95,8 @@ const NewsCreateScreen: React.FC = () => {
     }
     setIsCreatingNews(true);
     postNews({
-      image: image.slice(23),
+      image: image.data,
+      imageMIMEType: image.mIMEType,
       headline: headline || "",
       text: text || "",
       creatorName: creatorName || "",
@@ -110,7 +114,7 @@ const NewsCreateScreen: React.FC = () => {
     .finally(() => setIsCreatingNews(false));
   }
 
-  const handleCloseSnackbar = (event?: React.SyntheticEvent | Event, reason?: string) => {
+  const handleCloseSnackbar = (_event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -123,8 +127,8 @@ const NewsCreateScreen: React.FC = () => {
     <>
       <Card>
         <CardContent>
-          {image !== undefined && image !== "" && (
-            <img src={image} />
+          {image !== undefined && imageToDataURL(image) !== "" && (
+            <img src={imageToDataURL(image)} />
           )}
           <TextField
             id="headline"
@@ -176,7 +180,7 @@ const NewsCreateScreen: React.FC = () => {
         headline={headline || ""}
         creatorName={creatorName || ""}
         textValue={text || ""}
-        image={(image !== "")? image : undefined}
+        image={(imageToDataURL(image) !== "")? imageToDataURL(image) : undefined}
         showEditButton={false}
         link={link || ""}
         openInNewTab />
