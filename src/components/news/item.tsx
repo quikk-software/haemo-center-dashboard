@@ -10,7 +10,7 @@ export type Props = {
   link: string;
   showEditButton?: boolean;
   openInNewTab?: boolean;
-  id?: string;
+  id?: string | number;
 };
 const NewsItem: React.FC<Props> = ({ headline, creatorName, textValue, image, link, showEditButton, openInNewTab, id }) => {
   const router = useRouter();
@@ -51,7 +51,7 @@ const NewsItem: React.FC<Props> = ({ headline, creatorName, textValue, image, li
       })}
       <CardActions>
         <Button size="small" onClick={onFollowLink}>Mehr lesen</Button>
-        {showEditButton !== false && id !== undefined && (
+        {showEditButton !== false && id !== undefined && id !== -1 && (
           <Button size="small" onClick={() => router.push(`/news/edit/${id}`)}>Bearbeiten</Button>
         )}
       </CardActions>

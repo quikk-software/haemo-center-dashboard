@@ -43,11 +43,12 @@ const NewsCreateScreen: React.FC = () => {
     });
   }
 
-  const handleFileUpload = (e) => {
-    if (e.target.files.length === 0) {
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files === null || event.target.files.length === 0) {
+      displayWarning("Keine Datei ausgewählt");
       return;
     }
-    const file = e.target.files[0];
+    const file = event.target.files[0];
     if (!allowedFileTypes.includes(file.type)) {
       displayWarning("Kein unterstützes Bildformat");
       return;
@@ -128,7 +129,10 @@ const NewsCreateScreen: React.FC = () => {
       <Card>
         <CardContent>
           {image !== undefined && imageToDataURL(image) !== "" && (
-            <img src={imageToDataURL(image)} />
+            // The Next.js Image component provides better image loading which makes no difference for data URLs
+            // also this requires specifying width and height (for data URLs at least) up front
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={imageToDataURL(image)} alt="News Bild" />
           )}
           <TextField
             id="headline"

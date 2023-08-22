@@ -45,9 +45,19 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
     return response.totalPages;
   }, [response]);
 
+  const showInvalidPageNumberScreen = useMemo(() => {
+    if (pageCount === undefined) {
+      return currentPageValue <= 0;
+    }
+    return currentPageValue <= 0 || currentPageValue > pageCount;
+  }, [currentPageValue, pageCount]);
+
   const showNoNewsYetScreen = useMemo(() => {
+    if (showInvalidPageNumberScreen) {
+      return false;
+    }
     return news === undefined || news.length === 0;
-  }, [news]);
+  }, [news, showInvalidPageNumberScreen]);
 
   useEffect(() => {
     logger.debug(response);
@@ -60,19 +70,22 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
   return (
     <p>
       <Typography variant="h3" align="center">News</Typography>
-      {news && news.map((_newsItem) => (
+      {news && news.map((_newsItem, i) => (
         <NewsItem
+          key={i}
           headline={_newsItem.headline || ""}
           creatorName={_newsItem.creatorName || ""}
           textValue={_newsItem.text || ""}
           image={_newsItem.image || ""}
-          link={_newsItem.link}
-          id={_newsItem.id} />
+          link={_newsItem.link || ""}
+          id={_newsItem.id || -1} />
       ))}
-      <Box sx={{ display: "flex", justifyContent: "flex-end " }}>
-        <Pagination page={currentPageValue} count={pageCount} onChange={handlePagination} />
-      </Box>
-      {!showNoNewsYetScreen && (
+      {!showNoNewsYetScreen && !showInvalidPageNumberScreen &&
+        <Box sx={{ display: "flex", justifyContent: "flex-end " }}>
+          <Pagination page={currentPageValue} count={pageCount} onChange={handlePagination} />
+        </Box>
+      }
+      {!showNoNewsYetScreen && !showInvalidPageNumberScreen && (
         <Fab
           sx={fabStyle}
           color="primary"
@@ -92,6 +105,18 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
           <Box display="flex" justifyContent="center">
             <Button variant="contained" aria-label="Gehe zur News-Erstellen Seite" onClick={goToNewsCreationSite}>
               News erstellen
+            </Button>
+          </Box>
+        </>
+      )}
+      {showInvalidPageNumberScreen && (
+        <>
+          <Typography variant="h4" align="center">
+            Ungültige Seite: {currentPageValue}
+          </Typography>
+          <Box display="flex" justifyContent="center">
+            <Button variant="contained" aria-label="Gehe zur News-Erstellen Seite" onClick={() => router.push("/news?p=1")}>
+              Zu Seite 1
             </Button>
           </Box>
         </>

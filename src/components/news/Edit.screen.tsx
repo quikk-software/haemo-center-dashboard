@@ -78,11 +78,12 @@ const NewsEditScreen: React.FC<Props> = ({ id, msg }) => {
     }));
   }
 
-  const handleFileUpload = (e) => {
-    if (e.target.files.length === 0) {
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files === null || event.target.files.length === 0) {
+      displayWarning("Keine Datei ausgewählt");
       return;
     }
-    const file = e.target.files[0];
+    const file = event.target.files[0];
     if (!allowedFileTypes.includes(file.type)) {
       displayWarning("Kein unterstützes Bildformat");
       return;
@@ -178,7 +179,9 @@ const NewsEditScreen: React.FC<Props> = ({ id, msg }) => {
       <Card>
         <CardContent>
           {image !== undefined && imageToDataURL(image) !== "" && (
-            <img src={imageToDataURL(image)} />
+            // see create screen for additional info
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={imageToDataURL(image)} alt="News Bild" />
           )}
           <TextField
             id="headline"

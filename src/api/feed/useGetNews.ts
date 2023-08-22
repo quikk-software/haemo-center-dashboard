@@ -15,7 +15,8 @@ const useGetNews = (page: number | undefined) => {
   const request = useCallback(async () => {
     const response = await feedApi.api.v1NewsList(
       {
-        pageNumber
+        pageNumber,
+        pageSize: 10
       },
       {
         ...(await getApi(accessToken, refreshToken, dispatch)),
