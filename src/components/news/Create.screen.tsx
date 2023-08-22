@@ -5,6 +5,7 @@ import { setCreatorName, setHeadline, setText, setImage, setLink } from "./newsS
 import NewsItem from "./item";
 import { postNews } from "@/api/feed/usePostNews";
 import { useState } from "react";
+import { useRouter } from "next/router";
 import { SnackbarOrigin } from "notistack";
 
 const NewsCreateScreen: React.FC = () => {
@@ -14,6 +15,7 @@ const NewsCreateScreen: React.FC = () => {
   const { headline, creatorName, text, image, link } = useSelector((store: Store) => store.news);
   const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
   const dispatch = useDispatch();
+  const router = useRouter();
 
   const allowedFileTypes = ["image/jpeg", "image/png"];
 
@@ -97,8 +99,9 @@ const NewsCreateScreen: React.FC = () => {
       link: link || "",
     }, accessToken, refreshToken, dispatch)
     .then((response) => {
-      if (response.status === 201) {
+      if (response.status === 201 && response.data.newsId !== undefined) {
         displaySuccess("News erfolgreich erstellt!");
+        router.push(`/news/edit/${response.data?.newsId}?msg=${encodeURIComponent("News erfolgreich erstellt!")}`)
       } else {
         displayError(`Something went wrong (${response.status})`)
       }

@@ -1,7 +1,7 @@
 import { Store } from "@/redux";
 import { Alert, AlertColor, Box, Button, Card, CardContent, Snackbar, Stack, TextField, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { setCreatorName, setHeadline, setText, setImage, setLink } from "./newsSlice";
+import { setCreatorName, setHeadline, setText, setImage, setLink, setSnackbarState } from "./newsSlice";
 import NewsItem from "./item";
 import { useEffect, useState } from "react";
 import { SnackbarOrigin } from "notistack";
@@ -12,13 +12,13 @@ import { patchNews } from "@/api/feed/patchNews";
 
 export type Props = {
   id?: string;
+  msg?: string;
 }
 
-const NewsEditScreen: React.FC<Props> = ({ id }) => {
-  const [snackbarState, setSnackbarState] = useState({ open: false, message: "", severity: "info" as AlertColor });
+const NewsEditScreen: React.FC<Props> = ({ id, msg }) => {
   const [isEditingNews, setIsEditingNews] = useState(false);
 
-  const { headline, creatorName, text, image, link } = useSelector((store: Store) => store.news);
+  const { headline, creatorName, text, image, link, snackbarState } = useSelector((store: Store) => store.news);
   const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -29,10 +29,17 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
   const allowedFileTypes = ["image/jpeg", "image/png"];
 
   useEffect(() => {
+    if (msg !== undefined && id !== undefined) {
+      displaySuccess(msg);
+      router.push(`/news/edit/${id}`, undefined, { shallow: true });
+    }
+  }, [id, msg, router]);
+
+  useEffect(() => {
     if (!Number.isNaN(idNumber)) {
       request();
     }
-  }, [request, idNumber]);
+  }, [request, idNumber, headline]);
 
   useEffect(() => {
     logger.debug(response);
@@ -48,27 +55,27 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
   }, [response, idNumber, dispatch]);
 
   const displayWarning = (message: string) => {
-    setSnackbarState({
+    dispatch(setSnackbarState({
       open: true,
       message,
       severity: "warning" as AlertColor
-    });
+    }));
   }
 
   const displayError = (message: string) => {
-    setSnackbarState({
+    dispatch(setSnackbarState({
       open: true,
       message,
       severity: "error" as AlertColor
-    });
+    }));
   }
 
   const displaySuccess = (message: string) => {
-    setSnackbarState({
+    dispatch(setSnackbarState({
       open: true,
       message,
       severity: "success" as AlertColor
-    });
+    }));
   }
 
   const handleFileUpload = (e) => {
@@ -138,11 +145,11 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
     .finally(() => setIsEditingNews(false));
   }
 
-  const handleCloseSnackbar = (event?: React.SyntheticEvent | Event, reason?: string) => {
+  const handleCloseSnackbar = (_event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
-    setSnackbarState({ ...snackbarState, open: false });
+    dispatch(setSnackbarState({ ...snackbarState, open: false }));
   };
 
   const snackbarOrigin = { vertical: "bottom", horizontal: "center" } as SnackbarOrigin;
