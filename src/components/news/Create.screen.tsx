@@ -1,23 +1,50 @@
 import { Store } from "@/redux";
-import { Alert, AlertColor, Button, Card, CardContent, Snackbar, Stack, TextField, Typography } from "@mui/material";
+import { Alert, AlertColor, Autocomplete, Button, Card, CardContent, CircularProgress, Snackbar, Stack, TextField, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { setCreatorName, setHeadline, setText, setImage, setLink, dataURLToImage, imageToDataURL } from "./newsSlice";
 import NewsItem from "./item";
 import { postNews } from "@/api/feed/usePostNews";
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import { SnackbarOrigin } from "notistack";
+import { getUsers } from "@/api/users/useGetUsers";
+import React from "react";
+import { GetUserResponse, ListUsersResponse } from "@/@types/user";
 
 const NewsCreateScreen: React.FC = () => {
   const [snackbarState, setSnackbarState] = useState({ open: false, message: "", severity: "info" as AlertColor });
   const [isCreatingNews, setIsCreatingNews] = useState(false);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+  const [users, setUsers] = useState<GetUserResponse[]>([]);
 
   const { headline, creatorName, text, image, link } = useSelector((store: Store) => store.news);
   const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
+  const query = "role:professional";
+  const userPageSize = 20;
   const dispatch = useDispatch();
   const router = useRouter();
 
   const allowedFileTypes = ["image/jpeg", "image/png"];
+
+  const fetchAllUsers = useCallback(async () => {
+    let fetchedUsers: GetUserResponse[] = [];
+    let currentPageNumber = 0;
+    let finished = false;
+    let fetchedData: ListUsersResponse | undefined = undefined;
+    while (!finished) {
+      fetchedData = await getUsers({ query, pageSize: userPageSize, pageNumber: currentPageNumber }, accessToken, refreshToken, dispatch);
+      currentPageNumber++;
+      finished = fetchedData.users.length === 0;
+      fetchedUsers = fetchedUsers.concat(fetchedData.users);
+    }
+    return fetchedUsers;
+  }, [accessToken, refreshToken, dispatch]);
+
+  useEffect(() => {
+    fetchAllUsers()
+      .then((fetchedUsers) => setUsers(fetchedUsers))
+      .finally(() => setIsLoadingUsers(false));
+  }, [fetchAllUsers]);
 
   const displayWarning = (message: string) => {
     setSnackbarState({
@@ -134,40 +161,52 @@ const NewsCreateScreen: React.FC = () => {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={imageToDataURL(image)} alt="News Bild" />
           )}
-          <TextField
-            id="headline"
-            sx={{ display: 'block', margin: 1 }}
-            label="Titel"
-            variant="standard"
-            helperText={(headline === undefined || headline === "") ? "Pflichtfeld" : ""}
-            disabled={isCreatingNews}
-            onChange={(e) => dispatch(setHeadline(e.target.value))} />
-          <TextField
-            id="creator"
-            sx={{ display: 'block', margin: 1 }}
-            label="Autor"
-            variant="standard"
-            helperText={(creatorName === undefined || creatorName === "") ? "Pflichtfeld" : ""}
-            disabled={isCreatingNews}
-            onChange={(e) => dispatch(setCreatorName(e.target.value))} />
-          <TextField
-            id="link"
-            sx={{ display: 'block', margin: 1 }}
-            label="Link"
-            variant="standard"
-            helperText={(link === undefined || link === "") ? "Pflichtfeld" : ""}
-            disabled={isCreatingNews}
-            onChange={(e) => dispatch(setLink(e.target.value))} />
-          <TextField
-            sx={{ margin: 1 }}
-            multiline
-            minRows={3}
-            id="content"
-            label="Content"
-            variant="standard"
-            helperText={(text === undefined || text === "") ? "Pflichtfeld" : ""}
-            disabled={isCreatingNews}
-            onChange={(e) => dispatch(setText(e.target.value))} />
+          <Stack>
+            <TextField
+              id="headline"
+              sx={{  margin: 1 }}
+              label="Titel"
+              variant="standard"
+              disabled={isCreatingNews}
+              onChange={(e) => dispatch(setHeadline(e.target.value))} />
+            <Autocomplete
+              id="creator"
+              sx={{ margin: 1 }}
+              options={users?.map((_user) => `${_user.firstName} ${_user.lastName}`)}
+              freeSolo
+              onInputChange={(_event, newInputValue) => dispatch(setCreatorName(newInputValue))}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Autor"
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <React.Fragment>
+                        {isLoadingUsers ? <CircularProgress color="inherit" size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </React.Fragment>
+                    ),
+                  }} />
+              )}
+              />
+            <TextField
+              id="link"
+              sx={{ margin: 1 }}
+              label="Link"
+              variant="standard"
+              disabled={isCreatingNews}
+              onChange={(e) => dispatch(setLink(e.target.value))} />
+            <TextField
+              sx={{ margin: 1 }}
+              multiline
+              minRows={3}
+              id="content"
+              label="Inhalt"
+              variant="standard"
+              disabled={isCreatingNews}
+              onChange={(e) => dispatch(setText(e.target.value))} />
+          </Stack>
           <Stack sx={{ "margin": 2}} direction="row" spacing={2}>
             <Button variant="contained" disabled={isCreatingNews} component="label">
               {image? "Bild ändern" : "Bild auswählen"}
