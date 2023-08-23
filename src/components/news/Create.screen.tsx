@@ -172,8 +172,16 @@ const NewsCreateScreen: React.FC = () => {
             <Autocomplete
               id="creator"
               sx={{ margin: 1 }}
-              options={users?.map((_user) => `${_user.firstName} ${_user.lastName}`)}
+              options={users}
+              getOptionLabel={(option: GetUserResponse | string) => {
+                if (typeof option === "string") {
+                  return option;
+                }
+                return `${option.firstName} ${option.lastName}`;
+              }}
               freeSolo
+              disabled={isCreatingNews}
+              loading={isLoadingUsers}
               onInputChange={(_event, newInputValue) => dispatch(setCreatorName(newInputValue))}
               renderInput={(params) => (
                 <TextField
@@ -188,6 +196,12 @@ const NewsCreateScreen: React.FC = () => {
                       </React.Fragment>
                     ),
                   }} />
+              )}
+              renderOption={(props, option: GetUserResponse) => (
+                <li {...props}>
+                  <Typography>{`${option.firstName} ${option.lastName}`}</Typography>
+                  <Typography sx={{ "font-style": "italic", ml: 2 }}>{`@${option.alias}`}</Typography>
+                </li>
               )}
               />
             <TextField
