@@ -109,7 +109,7 @@ const NewsCreateScreen: React.FC = () => {
     .then((response) => {
       if (response.status === 201 && response.data.newsId !== undefined) {
         displaySuccess("News erfolgreich erstellt!");
-        router.push(`/news/edit/${response.data?.newsId}?msg=${encodeURIComponent("News erfolgreich erstellt!")}`)
+        router.push(`/news/edit/${response.data?.newsId}`)
       } else {
         displayError(`Something went wrong (${response.status})`)
       }

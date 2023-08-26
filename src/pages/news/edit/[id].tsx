@@ -15,14 +15,7 @@ const News: React.FC = () => {
     return router.query.id;
   }, [router.query.id]);
 
-  const msg = useMemo(() => {
-    if (router.query.msg === undefined || typeof router.query.msg === "object") {
-      return undefined;
-    }
-    return decodeURIComponent(router.query.msg);
-  }, [router.query.msg]);
-
-  return <NewsEditScreen id={id} msg={msg} />;
+  return <NewsEditScreen id={id} />;
 };
 
 export default News;

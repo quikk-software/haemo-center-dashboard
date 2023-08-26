@@ -12,10 +12,9 @@ import { useSnackbarComponent } from "../layout/Snackbar";
 
 export type Props = {
   id?: string;
-  msg?: string;
 }
 
-const NewsEditScreen: React.FC<Props> = ({ id, msg }) => {
+const NewsEditScreen: React.FC<Props> = ({ id }) => {
   const [isEditingNews, setIsEditingNews] = useState(false);
 
   const { headline, creatorName, text, image, link } = useSelector((store: Store) => store.news);
@@ -26,15 +25,7 @@ const NewsEditScreen: React.FC<Props> = ({ id, msg }) => {
   const idNumber: number = id === undefined ? NaN : parseInt(id, 10);
   const { request, response } = useGetNewsItem(idNumber);
 
-
   const allowedFileTypes = ["image/jpeg", "image/png"];
-
-  useEffect(() => {
-    if (msg !== undefined && id !== undefined) {
-      displaySuccess(msg);
-      router.push(`/news/edit/${id}`, undefined, { shallow: true });
-    }
-  }, [id, msg, router]);
 
   useEffect(() => {
     if (!Number.isNaN(idNumber)) {
