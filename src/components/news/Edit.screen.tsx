@@ -1,14 +1,14 @@
 import { Store } from "@/redux";
-import { Alert, AlertColor, Box, Button, Card, CardContent, Snackbar, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, Card, CardContent, Stack, TextField, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { setCreatorName, setHeadline, setText, setImage, setLink, setSnackbarState, imageDataAndMIMETypeToImage, dataURLToImage, imageToDataURL } from "./newsSlice";
+import { setCreatorName, setHeadline, setText, setImage, setLink, imageDataAndMIMETypeToImage, dataURLToImage, imageToDataURL } from "./newsSlice";
 import NewsItem from "./item";
 import { useEffect, useState } from "react";
-import { SnackbarOrigin } from "notistack";
 import { useRouter } from "next/router";
 import useGetNewsItem from "@/api/feed/useGetNewsItem";
 import logger from "@/core/logger";
 import { patchNews } from "@/api/feed/patchNews";
+import { useSnackbarComponent } from "../layout/Snackbar";
 
 export type Props = {
   id?: string;
@@ -18,10 +18,11 @@ export type Props = {
 const NewsEditScreen: React.FC<Props> = ({ id, msg }) => {
   const [isEditingNews, setIsEditingNews] = useState(false);
 
-  const { headline, creatorName, text, image, link, snackbarState } = useSelector((store: Store) => store.news);
+  const { headline, creatorName, text, image, link } = useSelector((store: Store) => store.news);
   const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
   const dispatch = useDispatch();
   const router = useRouter();
+  const { displaySuccess, displayWarning, displayError } = useSnackbarComponent();
   const idNumber: number = id === undefined ? NaN : parseInt(id, 10);
   const { request, response } = useGetNewsItem(idNumber);
 
@@ -53,30 +54,6 @@ const NewsEditScreen: React.FC<Props> = ({ id, msg }) => {
       }
     }
   }, [response, idNumber, dispatch]);
-
-  const displayWarning = (message: string) => {
-    dispatch(setSnackbarState({
-      open: true,
-      message,
-      severity: "warning" as AlertColor
-    }));
-  }
-
-  const displayError = (message: string) => {
-    dispatch(setSnackbarState({
-      open: true,
-      message,
-      severity: "error" as AlertColor
-    }));
-  }
-
-  const displaySuccess = (message: string) => {
-    dispatch(setSnackbarState({
-      open: true,
-      message,
-      severity: "success" as AlertColor
-    }));
-  }
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files === null || event.target.files.length === 0) {
@@ -149,15 +126,6 @@ const NewsEditScreen: React.FC<Props> = ({ id, msg }) => {
     .catch(() => displayError("Something went wrong"))
     .finally(() => setIsEditingNews(false));
   }
-
-  const handleCloseSnackbar = (_event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    dispatch(setSnackbarState({ ...snackbarState, open: false }));
-  };
-
-  const snackbarOrigin = { vertical: "bottom", horizontal: "center" } as SnackbarOrigin;
 
   if (id === undefined || Number.isNaN(idNumber)) {
     return (
@@ -244,16 +212,6 @@ const NewsEditScreen: React.FC<Props> = ({ id, msg }) => {
       <Typography variant="body2" sx={{ "font-style": "italic" }}>
         Links werden nur von diesem Editor aus in einem neuen Tab geöffnet.
       </Typography>
-      <Snackbar
-        anchorOrigin={snackbarOrigin}
-        open={snackbarState.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbarState.severity} sx={{ width: '100%' }}>
-          {snackbarState.message}
-        </Alert>
-      </Snackbar>
     </>
   );
 };

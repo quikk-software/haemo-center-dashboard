@@ -9,6 +9,7 @@ import DeleteDialog from "./DeleteDialog";
 import { deleteNews } from "@/api/feed/deleteNews";
 import { useDispatch, useSelector } from "react-redux";
 import { Store } from "@/redux";
+import { useSnackbarComponent } from "../layout/Snackbar";
 
 const fabStyle = {
   position: 'sticky',
@@ -27,6 +28,7 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
   const dispatch = useDispatch();
 
   const router = useRouter();
+  const { displaySuccess, displayError } = useSnackbarComponent();
   const { request, response } = useGetNews(page);
 
   const deleteDialogOpen = useMemo(() => newsItemIdToDelete !== undefined, [newsItemIdToDelete]);
@@ -93,9 +95,11 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
     setIsDeleting(true);
     deleteNews(idAsNumber, accessToken, refreshToken, dispatch)
       .then(() => {
+        displaySuccess("News-Eintrag wurde gelöscht")
         setNewsItemIdToDelete(undefined);
         request();
       })
+      .catch(() => displayError("News-Eintrag konnte nicht gelöscht werden"))
       .finally(() => setIsDeleting(false));
   };
 
