@@ -9,6 +9,7 @@ import useGetNewsItem from "@/api/feed/useGetNewsItem";
 import logger from "@/core/logger";
 import { patchNews } from "@/api/feed/patchNews";
 import { useSnackbarComponent } from "../layout/Snackbar";
+import useLanguage from "@/i18n/useLanguage";
 
 export type Props = {
   id?: string;
@@ -21,6 +22,7 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
   const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
   const dispatch = useDispatch();
   const router = useRouter();
+  const { t } = useLanguage();
   const { displaySuccess, displayWarning, displayError } = useSnackbarComponent();
   const idNumber: number = id === undefined ? NaN : parseInt(id, 10);
   const { request, response } = useGetNewsItem(idNumber);
@@ -48,16 +50,16 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files === null || event.target.files.length === 0) {
-      displayWarning("Keine Datei ausgewählt");
+      displayWarning(t("news:msg.noFileSelected"));
       return;
     }
     const file = event.target.files[0];
     if (!allowedFileTypes.includes(file.type)) {
-      displayWarning("Kein unterstützes Bildformat");
+      displayWarning(t("news:msg.unsupportedImageFormat"));
       return;
     }
     if (file.size > 5000000) {
-      displayWarning("Bild-Datei ist zu groß (max. 5 MB)")
+      displayWarning(t("msgImageFileTooLarge"));
     }
     const reader = new FileReader();
     reader.readAsDataURL(file);  // convert to base64
@@ -72,29 +74,29 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
       }
     };
     reader.onerror = () => {
-      displayError("Bild konnte nicht verarbeitet werden");
+      displayError(t("news:msg.imageCouldNotBeProcessed"));
     };
   }
 
   const handleEditNews = () => {
     if (image === undefined) {
-      displayWarning("Bild erforderlich");
+      displayWarning(t("news:msg.imageEmpty"));
       return;
     }
     if (link === undefined || link === "") {
-      displayWarning("Link erforderlich");
+      displayWarning(t("news:msg.linkEmpty"));
       return;
     }
     if (creatorName === undefined || creatorName === "") {
-      displayWarning("Autor erforderlich");
+      displayWarning(t("news:msg.creatorNameEmpty"));
       return;
     }
     if (headline === undefined || headline === "") {
-      displayWarning("Titel erforderlich");
+      displayWarning(t("news:msg.headlineEmpty"));
       return;
     }
     if (text === undefined || text === "") {
-      displayWarning("Inhalt erforderlich");
+      displayWarning(t("news:msg.textEmpty"));
       return;
     }
     if (isEditingNews) {
@@ -112,12 +114,12 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
     }, accessToken, refreshToken, dispatch)
     .then((response) => {
       if (response.status === 200) {
-        displaySuccess("News erfolgreich bearbeitet!");
+        displaySuccess(t("news:msg.newsCreationSuccess"));
       } else {
-        displayError(`Something went wrong (${response.status})`)
+        displayError(t("news:msg.errorWithStatusCode", { statusCode: response.status }));
       }
     })
-    .catch(() => displayError("Something went wrong"))
+    .catch(() => displayError(t("news:msg.error")))
     .finally(() => setIsEditingNews(false));
   }
 
@@ -125,11 +127,11 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
     return (
       <>
         <Typography align="center">
-            News-Eintrag nicht gefunden
+            {t("news:newsEntryNotFound")}
         </Typography>
         <Box display="flex" justifyContent="center">
-          <Button aria-label="Zur News-Übersicht zurückgehen" onClick={() => router.push("/news")}>
-            Zur News-Übersicht zurück
+          <Button aria-label={t("news:backToNewsOverviewAriaLabel")} onClick={() => router.push("/news")}>
+            {t("news:backToNewsOverviewButton")}
           </Button>
         </Box>
       </>
@@ -143,33 +145,30 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
           {image !== undefined && imageToDataURL(image) !== "" && (
             // see create screen for additional info
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={imageToDataURL(image)} alt="News Bild" />
+            <img src={imageToDataURL(image)} alt={t("news:altNewsImage")} />
           )}
           <TextField
             id="headline"
             sx={{ display: 'block', margin: 1 }}
             value={headline}
-            label="Titel"
+            label={t("news:headlineFieldLabel")}
             variant="standard"
-            helperText={(headline === undefined || headline === "") ? "Pflichtfeld" : ""}
             disabled={isEditingNews}
             onChange={(e) => dispatch(setHeadline(e.target.value))} />
           <TextField
             id="creator"
             sx={{ display: 'block', margin: 1 }}
             value={creatorName}
-            label="Autor"
+            label={t("news:creatorNameFieldLabel")}
             variant="standard"
-            helperText={(creatorName === undefined || creatorName === "") ? "Pflichtfeld" : ""}
             disabled={isEditingNews}
             onChange={(e) => dispatch(setCreatorName(e.target.value))} />
           <TextField
             id="link"
             sx={{ display: 'block', margin: 1 }}
             value={link}
-            label="Link"
+            label={t("news:linkFieldLabel")}
             variant="standard"
-            helperText={(link === undefined || link === "") ? "Pflichtfeld" : ""}
             disabled={isEditingNews}
             onChange={(e) => dispatch(setLink(e.target.value))} />
           <TextField
@@ -178,23 +177,22 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
             multiline
             minRows={3}
             id="content"
-            label="Content"
+            label={t("news:textFieldLabel")}
             variant="standard"
-            helperText={(text === undefined || text === "") ? "Pflichtfeld" : ""}
             disabled={isEditingNews}
             onChange={(e) => dispatch(setText(e.target.value))} />
           <Stack sx={{ "margin": 2}} direction="row" spacing={2}>
             <Button variant="contained" disabled={isEditingNews} component="label">
-              {image? "Bild ändern" : "Bild auswählen"}
+              {image? t("news:imageChangeButton") : t("news:imageSelectButton")}
               <input type="file" hidden onChange={handleFileUpload}/>
             </Button>
             <Button variant="contained" disabled={isEditingNews} onClick={handleEditNews}>
-              News bearbeiten
+            {t("news:updateButton")}
             </Button>
           </Stack>
         </CardContent>
       </Card>
-      <Typography sx={{ marginTop: 2}}>Diese News werden in Feeds so aussehen:</Typography>
+      <Typography sx={{ marginTop: 2}}>{t("news:newsAppearance")}</Typography>
       <NewsItem
         headline={headline || ""}
         creatorName={creatorName || ""}
@@ -204,7 +202,7 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
         link={link || ""}
         openInNewTab />
       <Typography variant="body2" sx={{ "font-style": "italic" }}>
-        Links werden nur von diesem Editor aus in einem neuen Tab geöffnet.
+        {t("news:linkEditorBehavior")}
       </Typography>
     </>
   );

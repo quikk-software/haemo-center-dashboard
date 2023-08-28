@@ -10,6 +10,7 @@ import { getUsers } from "@/api/users/useGetUsers";
 import React from "react";
 import { GetUserResponse, ListUsersResponse } from "@/@types/user";
 import { useSnackbarComponent } from "../layout/Snackbar";
+import useLanguage from "@/i18n/useLanguage";
 
 const NewsCreateScreen: React.FC = () => {
   const [isCreatingNews, setIsCreatingNews] = useState(false);
@@ -22,6 +23,7 @@ const NewsCreateScreen: React.FC = () => {
   const userPageSize = 20;
   const dispatch = useDispatch();
   const router = useRouter();
+  const { t } = useLanguage();
   const { displaySuccess, displayWarning, displayError } = useSnackbarComponent();
 
   const allowedFileTypes = ["image/jpeg", "image/png"];
@@ -48,16 +50,16 @@ const NewsCreateScreen: React.FC = () => {
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files === null || event.target.files.length === 0) {
-      displayWarning("Keine Datei ausgewählt");
+      displayWarning(t("news:msg.noFileSelected"));
       return;
     }
     const file = event.target.files[0];
     if (!allowedFileTypes.includes(file.type)) {
-      displayWarning("Kein unterstützes Bildformat");
+      displayWarning(t("news:msg.unsupportedImageFormat"));
       return;
     }
     if (file.size > 5000000) {
-      displayWarning("Bild-Datei ist zu groß (max. 5 MB)")
+      displayWarning(t("news:msg.imageFileTooLarge"));
     }
     const reader = new FileReader();
     reader.readAsDataURL(file);  // convert to base64
@@ -72,29 +74,29 @@ const NewsCreateScreen: React.FC = () => {
       }
     };
     reader.onerror = () => {
-      displayError("Bild konnte nicht verarbeitet werden");
+      displayError(t("news:msg.imageCouldNotBeProcessed"));
     };
   }
 
   const handleCreateNews = () => {
     if (image === undefined) {
-      displayWarning("Bild erforderlich");
+      displayWarning(t("news:msg.imageEmpty"));
       return;
     }
     if (link === undefined || link === "") {
-      displayWarning("Link erforderlich");
+      displayWarning(t("news:msg.linkEmpty"));
       return;
     }
     if (creatorName === undefined || creatorName === "") {
-      displayWarning("Autor erforderlich");
+      displayWarning(t("news:msg.creatorNameEmpty"));
       return;
     }
     if (headline === undefined || headline === "") {
-      displayWarning("Titel erforderlich");
+      displayWarning(t("news:msg.headlineEmpty"));
       return;
     }
     if (text === undefined || text === "") {
-      displayWarning("Inhalt erforderlich");
+      displayWarning(t("news:msg.textEmpty"));
       return;
     }
     if (isCreatingNews) {
@@ -111,13 +113,13 @@ const NewsCreateScreen: React.FC = () => {
     }, accessToken, refreshToken, dispatch)
     .then((response) => {
       if (response.status === 201 && response.data.newsId !== undefined) {
-        displaySuccess("News erfolgreich erstellt!");
-        router.push(`/news/edit/${response.data?.newsId}`)
+        displaySuccess(t("news:msg.newsCreationSuccess"));
+        router.push(`/news/edit/${response.data?.newsId}`);
       } else {
-        displayError(`Something went wrong (${response.status})`)
+        displayError(t("news:msg.errorWithStatusCode", { statusCode: response.status }));
       }
     })
-    .catch(() => displayError("Something went wrong"))
+    .catch(() => displayError(t("news:msg.error")))
     .finally(() => setIsCreatingNews(false));
   }
 
@@ -129,13 +131,13 @@ const NewsCreateScreen: React.FC = () => {
             // The Next.js Image component provides better image loading which makes no difference for data URLs
             // also this requires specifying width and height (for data URLs at least) up front
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={imageToDataURL(image)} alt="News Bild" />
+            <img src={imageToDataURL(image)} alt={t("news:altNewsImage")} />
           )}
           <Stack>
             <TextField
               id="headline"
               sx={{  margin: 1 }}
-              label="Titel"
+              label={t("news:headlineFieldLabel")}
               variant="standard"
               disabled={isCreatingNews}
               onChange={(e) => dispatch(setHeadline(e.target.value))} />
@@ -156,7 +158,7 @@ const NewsCreateScreen: React.FC = () => {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="Autor"
+                  label={t("news:creatorNameFieldLabel")}
                   InputProps={{
                     ...params.InputProps,
                     endAdornment: (
@@ -177,7 +179,7 @@ const NewsCreateScreen: React.FC = () => {
             <TextField
               id="link"
               sx={{ margin: 1 }}
-              label="Link"
+              label={t("news:linkFieldLabel")}
               variant="standard"
               disabled={isCreatingNews}
               onChange={(e) => dispatch(setLink(e.target.value))} />
@@ -186,23 +188,23 @@ const NewsCreateScreen: React.FC = () => {
               multiline
               minRows={3}
               id="content"
-              label="Inhalt"
+              label={t("news:textFieldLabel")}
               variant="standard"
               disabled={isCreatingNews}
               onChange={(e) => dispatch(setText(e.target.value))} />
           </Stack>
           <Stack sx={{ "margin": 2}} direction="row" spacing={2}>
             <Button variant="contained" disabled={isCreatingNews} component="label">
-              {image? "Bild ändern" : "Bild auswählen"}
+              {image? t("news:imageChangeButton") : t("news:imageSelectButton")}
               <input type="file" hidden onChange={handleFileUpload}/>
             </Button>
             <Button variant="contained" disabled={isCreatingNews} onClick={handleCreateNews}>
-              News erstellen
+              {t("news:createButton")}
             </Button>
           </Stack>
         </CardContent>
       </Card>
-      <Typography sx={{ marginTop: 2}}>Diese News werden in Feeds so aussehen:</Typography>
+      <Typography sx={{ marginTop: 2}}>{t("news:newsAppearance")}</Typography>
       <NewsItem
         headline={headline || ""}
         creatorName={creatorName || ""}
@@ -212,7 +214,7 @@ const NewsCreateScreen: React.FC = () => {
         link={link || ""}
         openInNewTab />
       <Typography variant="body2" sx={{ "font-style": "italic" }}>
-        Links werden nur von diesem Editor aus in einem neuen Tab geöffnet.
+        {t("news:linkEditorBehavior")}
       </Typography>
     </>
   );

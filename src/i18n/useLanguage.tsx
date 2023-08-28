@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { Language } from "@/i18n/i18n.types";
 import { setLanguage } from "@/components/i18n/i18nSlice";
 import { Translation, TypeSafeIdentifier } from "@/i18n/translation.types";
+import { TOptions } from "i18next";
 
 const useLanguage = () => {
   const dispatch = useDispatch();
@@ -21,8 +22,8 @@ const useLanguage = () => {
     await changeLanguageFromI18n(language);
   };
 
-  const t = (key: TypeSafeIdentifier) => {
-    return tFromI18n(key);
+  const t = (key: TypeSafeIdentifier, options?: TOptions) => {
+    return tFromI18n(key, options);
   };
 
   useEffect(() => {

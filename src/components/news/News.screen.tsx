@@ -10,6 +10,7 @@ import { deleteNews } from "@/api/feed/deleteNews";
 import { useDispatch, useSelector } from "react-redux";
 import { Store } from "@/redux";
 import { useSnackbarComponent } from "../layout/Snackbar";
+import useLanguage from "@/i18n/useLanguage";
 
 const fabStyle = {
   position: 'sticky',
@@ -28,6 +29,7 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
   const dispatch = useDispatch();
 
   const router = useRouter();
+  const { t } = useLanguage();
   const { displaySuccess, displayError } = useSnackbarComponent();
   const { request, response } = useGetNews(page);
 
@@ -98,11 +100,11 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
     setIsDeleting(true);
     deleteNews(idAsNumber, accessToken, refreshToken, dispatch)
       .then(() => {
-        displaySuccess("News-Eintrag wurde gelöscht")
+        displaySuccess(t("news:msg.deletedNews"))
         setNewsItemIdToDelete(undefined);
         request();
       })
-      .catch(() => displayError("News-Eintrag konnte nicht gelöscht werden"))
+      .catch(() => displayError(t("news:msg.deleteNewsError")))
       .finally(() => setIsDeleting(false));
   };
 
@@ -115,7 +117,7 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
 
   return (
     <p>
-      <Typography variant="h3" align="center">News</Typography>
+      <Typography variant="h3" align="center">{t("news:title")}</Typography>
       {news && news.map((_newsItem, i) => (
         <NewsItem
           key={i}
@@ -157,17 +159,17 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
           onClick={goToNewsCreationSite}
         >
           <AddIcon sx={{ mr: 1 }}/>
-          Neue News erstellen
+          {t("news:createNewsFAB")}
         </Fab>
       )}
       {showNoNewsYetScreen && (
         <>
           <Typography variant="h4" align="center">
-            Es gibt noch keine News
+            {t("news:textNoNewsScreen")}
           </Typography>
           <Box display="flex" justifyContent="center">
             <Button variant="contained" aria-label="Gehe zur News-Erstellen Seite" onClick={goToNewsCreationSite}>
-              News erstellen
+              {t("news:createNewsButtonNoNewsScreen")}
             </Button>
           </Box>
         </>
@@ -175,11 +177,11 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
       {showInvalidPageNumberScreen && (
         <>
           <Typography variant="h4" align="center">
-            Ungültige Seite: {currentPageValue}
+            {t("news:invalidPage", { pageNumber: currentPageValue })}
           </Typography>
           <Box display="flex" justifyContent="center">
             <Button variant="contained" aria-label="Gehe zur News-Erstellen Seite" onClick={() => router.push("/news?p=1")}>
-              Zu Seite 1
+              {t("news:backToPageOneButton")}
             </Button>
           </Box>
         </>

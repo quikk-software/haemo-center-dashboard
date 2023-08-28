@@ -1,3 +1,4 @@
+import useLanguage from "@/i18n/useLanguage";
 import { Button, Card, CardActions, CardContent, CardMedia, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
@@ -15,6 +16,7 @@ export type Props = {
 };
 const NewsItem: React.FC<Props> = ({ headline, creatorName, textValue, image, link, showEditButton, openInNewTab, id, onDelete }) => {
   const router = useRouter();
+  const { t } = useLanguage();
   
   const imageDataURL = useMemo(() => {
     if (image === undefined || image === null || image === "") {
@@ -41,7 +43,7 @@ const NewsItem: React.FC<Props> = ({ headline, creatorName, textValue, image, li
         <CardMedia sx={{ height: 250 }} image={imageDataURL} />
       )}
       <Typography variant="h4" gutterBottom>{headline}</Typography>
-      <Typography display="inline" sx={{ "font-style": "italic" }}>Autor: </Typography>
+      <Typography display="inline" sx={{ "font-style": "italic" }}>{t("news:creatorName")}</Typography>
       <Typography display="inline">{creatorName}</Typography><br/>
       <br/>
       {textValue.split("\n").map((_textPart, i) => {
@@ -51,12 +53,12 @@ const NewsItem: React.FC<Props> = ({ headline, creatorName, textValue, image, li
         return (<Typography key={i} variant="body2" color="text.secondary">{_textPart}</Typography>);
       })}
       <CardActions>
-        <Button size="small" onClick={onFollowLink}>Mehr lesen</Button>
+        <Button size="small" onClick={onFollowLink}>{t("news:followNewsLinkButton")}</Button>
         {showEditButton !== false && id !== undefined && id !== -1 && (
-          <Button size="small" onClick={() => router.push(`/news/edit/${id}`)}>Bearbeiten</Button>
+          <Button size="small" onClick={() => router.push(`/news/edit/${id}`)}>{t("news:editButton")}</Button>
         )}
         {onDelete !== undefined && id !== undefined && id !== -1 && (
-          <Button size="small" onClick={() => onDelete(id)}>Löschen</Button>
+          <Button size="small" onClick={() => onDelete(id)}>{t("news:deleteButton")}</Button>
         )}
       </CardActions>
     </CardContent>
