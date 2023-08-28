@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Store } from "@/redux";
 import { useSnackbarComponent } from "../layout/Snackbar";
 import useLanguage from "@/i18n/useLanguage";
+import { imageDataAndMIMETypeToImage, imageToDataURL } from "./newsSlice";
 
 const fabStyle = {
   position: 'sticky',
@@ -124,7 +125,7 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
           headline={_newsItem.headline || ""}
           creatorName={_newsItem.creatorName || ""}
           textValue={_newsItem.text || ""}
-          image={_newsItem.image || ""}
+          image={(_newsItem.image && _newsItem.imageMIMEType)? imageToDataURL(imageDataAndMIMETypeToImage(_newsItem.image, _newsItem.imageMIMEType)) : ""}
           link={_newsItem.link || ""}
           id={_newsItem.id || -1}
           onDelete={handleOnDelete} />
