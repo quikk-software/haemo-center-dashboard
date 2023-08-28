@@ -62,6 +62,9 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
     if (pageCount === undefined) {
       return currentPageValue <= 0;
     }
+    if (currentPageValue === 1) {
+      return false;
+    }
     return currentPageValue <= 0 || currentPageValue > pageCount;
   }, [currentPageValue, pageCount]);
 
