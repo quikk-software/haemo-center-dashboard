@@ -20,12 +20,10 @@ import useAuth from "@/components/auth/useAuth";
 import LoadingScreen from "@/components/layout/LoadingScreen";
 import pages from "@/routes";
 
-type Props = {};
-
 const publicUrls = ["/auth/login"];
 const isPublicUrl = (url: string) => publicUrls.includes(url);
 
-const AuthGuard: React.FC<PropsWithChildren<Props>> = ({ children }) => {
+const AuthGuard: React.FC<PropsWithChildren<Record<never, any>>> = ({ children }) => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { redirectUrl } = useRedirect();

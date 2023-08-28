@@ -34,9 +34,7 @@ export const useSnackbarComponent = () => {
   return { displayWarning, displayError, displaySuccess };
 };
 
-type Props = {};
-
-const SnackbarComponent: React.FC<PropsWithChildren<Props>> = ({ children }) => {
+const SnackbarComponent: React.FC<PropsWithChildren<Record<never, any>>> = ({ children }) => {
   const { snackbarState } = useSelector((store: Store) => store.snackbar);
   const dispatch = useDispatch();
 
