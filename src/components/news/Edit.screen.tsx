@@ -147,40 +147,42 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={imageToDataURL(image)} alt={t("news:altNewsImage")} />
           )}
-          <TextField
-            id="headline"
-            sx={{ display: 'block', margin: 1 }}
-            value={headline}
-            label={t("news:headlineFieldLabel")}
-            variant="standard"
-            disabled={isEditingNews}
-            onChange={(e) => dispatch(setHeadline(e.target.value))} />
-          <TextField
-            id="creator"
-            sx={{ display: 'block', margin: 1 }}
-            value={creatorName}
-            label={t("news:creatorNameFieldLabel")}
-            variant="standard"
-            disabled={isEditingNews}
-            onChange={(e) => dispatch(setCreatorName(e.target.value))} />
-          <TextField
-            id="link"
-            sx={{ display: 'block', margin: 1 }}
-            value={link}
-            label={t("news:linkFieldLabel")}
-            variant="standard"
-            disabled={isEditingNews}
-            onChange={(e) => dispatch(setLink(e.target.value))} />
-          <TextField
-            sx={{ margin: 1 }}
-            value={text}
-            multiline
-            minRows={3}
-            id="content"
-            label={t("news:textFieldLabel")}
-            variant="standard"
-            disabled={isEditingNews}
-            onChange={(e) => dispatch(setText(e.target.value))} />
+          <Stack>
+            <TextField
+              id="headline"
+              sx={{ margin: 1 }}
+              value={headline}
+              label={t("news:headlineFieldLabel")}
+              variant="standard"
+              disabled={isEditingNews}
+              onChange={(e) => dispatch(setHeadline(e.target.value))} />
+            <TextField
+              id="creator"
+              sx={{ margin: 1 }}
+              value={creatorName}
+              label={t("news:creatorNameFieldLabel")}
+              variant="standard"
+              disabled={isEditingNews}
+              onChange={(e) => dispatch(setCreatorName(e.target.value))} />
+            <TextField
+              id="link"
+              sx={{ margin: 1 }}
+              value={link}
+              label={t("news:linkFieldLabel")}
+              variant="standard"
+              disabled={isEditingNews}
+              onChange={(e) => dispatch(setLink(e.target.value))} />
+            <TextField
+              sx={{ margin: 1 }}
+              value={text}
+              multiline
+              minRows={3}
+              id="content"
+              label={t("news:textFieldLabel")}
+              variant="standard"
+              disabled={isEditingNews}
+              onChange={(e) => dispatch(setText(e.target.value))} />
+          </Stack>
           <Stack sx={{ "margin": 2}} direction="row" spacing={2}>
             <Button variant="contained" disabled={isEditingNews} component="label">
               {image? t("news:imageChangeButton") : t("news:imageSelectButton")}
