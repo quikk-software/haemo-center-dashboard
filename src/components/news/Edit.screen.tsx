@@ -56,6 +56,9 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
       displayWarning("Kein unterstützes Bildformat");
       return;
     }
+    if (file.size > 5000000) {
+      displayWarning("Bild-Datei ist zu groß (max. 5 MB)")
+    }
     const reader = new FileReader();
     reader.readAsDataURL(file);  // convert to base64
     reader.onload = () => {
