@@ -18,6 +18,7 @@ const news = {
     headlineEmpty: "Title required",
     textEmpty: "Content required",
     newsCreationSuccess: "News entry created successfully!",
+    newsUpdateSuccess: "News entry edited successfully!",
     error: "Something went wrong",
     errorWithStatusCode: "Something went wrong ({{statusCode}})",
   },

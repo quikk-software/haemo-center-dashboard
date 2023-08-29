@@ -114,7 +114,7 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
     }, accessToken, refreshToken, dispatch)
     .then((response) => {
       if (response.status === 200) {
-        displaySuccess(t("news:msg.newsCreationSuccess"));
+        displaySuccess(t("news:msg.newsUpdateSuccess"));
       } else {
         displayError(t("news:msg.errorWithStatusCode", { statusCode: response.status }));
       }

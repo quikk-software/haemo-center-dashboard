@@ -18,6 +18,7 @@ const news = {
     headlineEmpty: "Titel erforderlich",
     textEmpty: "Inhalt erforderlich",
     newsCreationSuccess: "News erfolgreich erstellt!",
+    newsUpdateSuccess: "News erfolgreich bearbeitet!",
     error: "Etwas lief schief",
     errorWithStatusCode: "Etwas lief schief ({{statusCode}})",
   },

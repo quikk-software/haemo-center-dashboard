@@ -24,6 +24,7 @@ export type Translation = {
       headlineEmpty: string;
       textEmpty: string;
       newsCreationSuccess: string;
+      newsUpdateSuccess: string;
       error: string;
       errorWithStatusCode: string;
     },
