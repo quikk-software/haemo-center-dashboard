@@ -20,6 +20,8 @@ export interface GetNewsResponse {
   link?: string;
   isSponsored?: boolean;
   isAdmin?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface PostNewsRequest {
@@ -337,7 +339,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Lists all news. Every logged in user can query all news.
+     * @description Lists all news. Every logged in user can query all news. This returns news by admins first, followed by sponsored news and finally all other news. News are also sorted by creation time with the newest news first.
      *
      * @tags News
      * @name V1NewsList
