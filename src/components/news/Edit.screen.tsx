@@ -33,7 +33,7 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
     if (!Number.isNaN(idNumber)) {
       request();
     }
-  }, [request, idNumber, headline]);
+  }, [request, idNumber]);
 
   useEffect(() => {
     logger.debug(response);
