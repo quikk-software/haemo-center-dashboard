@@ -14,6 +14,21 @@ const pages: readonly Page[] = [
     description: "Beschreibung",
     __dangerousPageSpecificStyling: center,
   },
+  {
+    title: "News",
+    pathname: "/news",
+    description: "News anlegen und bearbeiten",
+  },
+  {
+    title: "News anlegen",
+    pathname: "/news/create",
+    description: "News anlegen",
+  },
+  {
+    title: "News Editor",
+    pathname: "/news/edit/[id]",
+    description: "News bearbeiten",
+  },
   ...errorPages,
 ] as const;
 

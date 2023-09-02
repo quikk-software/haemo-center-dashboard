@@ -6,8 +6,7 @@ import { useSelector } from "react-redux";
 import { Store } from "@/redux";
 import useLanguage from "@/i18n/useLanguage";
 
-type Props = {};
-const LocalizedThemeProvider: React.FC<PropsWithChildren<Props>> = ({
+const LocalizedThemeProvider: React.FC<PropsWithChildren<Record<never, any>>> = ({
   children,
 }) => {
   const { language } = useLanguage();

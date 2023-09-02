@@ -22,11 +22,38 @@ export interface PostUserRequest {
   avatar?: string;
 }
 
+export interface PatchUserRequest {
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  birthDay?: string;
+  avatar?: string;
+}
+
+export interface PatchUserAliasRequest {
+  alias?: string;
+}
+
+export interface PostCenterUserRequest {
+  centerName?: string;
+  street?: string;
+  houseNumber?: string;
+  zipCode?: string;
+  city?: string;
+  country?: string;
+  latitude?: string;
+  longitude?: string;
+  businessLocationNumber?: string;
+  avatar?: string;
+}
+
 export interface PostUserResponse {
   id?: string;
 }
 
 export interface GetUserResponse {
+  id?: string;
   alias?: string;
   email?: string;
   firstName?: string;
@@ -41,8 +68,41 @@ export interface GetUserResponse {
   createdAt?: string;
 }
 
+export interface GetCenterUserResponse {
+  id?: string;
+  alias?: string;
+  email?: string;
+  avatar?: string;
+  firstName?: string;
+  lastName?: string;
+  centerName?: string;
+  street?: string;
+  houseNumber?: string;
+  zipCode?: string;
+  city?: string;
+  country?: string;
+  latitude?: string;
+  longitude?: string;
+  businessLocationNumber?: string;
+  enabled?: boolean;
+  blocked?: boolean;
+  createdAt?: string;
+}
+
 export interface ListUsersResponse {
   users: GetUserResponse[];
+}
+
+export interface ListCenterUsersResponse {
+  centers: GetCenterUserResponse[];
+}
+
+export interface PostUserDeviceTokenRequest {
+  deviceToken?: string;
+}
+
+export interface PostUserDeviceTokenResponse {
+  userDeviceTokenId?: number;
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -262,6 +322,62 @@ export class HttpClient<SecurityDataType = unknown> {
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
   api = {
     /**
+     * @description This route only returns the user related to the ID found in the requesting access token.
+     *
+     * @tags Users
+     * @name V1UsersUserList
+     * @summary Gets the authenticated user
+     * @request GET:/api/v1/users/user
+     * @secure
+     */
+    v1UsersUserList: (params: RequestParams = {}) =>
+      this.request<GetUserResponse, void>({
+        path: `/api/v1/users/user`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Only non-dependent user attributes like first name, last name, birthday etc. can be updated. The user ID from the access token will be used for identifying the corresponding Keycloak user.
+     *
+     * @tags Users
+     * @name V1UsersUserPartialUpdate
+     * @summary Updates a user
+     * @request PATCH:/api/v1/users/user
+     * @secure
+     */
+    v1UsersUserPartialUpdate: (data: PatchUserRequest, params: RequestParams = {}) =>
+      this.request<void, void>({
+        path: `/api/v1/users/user`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description Only the authenticated user's alias will be updated. The user ID from the access token will be used for identifying the corresponding Keycloak user. The alias can only be updated once in a 30 days time period.
+     *
+     * @tags Users
+     * @name V1UsersUserAliasPartialUpdate
+     * @summary Updates a user's alias
+     * @request PATCH:/api/v1/users/user/alias
+     * @secure
+     */
+    v1UsersUserAliasPartialUpdate: (data: PatchUserAliasRequest, params: RequestParams = {}) =>
+      this.request<void, void>({
+        path: `/api/v1/users/user/alias`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
      * No description
      *
      * @tags Users
@@ -293,7 +409,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     v1UsersList: (
       query: {
         /** The query of the request, which is used to filter results. The format is 'q=<attribute1>:<value1> <attribute2>:<value2>...' */
-        q: string;
+        q?: string;
         /** Number of users. Default is 20. */
         pageSize: number;
         /** Current page of requesting users. Default is 0. */
@@ -306,6 +422,53 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "GET",
         query: query,
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description This route returns all center users. No authentication needed and no further filtering possible.
+     *
+     * @tags Users
+     * @name V1UsersCentersList
+     * @summary Gets all center users.
+     * @request GET:/api/v1/users/centers
+     * @secure
+     */
+    v1UsersCentersList: (
+      query: {
+        /** Number of users. Default is 20. */
+        pageSize: number;
+        /** Current page of requesting users. Default is 0. */
+        pageNumber: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ListCenterUsersResponse, void>({
+        path: `/api/v1/users/centers`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Users
+     * @name V1UsersCentersPartialUpdate
+     * @summary Updates a center user.
+     * @request PATCH:/api/v1/users/centers/{centerId}
+     * @secure
+     */
+    v1UsersCentersPartialUpdate: (centerId: string, data: PostCenterUserRequest, params: RequestParams = {}) =>
+      this.request<PostUserResponse, void>({
+        path: `/api/v1/users/centers/${centerId}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
@@ -391,6 +554,43 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       this.request<void, void>({
         path: `/api/v1/users/user/center/${centerId}`,
         method: "PATCH",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Each device token must be unique, so the route will save a token only once. The token can be used to publish notifications to users.
+     *
+     * @tags Device Tokens
+     * @name V1UserDeviceTokensCreate
+     * @summary Creates a new user device token.
+     * @request POST:/api/v1/user-device-tokens
+     * @secure
+     */
+    v1UserDeviceTokensCreate: (data: PostUserDeviceTokenRequest, params: RequestParams = {}) =>
+      this.request<PostUserDeviceTokenResponse, void>({
+        path: `/api/v1/user-device-tokens`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The route will use the given code and verify the account in Keycloak.
+     *
+     * @tags Verification Codes
+     * @name V1VerificationCodeVerifyAccountDetail
+     * @summary Verifies the account by using the given code for confirmation.
+     * @request GET:/api/v1/verification-code/verify-account/{code}
+     * @secure
+     */
+    v1VerificationCodeVerifyAccountDetail: (code: string, params: RequestParams = {}) =>
+      this.request<void, void>({
+        path: `/api/v1/verification-code/verify-account/${code}`,
+        method: "GET",
         secure: true,
         ...params,
       }),

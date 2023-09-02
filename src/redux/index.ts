@@ -17,6 +17,8 @@ import {
   LocalStorageKey,
 } from "@/core/localStorage.utils";
 import { Language } from "@/i18n/i18n.types";
+import { NewsState, initialState as newsInitialState } from "../components/news/newsSlice";
+import { SnackbarSliceState, initialState as snackbarInitialState } from "@/components/layout/snackbarSlice";
 
 const accessToken = getLocalStorageItem<string, string | null>(
   LocalStorageKey.accessToken,
@@ -36,6 +38,8 @@ const language = getLocalStorageItem<Language, Language>(
 export interface Store {
   request: RequestState;
   auth: AuthState;
+  snackbar: SnackbarSliceState;
+  news: NewsState;
   i18n: I18nState;
 }
 
@@ -45,6 +49,12 @@ const initialStore: Store = {
     ...authInitialState,
     accessToken,
     refreshToken,
+  },
+  snackbar: {
+    ...snackbarInitialState,
+  },
+  news: {
+    ...newsInitialState,
   },
   i18n: {
     ...i18nInitialState,

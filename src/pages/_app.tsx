@@ -12,6 +12,7 @@ import AuthGuard from "@/components/auth/AuthGuard";
 import LoadingGuard from "@/components/layout/LoadingGuard";
 import LocalizedThemeProvider from "@/components/i18n/LocalizedThemeProvider";
 import "../i18n";
+import SnackbarComponent from "@/components/layout/Snackbar";
 
 const MyApp: React.FC<AppProps> = (props) => {
   const { Component, pageProps } = props;
@@ -42,13 +43,15 @@ const MyApp: React.FC<AppProps> = (props) => {
           </Head>
           <LoadingGuard>
             <AuthGuard>
-              <Page
-                title={title}
-                description={description}
-                styleOverwrite={__dangerousPageSpecificStyling}
-              >
-                <Component {...pageProps} />
-              </Page>
+              <SnackbarComponent>
+                <Page
+                  title={title}
+                  description={description}
+                  styleOverwrite={__dangerousPageSpecificStyling}
+                >
+                  <Component {...pageProps} />
+                </Page>
+              </SnackbarComponent>
             </AuthGuard>
           </LoadingGuard>
         </LocalizedThemeProvider>

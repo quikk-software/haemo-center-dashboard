@@ -18,13 +18,12 @@ import useRedirect from "@/core/useRedirect";
 import { hasPageBeenMounted } from "@/core/utils";
 import useAuth from "@/components/auth/useAuth";
 import LoadingScreen from "@/components/layout/LoadingScreen";
-
-type Props = {};
+import pages from "@/routes";
 
 const publicUrls = ["/auth/login"];
 const isPublicUrl = (url: string) => publicUrls.includes(url);
 
-const AuthGuard: React.FC<PropsWithChildren<Props>> = ({ children }) => {
+const AuthGuard: React.FC<PropsWithChildren<Record<never, any>>> = ({ children }) => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { redirectUrl } = useRedirect();
@@ -46,8 +45,8 @@ const AuthGuard: React.FC<PropsWithChildren<Props>> = ({ children }) => {
   const onTokenValid = () => {
     if (accessToken !== null) {
       setUserDataInReduxStore(accessToken);
-      // redirect if not already on that page
-      if (router.pathname !== redirectUrl) {
+      // redirect to redirect URL if not already on a valid page
+      if (!pages.map(({ pathname }) => pathname).includes(router.pathname)) {
         router.push(redirectUrl);
       }
     }
