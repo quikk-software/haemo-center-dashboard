@@ -1,13 +1,5 @@
-import React, { useCallback } from "react";
-import {
-  Box,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  Grid,
-  TextField,
-  Typography,
-} from "@mui/material";
+import React, { useCallback, useMemo } from "react";
+import { Box, Button, Grid, TextField, Typography } from "@mui/material";
 import Size from "@/components/layout/size";
 import Link from "@/components/common/Link";
 import useRedirect from "@/core/useRedirect";
@@ -24,9 +16,24 @@ const LoginScreen: React.FC = () => {
 
   const { handleLogin } = useAuth();
 
+  const isUsernameAndPasswordProvided = useMemo(
+    () => password.length > 0 && username.length > 0,
+    [username, password],
+  );
+
   const handleLoginButtonClick = useCallback(
     () => handleLogin(username, password),
     [username, password],
+  );
+
+  const handleEnterPress = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (isUsernameAndPasswordProvided && e.key === "Enter") {
+        e.stopPropagation();
+        return handleLoginButtonClick();
+      }
+    },
+    [isUsernameAndPasswordProvided],
   );
 
   const { t } = useLanguage();
@@ -51,6 +58,9 @@ const LoginScreen: React.FC = () => {
           autoComplete="email"
           autoFocus
           onChange={(e) => dispatch(setUsername(e.target.value))}
+          InputProps={{
+            onKeyPress: (e) => handleEnterPress(e),
+          }}
         />
         <TextField
           margin="normal"
@@ -59,12 +69,16 @@ const LoginScreen: React.FC = () => {
           type="password"
           autoComplete="current-password"
           onChange={(e) => dispatch(setPassword(e.target.value))}
+          InputProps={{
+            onKeyPress: handleEnterPress,
+          }}
         />
         <Button
           fullWidth
           variant="contained"
           sx={{ mt: Size.MEDIUM, mb: Size.SMALL }}
           onClick={handleLoginButtonClick}
+          disabled={!isUsernameAndPasswordProvided}
         >
           {t("auth:login")}
         </Button>

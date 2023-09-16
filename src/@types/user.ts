@@ -36,6 +36,24 @@ export interface PatchUserAliasRequest {
 }
 
 export interface PostCenterUserRequest {
+  alias?: string;
+  password?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  centerName?: string;
+  street?: string;
+  houseNumber?: string;
+  zipCode?: string;
+  city?: string;
+  country?: string;
+  latitude?: string;
+  longitude?: string;
+  businessLocationNumber?: string;
+  avatar?: string;
+}
+
+export interface PatchCenterUserRequest {
   centerName?: string;
   street?: string;
   houseNumber?: string;
@@ -95,14 +113,6 @@ export interface ListUsersResponse {
 
 export interface ListCenterUsersResponse {
   centers: GetCenterUserResponse[];
-}
-
-export interface PostUserDeviceTokenRequest {
-  deviceToken?: string;
-}
-
-export interface PostUserDeviceTokenResponse {
-  userDeviceTokenId?: number;
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -457,12 +467,32 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * No description
      *
      * @tags Users
+     * @name V1UsersCenterCreate
+     * @summary Create a center user
+     * @request POST:/api/v1/users/center
+     * @secure
+     */
+    v1UsersCenterCreate: (data: PostCenterUserRequest, params: RequestParams = {}) =>
+      this.request<PostUserResponse, void>({
+        path: `/api/v1/users/center`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Users
      * @name V1UsersCentersPartialUpdate
      * @summary Updates a center user.
      * @request PATCH:/api/v1/users/centers/{centerId}
      * @secure
      */
-    v1UsersCentersPartialUpdate: (centerId: string, data: PostCenterUserRequest, params: RequestParams = {}) =>
+    v1UsersCentersPartialUpdate: (centerId: string, data: PatchCenterUserRequest, params: RequestParams = {}) =>
       this.request<PostUserResponse, void>({
         path: `/api/v1/users/centers/${centerId}`,
         method: "PATCH",
@@ -555,26 +585,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/api/v1/users/user/center/${centerId}`,
         method: "PATCH",
         secure: true,
-        ...params,
-      }),
-
-    /**
-     * @description Each device token must be unique, so the route will save a token only once. The token can be used to publish notifications to users.
-     *
-     * @tags Device Tokens
-     * @name V1UserDeviceTokensCreate
-     * @summary Creates a new user device token.
-     * @request POST:/api/v1/user-device-tokens
-     * @secure
-     */
-    v1UserDeviceTokensCreate: (data: PostUserDeviceTokenRequest, params: RequestParams = {}) =>
-      this.request<PostUserDeviceTokenResponse, void>({
-        path: `/api/v1/user-device-tokens`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
         ...params,
       }),
 

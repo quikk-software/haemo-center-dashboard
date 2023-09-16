@@ -4,6 +4,7 @@ import { Store } from "@/redux";
 import { TableConfig } from "@/components/overview/table";
 import { useCallback, useState } from "react";
 import { ListUsersResponse } from "@/@types/user";
+import { Dispatch } from "redux";
 
 type Props = TableConfig;
 
@@ -26,7 +27,12 @@ const useGetUsers = ({ query, pageSize, pageNumber }: Props) => {
   return { request, response };
 };
 
-export const getUsers = async ({ query, pageSize, pageNumber} : Props, accessToken: string | null, refreshToken: string | null, dispatch: Dispatch) => {
+export const getUsers = async (
+  { query, pageSize, pageNumber }: Props,
+  accessToken: string | null,
+  refreshToken: string | null,
+  dispatch: Dispatch,
+) => {
   const response = await userApi.api.v1UsersList(
     { q: query, pageSize, pageNumber },
     {

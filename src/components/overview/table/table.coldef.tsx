@@ -6,53 +6,61 @@ import {
 import { Button, Chip } from "@mui/material";
 import logger from "@/core/logger";
 import { GetUserResponse } from "@/@types/user";
+import Link from "@/components/common/Link";
+import BlockedSelector from "@/components/overview/table/selector/BlockedSelector";
+import VerifiedSelector from "@/components/overview/table/selector/VerifiedSelector";
 
 // Apply this to all columns
 const columnMapper = (c: GridColDef): GridColDef => ({ ...c, flex: 1 });
 
 export const columns: GridColDef<GetUserResponse>[] = [
-  { field: "col1", headerName: "Column 1" },
-  { field: "col2", headerName: "Column 2" },
+  { field: "alias", headerName: "Alias" },
+  { field: "firstName", headerName: "Vorname" },
+  { field: "lastName", headerName: "Nachname" },
   {
-    field: "status",
-    headerName: "Status",
-    valueGetter: (params: GridValueGetterParams) => {
-      const { verified, inactive } = params.row;
-      return inactive ? "Inaktiviert" : verified ? "Verifiziert" : "Ausstehend";
+    field: "birthDay",
+    headerName: "Geburtstag",
+    valueGetter: (params: GridValueGetterParams<GetUserResponse>) => {
+      const { birthDay } = params.row;
+      if (!birthDay) {
+        return "keine Angabe";
+      }
+      return new Date(birthDay).toLocaleDateString();
     },
-    renderCell: (params: GridRenderCellParams) => {
-      const { verified, inactive } = params.row;
+  },
+  {
+    field: "email",
+    headerName: "E-Mail Adresse",
+    renderCell: (params: GridValueGetterParams<GetUserResponse>) => {
+      const { email } = params.row;
 
+      return <Link href={`mailto:${email}`}>{email}</Link>;
+    },
+  },
+  {
+    field: "phone",
+    headerName: "Telefonnummer",
+    renderCell: (params: GridValueGetterParams<GetUserResponse>) => {
+      const { phoneNumber } = params.row;
+
+      return <Link href={`tel:${phoneNumber}`}>{phoneNumber}</Link>;
+    },
+  },
+  {
+    field: "blocked",
+    headerName: "Blockiert",
+    renderCell: (params: GridRenderCellParams<GetUserResponse>) => {
       return (
-        <Chip
-          color={inactive ? "error" : verified ? "success" : "info"}
-          label={
-            inactive ? "Inaktiviert" : verified ? "Verifiziert" : "Ausstehend"
-          }
-          key={`${params.id}-chip`}
-        />
+        <BlockedSelector id={params.row.id} blocked={params.row.blocked} />
       );
     },
   },
   {
-    field: "action",
-    headerName: "Aktion",
-    valueGetter: (params: GridValueGetterParams) => {
-      const { verified, inactive } = params.row;
-      return inactive ? "Inaktiviert" : verified ? "Verifiziert" : "Ausstehend";
-    },
-    renderCell: (params: GridRenderCellParams) => {
-      const { verified, inactive } = params.row;
-
+    field: "blocked",
+    headerName: "Blockiert",
+    renderCell: (params: GridRenderCellParams<GetUserResponse>) => {
       return (
-        <Button
-          color={inactive ? "error" : verified ? "success" : "info"}
-          variant="outlined"
-          onClick={() => logger.debug(params)}
-          key={`${params.id}-button`}
-        >
-          Click
-        </Button>
+        <VerifiedSelector id={params.row.id} verified={params.row.blocked} />
       );
     },
   },

@@ -11,6 +11,7 @@ import {
 import useTableConfig from "@/components/overview/table/useTableConfig";
 import useGetUsers from "@/api/users/useGetUsers";
 import logger from "@/core/logger";
+import { columns } from "@/components/overview/table/table.coldef";
 
 export type Props = {
   type: View;
@@ -40,8 +41,8 @@ const Table: React.FC<Props> = ({ type }) => {
         Übersicht: {type}
       </Typography>
       <DataGrid
-        rows={[]}
-        columns={[]}
+        rows={response ?? []}
+        columns={columns}
         sx={{ m: Size.MEDIUM }}
         initialState={{
           pagination: { paginationModel: { pageSize: DEFAULT_PAGE_SIZE } },
