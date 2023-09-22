@@ -18,56 +18,71 @@ function columnMapper<T extends GridValidRowModel>(
   return { ...c, flex: 1 };
 }
 
-export const columns: GridColDef<GetUserResponse>[] = [
-  { field: "alias", headerName: "Alias" },
-  { field: "firstName", headerName: "Vorname" },
-  { field: "lastName", headerName: "Nachname" },
-  {
-    field: "birthDay",
-    headerName: "Geburtstag",
-    valueGetter: (params: GridValueGetterParams<GetUserResponse>) => {
-      const { birthDay } = params.row;
-      if (!birthDay) {
-        return "keine Angabe";
-      }
-      return new Date(birthDay).toLocaleDateString();
+export const createColumns: (
+  reset: () => void,
+) => GridColDef<GetUserResponse>[] = (reset) =>
+  [
+    { field: "alias", headerName: "Alias" },
+    { field: "firstName", headerName: "Vorname" },
+    { field: "lastName", headerName: "Nachname" },
+    {
+      field: "birthDay",
+      headerName: "Geburtstag",
+      valueGetter: (params: GridValueGetterParams<GetUserResponse>) => {
+        const { birthDay } = params.row;
+        if (!birthDay) {
+          return "keine Angabe";
+        }
+        return new Date(birthDay).toLocaleDateString();
+      },
     },
-  },
-  {
-    field: "email",
-    headerName: "E-Mail Adresse",
-    renderCell: (params: GridValueGetterParams<GetUserResponse>) => {
-      const { email } = params.row;
+    {
+      field: "email",
+      headerName: "E-Mail Adresse",
+      renderCell: (params: GridValueGetterParams<GetUserResponse>) => {
+        const { email } = params.row;
 
-      return <Link href={`mailto:${email}`}>{email}</Link>;
+        return <Link href={`mailto:${email}`}>{email}</Link>;
+      },
     },
-  },
-  {
-    field: "phone",
-    headerName: "Telefonnummer",
-    renderCell: (params: GridValueGetterParams<GetUserResponse>) => {
-      const { phoneNumber } = params.row;
+    {
+      field: "phone",
+      headerName: "Telefonnummer",
+      renderCell: (params: GridValueGetterParams<GetUserResponse>) => {
+        const { phoneNumber } = params.row;
 
-      return <Link href={`tel:${phoneNumber}`}>{phoneNumber}</Link>;
+        return <Link href={`tel:${phoneNumber}`}>{phoneNumber}</Link>;
+      },
     },
-  },
-  {
-    field: "blocked",
-    headerName: "Blockiert",
-    renderCell: (params: GridRenderCellParams<GetUserResponse>) => {
-      const { blocked, id } = params.row;
+    {
+      field: "blocked",
+      headerName: "Blockiert",
+      renderCell: (params: GridRenderCellParams<GetUserResponse>) => {
+        const { blocked, id } = params.row;
 
-      return <BlockedSelector id={id} blocked={!!blocked} />;
-    },
-  },
-  {
-    field: "enabled",
-    headerName: "Verifiziert",
-    renderCell: (params: GridRenderCellParams<GetUserResponse>) => {
-      const { enabled, id } = params.row;
+        if (id === undefined) {
+          return <>-</>;
+        }
 
-      return <VerifiedSelector id={id} verified={!!enabled} />;
+        return (
+          <BlockedSelector id={id} blocked={!!blocked} onSuccess={reset} />
+        );
+      },
     },
-  },
-  // @ts-ignore
-].map((c) => columnMapper(c));
+    {
+      field: "enabled",
+      headerName: "Verifiziert",
+      renderCell: (params: GridRenderCellParams<GetUserResponse>) => {
+        const { enabled, id } = params.row;
+
+        if (id === undefined) {
+          return <>-</>;
+        }
+
+        return (
+          <VerifiedSelector id={id} enabled={!!enabled} onSuccess={reset} />
+        );
+      },
+    },
+    // @ts-ignore
+  ].map((c) => columnMapper(c));

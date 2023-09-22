@@ -1,23 +1,59 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { SelectChangeEvent } from "@mui/material/Select";
 import logger from "@/core/logger";
-import { Alert } from "@mui/material";
-import { Id } from "@/components/overview/table/selector/Selector.types";
+import { Alert, AlertTitle, Button, Stack } from "@mui/material";
+import useBlockUser from "@/api/users/useBlockUser";
+import useUnblockUser from "@/api/users/useUnblockUser";
+import useActivateUser from "@/api/users/useActivateUser";
+import useDeactivateUser from "@/api/users/useDeactivateUser";
 
 type Props = {
-  id: Id;
-  verified: boolean;
+  id: string;
+  enabled: boolean;
+  onSuccess: () => void;
 };
 
-const VerifiedSelector: React.FC<Props> = ({ id, verified }) => {
-  if (id === undefined) {
-    return <>Fehler beim lesen der Daten</>;
-  }
-  const handleChange = (event: SelectChangeEvent) => {
-    logger.debug(`verified: ${id}`, event.target.value as unknown as boolean);
-  };
+const VerifiedSelector: React.FC<Props> = ({ id, enabled, onSuccess }) => {
+  const { request: activteUser, response: activateUserResponse } =
+    useActivateUser({ id });
+  const { request: deactivateUserRequest, response: deactivateUserResponse } =
+    useDeactivateUser({ id });
 
-  return <Alert severity={verified ? "success" : "warning"} />;
+  const handleOnClick = useCallback(() => {
+    if (enabled) {
+      deactivateUserRequest();
+    } else {
+      activteUser();
+    }
+  }, [activteUser, enabled, deactivateUserRequest]);
+
+  useEffect(() => {
+    if (activateUserResponse) {
+      onSuccess();
+    }
+  }, [activateUserResponse]);
+
+  useEffect(() => {
+    if (deactivateUserResponse) {
+      onSuccess();
+    }
+  }, [deactivateUserResponse]);
+
+  return (
+    <Stack direction="row" spacing={1}>
+      <Alert severity={enabled ? "success" : "warning"}>
+        {enabled ? "Ja" : "Nein"}
+      </Alert>
+      <Button
+        color={enabled ? "warning" : "success"}
+        variant="contained"
+        size="small"
+        onClick={handleOnClick}
+      >
+        {enabled ? "Verifizierung aufheben" : "Verifizieren"}
+      </Button>
+    </Stack>
+  );
 };
 
 export default VerifiedSelector;

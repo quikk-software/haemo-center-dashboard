@@ -1,23 +1,57 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { SelectChangeEvent } from "@mui/material/Select";
 import logger from "@/core/logger";
-import { Alert } from "@mui/material";
-import { Id } from "@/components/overview/table/selector/Selector.types";
+import { Alert, AlertTitle, Button, Stack } from "@mui/material";
+import useBlockUser from "@/api/users/useBlockUser";
+import useUnblockUser from "@/api/users/useUnblockUser";
 
 type Props = {
-  id: Id;
+  id: string;
   blocked: boolean;
+  onSuccess: () => void;
 };
 
-const BlockedSelector: React.FC<Props> = ({ id, blocked }) => {
-  if (id === undefined) {
-    return <>Fehler beim lesen der Daten</>;
-  }
-  const handleChange = (event: SelectChangeEvent) => {
-    logger.debug(`blocked: ${id}`, event.target.value as unknown as boolean);
-  };
+const BlockedSelector: React.FC<Props> = ({ id, blocked, onSuccess }) => {
+  const { request: blockUserRequest, response: blockUserResponse } =
+    useBlockUser({ id });
+  const { request: unblockUserRequest, response: unblockUserResponse } =
+    useUnblockUser({ id });
 
-  return <Alert severity={blocked ? "error" : "success"} />;
+  const handleOnClick = useCallback(() => {
+    if (blocked) {
+      unblockUserRequest();
+    } else {
+      blockUserRequest();
+    }
+  }, [blockUserRequest, blocked, unblockUserRequest]);
+
+  useEffect(() => {
+    if (blockUserResponse) {
+      onSuccess();
+    }
+  }, [blockUserResponse]);
+
+  useEffect(() => {
+    if (unblockUserResponse) {
+      onSuccess();
+    }
+  }, [unblockUserResponse]);
+
+  return (
+    <Stack direction="row" spacing={1}>
+      <Alert severity={blocked ? "error" : "success"}>
+        {blocked ? "Ja" : "Nein"}
+      </Alert>
+      <Button
+        color={blocked ? "success" : "error"}
+        variant="contained"
+        size="small"
+        onClick={handleOnClick}
+      >
+        {blocked ? "Blockierung aufheben" : "Blockieren"}
+      </Button>
+    </Stack>
+  );
 };
 
 export default BlockedSelector;

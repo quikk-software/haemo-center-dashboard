@@ -11,7 +11,7 @@ import {
 import useTableConfig from "@/components/overview/table/useTableConfig";
 import useGetUsers from "@/api/users/useGetUsers";
 import logger from "@/core/logger";
-import { columns } from "@/components/overview/table/table.coldef";
+import { createColumns } from "@/components/overview/table/table.coldef";
 import { removeMuiLicenseMissing } from "@/components/overview/table/table.utils";
 
 export type Props = {
@@ -45,7 +45,7 @@ const Table: React.FC<Props> = ({ type }) => {
         onStateChange={removeMuiLicenseMissing}
         rows={response ?? []}
         // @ts-ignore
-        columns={columns ?? []}
+        columns={createColumns(() => request()) ?? []}
         sx={{ m: Size.MEDIUM }}
         initialState={{
           pagination: { paginationModel: { pageSize: DEFAULT_PAGE_SIZE } },
