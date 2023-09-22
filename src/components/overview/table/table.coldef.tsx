@@ -1,9 +1,10 @@
 import {
   GridColDef,
   GridRenderCellParams,
+  GridValidRowModel,
   GridValueGetterParams,
 } from "@mui/x-data-grid";
-import { Button, Chip } from "@mui/material";
+import { Alert, Button, Chip } from "@mui/material";
 import logger from "@/core/logger";
 import { GetUserResponse } from "@/@types/user";
 import Link from "@/components/common/Link";
@@ -11,7 +12,11 @@ import BlockedSelector from "@/components/overview/table/selector/BlockedSelecto
 import VerifiedSelector from "@/components/overview/table/selector/VerifiedSelector";
 
 // Apply this to all columns
-const columnMapper = (c: GridColDef): GridColDef => ({ ...c, flex: 1 });
+function columnMapper<T extends GridValidRowModel>(
+  c: GridColDef<T>,
+): GridColDef<T> {
+  return { ...c, flex: 1 };
+}
 
 export const columns: GridColDef<GetUserResponse>[] = [
   { field: "alias", headerName: "Alias" },
@@ -50,18 +55,19 @@ export const columns: GridColDef<GetUserResponse>[] = [
     field: "blocked",
     headerName: "Blockiert",
     renderCell: (params: GridRenderCellParams<GetUserResponse>) => {
-      return (
-        <BlockedSelector id={params.row.id} blocked={params.row.blocked} />
-      );
+      const { blocked, id } = params.row;
+
+      return <BlockedSelector id={id} blocked={!!blocked} />;
     },
   },
   {
-    field: "blocked",
-    headerName: "Blockiert",
+    field: "enabled",
+    headerName: "Verifiziert",
     renderCell: (params: GridRenderCellParams<GetUserResponse>) => {
-      return (
-        <VerifiedSelector id={params.row.id} verified={params.row.blocked} />
-      );
+      const { enabled, id } = params.row;
+
+      return <VerifiedSelector id={id} verified={!!enabled} />;
     },
   },
-].map(columnMapper);
+  // @ts-ignore
+].map((c) => columnMapper(c));

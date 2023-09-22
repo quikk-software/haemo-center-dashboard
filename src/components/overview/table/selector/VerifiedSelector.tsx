@@ -1,34 +1,23 @@
 import React from "react";
 import { SelectChangeEvent } from "@mui/material/Select";
 import logger from "@/core/logger";
-import BaseSelector from "@/components/overview/table/selector/BaseSelector";
+import { Alert } from "@mui/material";
+import { Id } from "@/components/overview/table/selector/Selector.types";
 
 type Props = {
-  id: string;
+  id: Id;
   verified: boolean;
 };
 
 const VerifiedSelector: React.FC<Props> = ({ id, verified }) => {
+  if (id === undefined) {
+    return <>Fehler beim lesen der Daten</>;
+  }
   const handleChange = (event: SelectChangeEvent) => {
     logger.debug(`verified: ${id}`, event.target.value as unknown as boolean);
   };
 
-  return (
-    <BaseSelector
-      handleChange={(e) => {
-        logger.debug(e);
-      }}
-      id={id}
-      isSelectorActive={verified}
-      options={[
-        {
-          title: "Verifizieren",
-          value: "true",
-        },
-        { title: "Entverifizieren", value: "false" },
-      ]}
-    />
-  );
+  return <Alert severity={verified ? "success" : "warning"} />;
 };
 
 export default VerifiedSelector;

@@ -12,6 +12,7 @@ import useTableConfig from "@/components/overview/table/useTableConfig";
 import useGetUsers from "@/api/users/useGetUsers";
 import logger from "@/core/logger";
 import { columns } from "@/components/overview/table/table.coldef";
+import { removeMuiLicenseMissing } from "@/components/overview/table/table.utils";
 
 export type Props = {
   type: View;
@@ -41,8 +42,10 @@ const Table: React.FC<Props> = ({ type }) => {
         Übersicht: {type}
       </Typography>
       <DataGrid
+        onStateChange={removeMuiLicenseMissing}
         rows={response ?? []}
-        columns={columns}
+        // @ts-ignore
+        columns={columns ?? []}
         sx={{ m: Size.MEDIUM }}
         initialState={{
           pagination: { paginationModel: { pageSize: DEFAULT_PAGE_SIZE } },
