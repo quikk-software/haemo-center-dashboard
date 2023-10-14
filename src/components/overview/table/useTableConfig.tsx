@@ -7,6 +7,7 @@ import {
 } from "@/components/overview/table/table.constants";
 import { GridFilterModel, GridPaginationModel } from "@mui/x-data-grid";
 import buildKeyCloakQueryString from "@/core/keycloak.utils";
+import logger from "@/core/logger";
 
 const initialTableConfig: TableConfig = {
   query: DEFAULT_QUERY,
@@ -24,7 +25,7 @@ const useTableConfig = (type: View) => {
 
   const updateQuery = (filter: GridFilterModel) => {
     const query = buildKeyCloakQueryString(filter.items);
-    console.log("query", query);
+    logger.log("query", query);
     setTableConfig((tableConfig) => ({ ...tableConfig, query }));
   };
 

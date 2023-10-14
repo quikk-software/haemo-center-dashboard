@@ -29,6 +29,11 @@ const pages: readonly Page[] = [
     pathname: "/news/edit/[id]",
     description: "News bearbeiten",
   },
+  {
+    title: "Account Verifizierung",
+    pathname: "/verify/account/[code]",
+    description: "Account Verifizieren",
+  },
   ...errorPages,
 ] as const;
 

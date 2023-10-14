@@ -27,7 +27,7 @@ export type Translation = {
       newsUpdateSuccess: string;
       error: string;
       errorWithStatusCode: string;
-    },
+    };
     altNewsImage: string;
     headlineFieldLabel: string;
     creatorNameFieldLabel: string;
@@ -46,7 +46,7 @@ export type Translation = {
       title: string;
       cancelButton: string;
       deleteButton: string;
-    },
+    };
     followNewsLinkButton: string;
     editButton: string;
     deleteButton: string;

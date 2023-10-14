@@ -3,7 +3,7 @@ import logger from "@/core/logger";
 import { useEffect, useMemo, useState } from "react";
 import NewsItem from "./item";
 import { Box, Button, Fab, Typography, Pagination } from "@mui/material";
-import AddIcon from '@mui/icons-material/Add';
+import AddIcon from "@mui/icons-material/Add";
 import { useRouter } from "next/router";
 import DeleteDialog from "./DeleteDialog";
 import { deleteNews } from "@/api/feed/deleteNews";
@@ -14,17 +14,19 @@ import useLanguage from "@/i18n/useLanguage";
 import { imageDataAndMIMETypeToImage, imageToDataURL } from "./newsSlice";
 
 const fabStyle = {
-  position: 'sticky',
+  position: "sticky",
   bottom: 16,
   right: 16,
 };
 
 export type Props = {
-  page?: number,
+  page?: number;
 };
 
 const NewsScreen: React.FC<Props> = ({ page }) => {
-  const [newsItemIdToDelete, setNewsItemIdToDelete] = useState<number | string | undefined>(undefined);
+  const [newsItemIdToDelete, setNewsItemIdToDelete] = useState<
+    number | string | undefined
+  >(undefined);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
   const dispatch = useDispatch();
@@ -34,7 +36,10 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
   const { displaySuccess, displayError } = useSnackbarComponent();
   const { request, response } = useGetNews(page);
 
-  const deleteDialogOpen = useMemo(() => newsItemIdToDelete !== undefined, [newsItemIdToDelete]);
+  const deleteDialogOpen = useMemo(
+    () => newsItemIdToDelete !== undefined,
+    [newsItemIdToDelete],
+  );
 
   useEffect(() => {
     request();
@@ -84,9 +89,13 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
 
   const goToNewsCreationSite = () => router.push("/news/create");
 
-  const handlePagination = (_event: React.ChangeEvent<unknown>, value: number) => router.push(`/news?p=${value}`);
+  const handlePagination = (
+    _event: React.ChangeEvent<unknown>,
+    value: number,
+  ) => router.push(`/news?p=${value}`);
 
-  const handleOnDelete = (newsId: number | string) => setNewsItemIdToDelete(newsId);
+  const handleOnDelete = (newsId: number | string) =>
+    setNewsItemIdToDelete(newsId);
 
   const handleDeleteDialogCancel = () => setNewsItemIdToDelete(undefined);
 
@@ -94,14 +103,17 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
     if (isDeleting || newsItemIdToDelete === undefined) {
       return;
     }
-    const idAsNumber = (typeof newsItemIdToDelete === "string")? parseInt(newsItemIdToDelete, 10) : newsItemIdToDelete;
+    const idAsNumber =
+      typeof newsItemIdToDelete === "string"
+        ? parseInt(newsItemIdToDelete, 10)
+        : newsItemIdToDelete;
     if (isNaN(idAsNumber)) {
       return;
     }
     setIsDeleting(true);
     deleteNews(idAsNumber, accessToken, refreshToken, dispatch)
       .then(() => {
-        displaySuccess(t("news:msg.deletedNews"))
+        displaySuccess(t("news:msg.deletedNews"));
         setNewsItemIdToDelete(undefined);
         request();
       })
@@ -118,24 +130,38 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
 
   return (
     <p>
-      <Typography variant="h3" align="center">{t("news:title")}</Typography>
-      {news && news.map((_newsItem, i) => (
-        <NewsItem
-          key={i}
-          headline={_newsItem.headline || ""}
-          creatorName={_newsItem.creatorName || ""}
-          textValue={_newsItem.text || ""}
-          image={(_newsItem.image && _newsItem.imageMIMEType)? imageToDataURL(imageDataAndMIMETypeToImage(_newsItem.image, _newsItem.imageMIMEType)) : ""}
-          link={_newsItem.link || ""}
-          id={_newsItem.id || -1}
-          onDelete={handleOnDelete} />
-      ))}
-      {newsItemToDelete !== undefined &&
+      <Typography variant="h3" align="center">
+        {t("news:title")}
+      </Typography>
+      {news &&
+        news.map((_newsItem, i) => (
+          <NewsItem
+            key={i}
+            headline={_newsItem.headline || ""}
+            creatorName={_newsItem.creatorName || ""}
+            textValue={_newsItem.text || ""}
+            image={
+              _newsItem.image && _newsItem.imageMIMEType
+                ? imageToDataURL(
+                    imageDataAndMIMETypeToImage(
+                      _newsItem.image,
+                      _newsItem.imageMIMEType,
+                    ),
+                  )
+                : ""
+            }
+            link={_newsItem.link || ""}
+            id={_newsItem.id || -1}
+            onDelete={handleOnDelete}
+          />
+        ))}
+      {newsItemToDelete !== undefined && (
         <DeleteDialog
           open={deleteDialogOpen}
           onCancel={handleDeleteDialogCancel}
           onDelete={handleDeleteDialogDelete}
-          isLoading={isDeleting}>
+          isLoading={isDeleting}
+        >
           <NewsItem
             headline={newsItemToDelete.headline || ""}
             creatorName={newsItemToDelete.creatorName || ""}
@@ -143,14 +169,19 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
             image={newsItemToDelete.image || ""}
             link={newsItemToDelete.link || ""}
             id={newsItemToDelete.id || -1}
-            showEditButton={false} />
+            showEditButton={false}
+          />
         </DeleteDialog>
-      }
-      {!showNoNewsYetScreen && !showInvalidPageNumberScreen &&
+      )}
+      {!showNoNewsYetScreen && !showInvalidPageNumberScreen && (
         <Box sx={{ display: "flex", justifyContent: "flex-end " }}>
-          <Pagination page={currentPageValue} count={pageCount} onChange={handlePagination} />
+          <Pagination
+            page={currentPageValue}
+            count={pageCount}
+            onChange={handlePagination}
+          />
         </Box>
-      }
+      )}
       {!showNoNewsYetScreen && !showInvalidPageNumberScreen && (
         <Fab
           sx={fabStyle}
@@ -159,7 +190,7 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
           aria-label="add"
           onClick={goToNewsCreationSite}
         >
-          <AddIcon sx={{ mr: 1 }}/>
+          <AddIcon sx={{ mr: 1 }} />
           {t("news:createNewsFAB")}
         </Fab>
       )}
@@ -169,7 +200,11 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
             {t("news:textNoNewsScreen")}
           </Typography>
           <Box display="flex" justifyContent="center">
-            <Button variant="contained" aria-label="Gehe zur News-Erstellen Seite" onClick={goToNewsCreationSite}>
+            <Button
+              variant="contained"
+              aria-label="Gehe zur News-Erstellen Seite"
+              onClick={goToNewsCreationSite}
+            >
               {t("news:createNewsButtonNoNewsScreen")}
             </Button>
           </Box>
@@ -181,7 +216,11 @@ const NewsScreen: React.FC<Props> = ({ page }) => {
             {t("news:invalidPage", { pageNumber: currentPageValue })}
           </Typography>
           <Box display="flex" justifyContent="center">
-            <Button variant="contained" aria-label="Gehe zur News-Erstellen Seite" onClick={() => router.push("/news?p=1")}>
+            <Button
+              variant="contained"
+              aria-label="Gehe zur News-Erstellen Seite"
+              onClick={() => router.push("/news?p=1")}
+            >
               {t("news:backToPageOneButton")}
             </Button>
           </Box>

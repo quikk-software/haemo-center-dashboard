@@ -23,7 +23,9 @@ import pages from "@/routes";
 const publicUrls = ["/auth/login"];
 const isPublicUrl = (url: string) => publicUrls.includes(url);
 
-const AuthGuard: React.FC<PropsWithChildren<Record<never, any>>> = ({ children }) => {
+const AuthGuard: React.FC<PropsWithChildren<Record<never, any>>> = ({
+  children,
+}) => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { redirectUrl } = useRedirect();
