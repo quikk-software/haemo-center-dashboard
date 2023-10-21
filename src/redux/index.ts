@@ -11,7 +11,7 @@ import {
   I18nState,
   initialState as i18nInitialState,
 } from "../components/i18n/i18nSlice";
-import { configureStore } from "@reduxjs/toolkit";
+import { applyMiddleware, configureStore } from "@reduxjs/toolkit";
 import {
   getLocalStorageItem,
   LocalStorageKey,
@@ -25,6 +25,13 @@ import {
   SnackbarSliceState,
   initialState as snackbarInitialState,
 } from "@/components/layout/snackbarSlice";
+import {
+  UserOverviewState,
+  initialState as userOverviewInitialState,
+} from "@/components/overview/userOverviewSlice";
+
+import thunkMiddleware from "redux-thunk";
+import { composeWithDevTools } from "redux-devtools-extension";
 
 const accessToken = getLocalStorageItem<string, string | null>(
   LocalStorageKey.accessToken,
@@ -47,6 +54,7 @@ export interface Store {
   snackbar: SnackbarSliceState;
   news: NewsState;
   i18n: I18nState;
+  userOverview: UserOverviewState;
 }
 
 const initialStore: Store = {
@@ -66,6 +74,7 @@ const initialStore: Store = {
     ...i18nInitialState,
     language,
   },
+  userOverview: { ...userOverviewInitialState },
 };
 
 export const store = configureStore({

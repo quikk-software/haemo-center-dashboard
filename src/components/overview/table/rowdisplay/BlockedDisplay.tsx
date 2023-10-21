@@ -11,7 +11,7 @@ type Props = {
   onSuccess: () => void;
 };
 
-const BlockedSelector: React.FC<Props> = ({ id, blocked, onSuccess }) => {
+const BlockedDisplay: React.FC<Props> = ({ id, blocked, onSuccess }) => {
   const { request: blockUserRequest, response: blockUserResponse } =
     useBlockUser({ id });
   const { request: unblockUserRequest, response: unblockUserResponse } =
@@ -54,4 +54,4 @@ const BlockedSelector: React.FC<Props> = ({ id, blocked, onSuccess }) => {
   );
 };
 
-export default BlockedSelector;
+export default BlockedDisplay;

@@ -9,7 +9,7 @@ import { GridFilterModel, GridPaginationModel } from "@mui/x-data-grid";
 import buildKeyCloakQueryString from "@/core/keycloak.utils";
 import logger from "@/core/logger";
 
-const initialTableConfig: TableConfig = {
+export const initialTableConfig: TableConfig = {
   query: DEFAULT_QUERY,
   pageNumber: DEFAULT_PAGE_NUMBER,
   pageSize: DEFAULT_PAGE_SIZE,

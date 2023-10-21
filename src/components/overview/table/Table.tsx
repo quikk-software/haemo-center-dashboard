@@ -13,6 +13,8 @@ import useGetUsers from "@/api/users/useGetUsers";
 import logger from "@/core/logger";
 import { createColumns } from "@/components/overview/table/table.coldef";
 import { removeMuiLicenseMissing } from "@/components/overview/table/table.utils";
+import { useDispatch, useSelector } from "react-redux";
+import { Store } from "@/redux";
 
 export type Props = {
   type: View;
@@ -26,15 +28,14 @@ const Table: React.FC<Props> = ({ type }) => {
     query,
   } = useTableConfig(type);
 
-  const { request, response } = useGetUsers({ query, pageSize, pageNumber });
+  const dispatch = useDispatch();
+
+  const { request } = useGetUsers({ query, pageSize, pageNumber });
+  const { users } = useSelector((store: Store) => store.userOverview);
 
   useEffect(() => {
     request();
   }, [query, pageSize, pageNumber]);
-
-  useEffect(() => {
-    logger.debug(response);
-  }, [response]);
 
   return (
     <Stack direction="column" spacing={Size.SMALL}>
@@ -43,7 +44,7 @@ const Table: React.FC<Props> = ({ type }) => {
       </Typography>
       <DataGrid
         onStateChange={removeMuiLicenseMissing}
-        rows={response ?? []}
+        rows={users}
         // @ts-ignore
         columns={createColumns(() => request()) ?? []}
         sx={{ m: Size.MEDIUM }}

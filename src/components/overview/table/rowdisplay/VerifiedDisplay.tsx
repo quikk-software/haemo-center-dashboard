@@ -13,7 +13,7 @@ type Props = {
   onSuccess: () => void;
 };
 
-const VerifiedSelector: React.FC<Props> = ({ id, enabled, onSuccess }) => {
+const VerifiedDisplay: React.FC<Props> = ({ id, enabled, onSuccess }) => {
   const { request: activteUser, response: activateUserResponse } =
     useActivateUser({ id });
   const { request: deactivateUserRequest, response: deactivateUserResponse } =
@@ -56,4 +56,4 @@ const VerifiedSelector: React.FC<Props> = ({ id, enabled, onSuccess }) => {
   );
 };
 
-export default VerifiedSelector;
+export default VerifiedDisplay;
