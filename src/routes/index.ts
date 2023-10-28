@@ -40,6 +40,16 @@ const pages: readonly Page[] = [
     pathname: "/verify/account/[code]",
     description: "Account Verifizieren",
   },
+  {
+    title: "Rezepte einsehen",
+    pathname: "/prescriptions/user/[id]",
+    description: "Rezepte einsehen",
+  },
+  {
+    title: "Rezept",
+    pathname: "/prescriptions/[id]",
+    description: "Rezept",
+  },
   ...errorPages,
 ] as const;
 
