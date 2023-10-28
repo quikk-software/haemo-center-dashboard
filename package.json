@@ -9,7 +9,8 @@
     "build": "next build",
     "start": "next start",
     "generate-user": "npx swagger-typescript-api -p http://localhost:3004/api-docs/swagger.json -o ./src/@types -n user.ts",
-    "generate-feed": "npx swagger-typescript-api -p http://localhost:3001/api-docs/swagger.json -o ./src/@types -n feed.ts"
+    "generate-feed": "npx swagger-typescript-api -p http://localhost:3001/api-docs/swagger.json -o ./src/@types -n feed.ts",
+    "generate-prescription": "npx swagger-typescript-api -p http://localhost:3005/api-docs/swagger.json -o ./src/@types -n prescription.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",

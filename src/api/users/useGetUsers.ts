@@ -1,11 +1,10 @@
 import { getApi, userApi } from "@/@types";
 import { useDispatch, useSelector } from "react-redux";
 import { Store } from "@/redux";
-import { TableConfig } from "@/components/overview/table";
+import { TableConfig } from "@/components/overview/table/table.types";
 import { useCallback, useState } from "react";
-import { ListUsersResponse } from "@/@types/user";
 import { Dispatch } from "redux";
-import { setUsers } from "@/components/overview/userOverviewSlice";
+import { setUsers } from "@/components/overview/users/userOverviewSlice";
 
 type Props = TableConfig;
 

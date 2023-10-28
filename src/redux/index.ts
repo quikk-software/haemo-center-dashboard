@@ -28,7 +28,7 @@ import {
 import {
   UserOverviewState,
   initialState as userOverviewInitialState,
-} from "@/components/overview/userOverviewSlice";
+} from "@/components/overview/users/userOverviewSlice";
 
 import thunkMiddleware from "redux-thunk";
 import { composeWithDevTools } from "redux-devtools-extension";

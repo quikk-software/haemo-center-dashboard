@@ -1,16 +1,11 @@
 import {
   GridColDef,
   GridRenderCellParams,
-  GridValidRowModel,
   GridValueGetterParams,
 } from "@mui/x-data-grid";
-import { Alert, Button, Chip } from "@mui/material";
-import logger from "@/core/logger";
 import { GetUserResponse } from "@/@types/user";
 import Link from "@/components/common/Link";
-import BlockedDisplay from "@/components/overview/table/rowdisplay/BlockedDisplay";
-import VerifiedDisplay from "@/components/overview/table/rowdisplay/VerifiedDisplay";
-import Action from "@/components/overview/table/rowdisplay/Action";
+import MoreActionsButton from "@/components/overview/users/cells/MoreActionsButton";
 
 export const createColumns: (
   reset: () => void,
@@ -52,27 +47,21 @@ export const createColumns: (
   {
     field: "blocked",
     headerName: "Blockiert",
+    valueGetter: (params: GridRenderCellParams<GetUserResponse>) => {
+      return params.row.blocked ? "Ja" : "Nein";
+    },
     renderCell: (params: GridRenderCellParams<GetUserResponse>) => {
-      const { blocked, id } = params.row;
-
-      if (id === undefined) {
-        return <>-</>;
-      }
-
-      return <BlockedDisplay id={id} blocked={!!blocked} onSuccess={reset} />;
+      return params.row.blocked ? "Ja" : "Nein";
     },
   },
   {
     field: "enabled",
     headerName: "Verifiziert",
+    valueGetter: (params: GridRenderCellParams<GetUserResponse>) => {
+      return params.row.enabled ? "Ja" : "Nein";
+    },
     renderCell: (params: GridRenderCellParams<GetUserResponse>) => {
-      const { enabled, id } = params.row;
-
-      if (id === undefined) {
-        return <>-</>;
-      }
-
-      return <VerifiedDisplay id={id} enabled={!!enabled} onSuccess={reset} />;
+      return params.row.enabled ? "Ja" : "Nein";
     },
   },
   {
@@ -81,7 +70,13 @@ export const createColumns: (
     renderCell: (params: GridRenderCellParams<GetUserResponse>) => {
       const { enabled, id, blocked } = params.row;
 
-      return <Action enabled={!!enabled} blocked={!!blocked} id={id ?? ""} />;
+      return (
+        <MoreActionsButton
+          enabled={!!enabled}
+          blocked={!!blocked}
+          id={id ?? ""}
+        />
+      );
     },
   },
 ];

@@ -19,7 +19,7 @@ const useVerifyAccount = ({ code }: Props) => {
         ...(await getApi(accessToken, refreshToken, dispatch)),
       },
     );
-    setResponse(response.ok);
+    setResponse(true);
   }, [accessToken, dispatch, code, refreshToken]);
 
   return { request, response };
