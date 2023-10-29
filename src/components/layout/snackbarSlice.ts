@@ -3,13 +3,13 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 
 export type SnackbarState = {
-  open: boolean,
-  message: string,
-  severity: AlertColor,
-}
+  open: boolean;
+  message: string;
+  severity: AlertColor;
+};
 
 export type SnackbarSliceState = {
-  snackbarState: SnackbarState,
+  snackbarState: SnackbarState;
 };
 
 export const initialState: SnackbarSliceState = {
@@ -26,7 +26,5 @@ export const snackbarSlice = createSlice({
   },
 });
 
-export const {
-  setSnackbarState,
-} = snackbarSlice.actions;
+export const { setSnackbarState } = snackbarSlice.actions;
 export default snackbarSlice.reducer;

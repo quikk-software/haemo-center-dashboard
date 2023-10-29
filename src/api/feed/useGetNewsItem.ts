@@ -11,12 +11,9 @@ const useGetNewsItem = (id: number) => {
   const [response, setResponse] = useState<GetNewsResponse>();
 
   const request = useCallback(async () => {
-    const response = await feedApi.api.v1NewsDetail(
-      id,
-      {
-        ...(await getApi(accessToken, refreshToken, dispatch)),
-      },
-    );
+    const response = await feedApi.api.v1NewsDetail(id, {
+      ...(await getApi(accessToken, refreshToken, dispatch)),
+    });
     setResponse(response.data);
   }, [accessToken, dispatch, refreshToken, id]);
 

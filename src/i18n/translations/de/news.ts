@@ -32,7 +32,8 @@ const news = {
   createButton: "News erstellen",
   updateButton: "News bearbeiten",
   newsAppearance: "Diese News werden in Feeds so aussehen:",
-  linkEditorBehavior: "Links werden nur von diesem Editor aus in einem neuen Tab geöffnet.",
+  linkEditorBehavior:
+    "Links werden nur von diesem Editor aus in einem neuen Tab geöffnet.",
   backToNewsOverviewButton: "Zur News-Übersicht zurück",
   backToNewsOverviewAriaLabel: "Zur News-Übersicht zurückgehen",
   newsEntryNotFound: "News-Eintrag nicht gefunden",
@@ -48,4 +49,3 @@ const news = {
 };
 
 export default news;
-  

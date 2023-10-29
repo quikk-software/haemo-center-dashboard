@@ -1,5 +1,6 @@
 import { Api as UserApi } from "./user";
 import { Api as FeedApi } from "./feed";
+import { Api as PrescriptionApi } from "./prescription";
 import {
   getAccessTokenUsingRefreshToken,
   isTokenExpired,
@@ -14,6 +15,10 @@ const userApi = new UserApi({
 
 const feedApi = new FeedApi({
   baseUrl: Api.FEED_API,
+});
+
+const prescriptionApi = new PrescriptionApi({
+  baseUrl: Api.PRESCRIPTION_API,
 });
 
 const getApi = async (
@@ -50,4 +55,4 @@ const getApi = async (
   return params;
 };
 
-export { userApi, feedApi, getApi };
+export { userApi, feedApi, prescriptionApi, getApi };

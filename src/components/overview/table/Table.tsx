@@ -1,51 +1,30 @@
-import React, { useEffect } from "react";
-import { View } from "./table.types";
-import { DataGridPro as DataGrid } from "@mui/x-data-grid-pro";
-import { Stack, Typography } from "@mui/material";
+import { removeMuiLicenseMissing } from "@/components/overview/table/table.utils";
 import Size from "@/components/layout/size";
-import { theme } from "@/theme";
 import {
   DEFAULT_PAGE_SIZE,
   PAGE_SIZE_OPTIONS,
 } from "@/components/overview/table/table.constants";
-import useTableConfig from "@/components/overview/table/useTableConfig";
-import useGetUsers from "@/api/users/useGetUsers";
-import logger from "@/core/logger";
-import { createColumns } from "@/components/overview/table/table.coldef";
-import { removeMuiLicenseMissing } from "@/components/overview/table/table.utils";
+import { Stack, Typography } from "@mui/material";
+import {
+  DataGridProProps,
+  DataGridPro as DataGrid,
+} from "@mui/x-data-grid-pro";
+import React from "react";
+import { theme } from "@/theme";
 
-export type Props = {
-  type: View;
-};
-const Table: React.FC<Props> = ({ type }) => {
-  const {
-    handlePaginationModelChange,
-    handleFilterModelChange,
-    pageNumber,
-    pageSize,
-    query,
-  } = useTableConfig(type);
+type Props = { title: string } & Pick<DataGridProProps, "rows" | "columns">;
 
-  const { request, response } = useGetUsers({ query, pageSize, pageNumber });
-
-  useEffect(() => {
-    request();
-  }, [query, pageSize, pageNumber]);
-
-  useEffect(() => {
-    logger.debug(response);
-  }, [response]);
-
+const Table: React.FC<Props> = ({ rows, columns, title }) => {
   return (
     <Stack direction="column" spacing={Size.SMALL}>
       <Typography variant="h4" color={theme.palette.text.primary}>
-        Übersicht: {type}
+        {title}
       </Typography>
       <DataGrid
+        rows={rows}
+        columns={columns}
         onStateChange={removeMuiLicenseMissing}
-        rows={response ?? []}
         // @ts-ignore
-        columns={createColumns(() => request()) ?? []}
         sx={{ m: Size.MEDIUM }}
         initialState={{
           pagination: { paginationModel: { pageSize: DEFAULT_PAGE_SIZE } },
@@ -53,8 +32,19 @@ const Table: React.FC<Props> = ({ type }) => {
         pageSizeOptions={PAGE_SIZE_OPTIONS}
         checkboxSelection
         disableRowSelectionOnClick
-        onPaginationModelChange={handlePaginationModelChange}
-        onFilterModelChange={handleFilterModelChange}
+        // onFilterModelChange={handleFilterModelChange}
+        slots={{
+          noRowsOverlay: () => (
+            <Stack height="30vh" alignItems="center" justifyContent="center">
+              No rows in DataGrid
+            </Stack>
+          ),
+          noResultsOverlay: () => (
+            <Stack height="30vh" alignItems="center" justifyContent="center">
+              Local filter returns no result
+            </Stack>
+          ),
+        }}
       />
     </Stack>
   );

@@ -3,7 +3,7 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Container from "@mui/material/Container";
 import { theme } from "../../../theme";
-import { NoSsr, Typography } from "@mui/material";
+import { Box, NoSsr, Typography } from "@mui/material";
 import { APP_NAME } from "@/constants";
 import Link from "@/components/common/Link";
 import VaccinesIcon from "@mui/icons-material/Vaccines";
@@ -11,6 +11,7 @@ import useAuth from "@/components/auth/useAuth";
 import { useEffect } from "react";
 import Avatar from "@/components/layout/Header/Avatar";
 import { hasPageBeenMounted } from "@/core/utils";
+import { NoSSR } from "next/dist/shared/lib/lazy-dynamic/dynamic-no-ssr";
 
 const getInitials = (name: string) =>
   name
@@ -26,28 +27,43 @@ const Index = () => {
   }, []);
 
   return (
-    <header>
+    <Box>
       <AppBar
         sx={{
           backgroundColor: theme.palette.grey[100],
         }}
         elevation={0}
+        suppressHydrationWarning
       >
-        <Container>
-          <Toolbar disableGutters style={{ justifyContent: "space-between" }}>
-            <Typography variant="h3" color={theme.palette.text.primary}>
+        <Container suppressHydrationWarning>
+          <Toolbar
+            disableGutters
+            style={{ justifyContent: "space-between" }}
+            suppressHydrationWarning
+          >
+            <Typography
+              variant="h3"
+              color={theme.palette.text.primary}
+              suppressHydrationWarning
+            >
               <Link href="/">
                 {APP_NAME} <VaccinesIcon fontSize="inherit" />
               </Link>
             </Typography>
-            {isLoggedIn && hasPageBeenMounted() && (
-              <Avatar alt={username}>{getInitials(username)}</Avatar>
-            )}
+            <NoSSR>
+              {isLoggedIn && hasPageBeenMounted() ? (
+                <Avatar alt={username} suppressHydrationWarning>
+                  {getInitials(username)}
+                </Avatar>
+              ) : (
+                <></>
+              )}
+            </NoSSR>
           </Toolbar>
         </Container>
       </AppBar>
       <Toolbar />
-    </header>
+    </Box>
   );
 };
 

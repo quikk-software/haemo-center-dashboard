@@ -7,10 +7,10 @@ const News: React.FC = () => {
 
   const id = useMemo(() => {
     if (router.query.id === undefined) {
-        return undefined;
+      return undefined;
     }
     if (typeof router.query.id === "object") {
-        return undefined;
+      return undefined;
     }
     return router.query.id;
   }, [router.query.id]);

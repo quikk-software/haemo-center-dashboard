@@ -18,7 +18,7 @@ const useBlockUser = ({ id }: Props) => {
     const res = await userApi.api.v1UsersBlockDetail(id, {
       ...(await getApi(accessToken, refreshToken, dispatch)),
     });
-    setResponse(res.ok);
+    setResponse(true);
   }, [accessToken, dispatch, refreshToken]);
 
   return { request, response };

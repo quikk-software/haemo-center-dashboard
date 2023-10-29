@@ -19,11 +19,22 @@ import { hasPageBeenMounted } from "@/core/utils";
 import useAuth from "@/components/auth/useAuth";
 import LoadingScreen from "@/components/layout/LoadingScreen";
 import pages from "@/routes";
+import { NoSsr } from "@mui/material";
 
-const publicUrls = ["/auth/login"];
-const isPublicUrl = (url: string) => publicUrls.includes(url);
+const publicUrls = [
+  "/auth/login",
+  "/auth/forgot-password",
+  "/verify/account/[code]",
+];
+const isPublicUrl = (url: string) => {
+  const isPublic = publicUrls.includes(url);
+  logger.debug(`${isPublic}: ${url}`);
+  return isPublic;
+};
 
-const AuthGuard: React.FC<PropsWithChildren<Record<never, any>>> = ({ children }) => {
+const AuthGuard: React.FC<PropsWithChildren<Record<never, any>>> = ({
+  children,
+}) => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { redirectUrl } = useRedirect();
@@ -107,11 +118,7 @@ const AuthGuard: React.FC<PropsWithChildren<Record<never, any>>> = ({ children }
     router.events.on("routeChangeStart", hideContent);
     router.events.on("routeChangeComplete", checkAuth);
 
-    if (
-      !isLoggedIn &&
-      hasPageBeenMounted() &&
-      router.pathname !== "/auth/login"
-    ) {
+    if (!isLoggedIn && hasPageBeenMounted() && !isPublicUrl(router.pathname)) {
       router.push({
         pathname: `/auth/login`,
       });
@@ -139,10 +146,18 @@ const AuthGuard: React.FC<PropsWithChildren<Record<never, any>>> = ({ children }
   });
 
   if (!showLoadingScreen || isAccessibleWithoutAccount) {
-    return children;
+    return (
+      <NoSsr>
+        <>{children}</>
+      </NoSsr>
+    );
   }
 
-  return <LoadingScreen />;
+  return (
+    <NoSsr>
+      <LoadingScreen />
+    </NoSsr>
+  );
 };
 
 export default AuthGuard;
