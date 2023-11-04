@@ -54,7 +54,7 @@ const LoginScreen: React.FC = () => {
         <TextField
           margin="normal"
           fullWidth
-          label="Email Address"
+          label={t("auth:hintUsername")}
           autoComplete="email"
           autoFocus
           onChange={(e) => dispatch(setUsername(e.target.value))}
@@ -65,7 +65,7 @@ const LoginScreen: React.FC = () => {
         <TextField
           margin="normal"
           fullWidth
-          label="Password"
+          label={t("auth:hintPassword")}
           type="password"
           autoComplete="current-password"
           onChange={(e) => dispatch(setPassword(e.target.value))}
@@ -84,11 +84,8 @@ const LoginScreen: React.FC = () => {
         </Button>
         <Grid container>
           <Grid item xs>
-            <Link
-              href="/auth/forgot-password"
-              muiLinkProps={{ variant: "body2" }}
-            >
-              Forgot password?
+            <Link href="/forgot-password" muiLinkProps={{ variant: "body2" }}>
+              {t("auth:forgotPassword")}
             </Link>
           </Grid>
         </Grid>

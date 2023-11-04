@@ -3,6 +3,9 @@ export type Translation = {
     login: string;
     loginTitle: string;
     logout: string;
+    hintUsername: string;
+    hintPassword: string;
+    forgotPassword: string;
   };
   news: {
     title: string;
