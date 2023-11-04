@@ -13,6 +13,7 @@ import { initialTableConfig } from "@/components/overview/table/useTableConfig";
 import Verify from "@/components/overview/users/cells/Verify";
 import Block from "@/components/overview/users/cells/Block";
 import ViewPrescriptions from "@/components/overview/users/cells/ViewPrescriptions";
+import ViewAppointments from "@/components/overview/users/cells/ViewAppointments";
 
 export type Props = {
   id: string;
@@ -43,6 +44,7 @@ const MoreActionsButton: React.FC<Props> = ({ id, blocked, enabled }) => {
         <MoreVert />
       </IconButton>
       <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleClose}>
+        <ViewAppointments handleClose={handleClose} id={id} />
         <ViewPrescriptions handleClose={handleClose} id={id} />
         <Divider />
         <Verify
