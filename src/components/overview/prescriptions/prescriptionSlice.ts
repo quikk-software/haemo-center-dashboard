@@ -4,10 +4,12 @@ import { GetPrescriptionResponse } from "@/@types/prescription";
 
 export type PrescriptionState = {
   prescriptions: GetPrescriptionResponse[];
+  prescription: GetPrescriptionResponse | null;
 };
 
 export const initialState: PrescriptionState = {
   prescriptions: [],
+  prescription: null,
 };
 
 export const prescriptionSlice = createSlice({
@@ -20,8 +22,11 @@ export const prescriptionSlice = createSlice({
     ) => {
       state.prescriptions = action.payload;
     },
+    setPrescription: (state, action) => {
+      state.prescription = action.payload;
+    },
   },
 });
 
-export const { setPrescriptions } = prescriptionSlice.actions;
+export const { setPrescriptions, setPrescription } = prescriptionSlice.actions;
 export default prescriptionSlice.reducer;

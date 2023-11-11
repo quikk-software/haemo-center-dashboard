@@ -5,25 +5,24 @@ import { createColumns } from "@/components/overview/prescriptions/prescriptionT
 import { useSelector } from "react-redux";
 import { Store } from "@/redux";
 import useGetPrescriptions from "@/api/prescriptions/useGetPrescriptions";
+import useQuery from "@/utils/useQuery";
 
 const PrescriptionTable: React.FC = () => {
   const router = useRouter();
-  const { id } = router.query;
-  const idFromQuery =
-    typeof id === "string" ? id : Array.isArray(id) ? id[0] : undefined;
+  const id = useQuery("id");
 
   const { request } = useGetPrescriptions();
   const { prescriptions } = useSelector((store: Store) => store.prescriptions);
 
   useEffect(() => {
-    if (idFromQuery !== undefined) {
-      request(idFromQuery);
+    if (id !== undefined) {
+      request(id);
     }
   }, [router]);
 
   return (
     <Table
-      title={`Rezepte für ${idFromQuery}`}
+      title={`Rezepte für ${id}`}
       rows={prescriptions}
       // @ts-ignore
       columns={createColumns() ?? []}

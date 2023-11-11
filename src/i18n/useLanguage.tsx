@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { Language } from "@/i18n/i18n.types";
 import { setLanguage } from "@/components/i18n/i18nSlice";
-import { Translation, TypeSafeIdentifier } from "@/i18n/translation.types";
 import { TOptions } from "i18next";
 
 const useLanguage = () => {
@@ -22,7 +21,8 @@ const useLanguage = () => {
     await changeLanguageFromI18n(language);
   };
 
-  const t = (key: TypeSafeIdentifier, options?: TOptions) => {
+  // TODO: for now, we will use string as translation key (Lukas)
+  const t = (key: string, options?: TOptions) => {
     return tFromI18n(key, options);
   };
 

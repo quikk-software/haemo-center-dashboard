@@ -5,25 +5,24 @@ import { createColumns } from "@/components/overview/meetings/meetingTable.colde
 import { useSelector } from "react-redux";
 import { Store } from "@/redux";
 import useGetMeetings from "@/api/scheduling/useGetMeetings";
+import useQuery from "@/utils/useQuery";
 
 const MeetingTable: React.FC = () => {
   const router = useRouter();
-  const { id } = router.query;
-  const idFromQuery =
-    typeof id === "string" ? id : Array.isArray(id) ? id[0] : "";
+  const id = useQuery("id");
 
   const { request } = useGetMeetings();
   const { meetings } = useSelector((store: Store) => store.meetings);
 
   useEffect(() => {
-    if (idFromQuery !== undefined) {
-      request(idFromQuery);
+    if (id !== undefined) {
+      request(id);
     }
   }, [router]);
 
   return (
     <Table
-      title={`Termine für ${idFromQuery}`}
+      title={`Termine für ${id}`}
       rows={meetings}
       // @ts-ignore
       columns={createColumns() ?? []}
