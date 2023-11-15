@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "center-dashboard.fullname" . }}
+  labels:
+    {{- include "center-dashboard.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "center-dashboard.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "center-dashboard.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "center-dashboard.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.env.port }}
+              protocol: TCP
+          env:
+            - name: LOGLEVEL
+              value: {{ .Values.env.loglevel | quote }}
+            - name: PORT
+              value: {{ .Values.env.port | quote }}
+            {{- if .Values.service.pathPrefix }}
+            - name: PATH_PREFIX
+              value: {{ .Values.service.pathPrefix | quote }}
+            {{- end }}
+            {{- if .Values.external.userAPI }}
+            - name: EXTERNAL_USER_API_URL
+              value: {{ .Values.external.userAPI | quote }}
+            {{- end }}
+            {{- if .Values.external.feedAPI }}
+            - name: EXTERNAL_FEED_API_URL
+              value: {{ .Values.external.feedAPI | quote }}
+            {{- end }}
+            {{- if .Values.external.prescriptionAPI }}
+            - name: EXTERNAL_PRESCRIPTION_API_URL
+              value: {{ .Values.external.prescriptionAPI | quote }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
