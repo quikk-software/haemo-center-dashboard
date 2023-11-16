@@ -7,6 +7,7 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
+ENV PATH_PREFIX /center-dashboard
 RUN yarn build
 
 FROM node:18-alpine
@@ -23,7 +24,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/BUILD_ID /app/.next/BUILD_I
 COPY --from=builder --chown=nextjs:nodejs /app/.next/build-manifest.json /app/.next/build-manifest.json
 COPY --from=builder --chown=nextjs:nodejs /app/.next/export-marker.json /app/.next/export-marker.json
 COPY --from=builder --chown=nextjs:nodejs /app/.next/images-manifest.json /app/.next/images-manifest.json
-COPY --from=builder --chown=nextjs:nodejs /app/.next/next-minimal-server.js.nft.json /app/.next/next-minimal-server.js.nft.json
 COPY --from=builder --chown=nextjs:nodejs /app/.next/next-server.js.nft.json /app/.next/next-server.js.nft.json
 COPY --from=builder --chown=nextjs:nodejs /app/.next/prerender-manifest.js /app/.next/prerender-manifest.js
 COPY --from=builder --chown=nextjs:nodejs /app/.next/prerender-manifest.json /app/.next/prerender-manifest.json
@@ -40,5 +40,6 @@ EXPOSE 3000
 
 ENV PORT 3000
 ENV NEXT_TELEMETRY_DISABLED 1
+ENV PATH_PREFIX /center-dashboard
 
 CMD ["yarn", "start"]
