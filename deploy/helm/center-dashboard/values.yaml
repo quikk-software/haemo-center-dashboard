@@ -22,6 +22,8 @@ external:
   port: 80
   # external host, see external.port
   host: ""
+  # external keycloak base URL, e.g. http://keycloak/keycloak
+  keycloakBaseURL: ""
   # address the user service API is reachable from the Internet
   userAPI: ""
   # address the feed service API is reachable from the Internet
