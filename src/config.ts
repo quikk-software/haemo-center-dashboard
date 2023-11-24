@@ -1,6 +1,6 @@
 enum Api {
-  USER_API = "http://localhost:3004",
-  FEED_API = "http://localhost:3001",
+    USER_API = process.env.USER_API_BASE_URL,
+    FEED_API = process.env.FEED_API_BASE_URL,
 }
 
 export default Api;
