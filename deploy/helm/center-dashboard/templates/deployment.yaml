@@ -43,23 +43,23 @@ spec:
             - name: PORT
               value: {{ .Values.env.port | quote }}
             {{- if .Values.service.pathPrefix }}
-            - name: PATH_PREFIX
+            - name: NEXT_PUBLIC_PATH_PREFIX
               value: {{ .Values.service.pathPrefix | quote }}
             {{- end }}
             {{- if .Values.external.keycloakBaseURL }}
-            - name: EXTERNAL_KEYCLOAK_BASE_URL
+            - name: NEXT_PUBLIC_EXTERNAL_KEYCLOAK_BASE_URL
               value: {{ .Values.external.keycloakBaseURL | quote }}
             {{- end }}
             {{- if .Values.external.userAPI }}
-            - name: EXTERNAL_USER_API_URL
+            - name: NEXT_PUBLIC_EXTERNAL_USER_API_URL
               value: {{ .Values.external.userAPI | quote }}
             {{- end }}
             {{- if .Values.external.feedAPI }}
-            - name: EXTERNAL_FEED_API_URL
+            - name: NEXT_PUBLIC_EXTERNAL_FEED_API_URL
               value: {{ .Values.external.feedAPI | quote }}
             {{- end }}
             {{- if .Values.external.prescriptionAPI }}
-            - name: EXTERNAL_PRESCRIPTION_API_URL
+            - name: NEXT_PUBLIC_EXTERNAL_PRESCRIPTION_API_URL
               value: {{ .Values.external.prescriptionAPI | quote }}
             {{- end }}
           resources:

@@ -8,6 +8,7 @@ WORKDIR /app
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 ENV PATH_PREFIX /center-dashboard
+ENV NEXT_PUBLIC_PATH_PREFIX /center-dashboard
 RUN yarn build
 
 FROM node:18-alpine
