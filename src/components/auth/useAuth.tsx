@@ -35,23 +35,27 @@ const useAuth = () => {
         return undefined;
       }
 
-      const res = await axios.get(USER_DATA_URL(userId), {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+      // TODO: Sobald die API Route steht: Tatsächlichen Namen fetchen
 
-      // TODO: Add profile picture, etc...
+      // const res = await axios.get(USER_DATA_URL(userId), {
+      //   headers: {
+      //     Authorization: `Bearer ${accessToken}`,
+      //   },
+      // });
+      //
+      // // TODO: Add profile picture, etc...
+      //
+      // const {
+      //   data,
+      // }: {
+      //   data: {
+      //     username: string;
+      //   };
+      // } = res;
 
-      const {
-        data,
-      }: {
-        data: {
-          username: string;
-        };
-      } = res;
+      const username = "TEST USER!";
 
-      dispatch(setUsername(data.username));
+      dispatch(setUsername(username));
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [accessToken],

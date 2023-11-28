@@ -1,8 +1,8 @@
 import React from "react";
-import Table from "@/components/overview/table";
+import UserTable from "@/components/overview/users/UserTable";
 
 const Index: React.FC = () => {
-  return <Table type="patient" />;
+  return <UserTable />;
 };
 
 export default Index;

@@ -11,7 +11,20 @@ export type PatchNewsProps = {
   link?: string;
 };
 
-export const patchNews = async ({ newsId, image, imageMIMEType, headline, text, creatorName, link }: PatchNewsProps, accessToken: string | null, refreshToken: string | null, dispatch: Dispatch) => {
+export const patchNews = async (
+  {
+    newsId,
+    image,
+    imageMIMEType,
+    headline,
+    text,
+    creatorName,
+    link,
+  }: PatchNewsProps,
+  accessToken: string | null,
+  refreshToken: string | null,
+  dispatch: Dispatch,
+) => {
   const response = await feedApi.api.v1NewsPartialUpdate(
     { newsId, image, imageMIMEType, headline, text, creatorName, link },
     {

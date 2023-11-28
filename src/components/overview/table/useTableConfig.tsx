@@ -5,10 +5,10 @@ import {
   DEFAULT_PAGE_SIZE,
   DEFAULT_QUERY,
 } from "@/components/overview/table/table.constants";
-import { GridFilterModel, GridPaginationModel } from "@mui/x-data-grid";
+import { GridPaginationModel } from "@mui/x-data-grid";
 import buildKeyCloakQueryString from "@/core/keycloak.utils";
 
-const initialTableConfig: TableConfig = {
+export const initialTableConfig: TableConfig = {
   query: DEFAULT_QUERY,
   pageNumber: DEFAULT_PAGE_NUMBER,
   pageSize: DEFAULT_PAGE_SIZE,
@@ -19,14 +19,14 @@ const getFilterForType = (type: View) =>
     { field: "role", value: type, operator: "equals" },
   ]);
 
-const useTableConfig = (type: View) => {
+const useTableConfig = () => {
   const [tableConfig, setTableConfig] = useState(initialTableConfig);
 
-  const updateQuery = (filter: GridFilterModel) => {
-    const query = buildKeyCloakQueryString(filter.items);
-    console.log("query", query);
-    setTableConfig((tableConfig) => ({ ...tableConfig, query }));
-  };
+  // const updateQuery = (filter: GridFilterModel) => {
+  //   const query = buildKeyCloakQueryString(filter.items);
+  //   logger.log("query", query);
+  //   setTableConfig((tableConfig) => ({ ...tableConfig, query }));
+  // };
 
   const updatePageNumber = (pageNumber: number) => {
     setTableConfig((tableConfig) => ({ ...tableConfig, pageNumber }));
@@ -43,14 +43,14 @@ const useTableConfig = (type: View) => {
     updatePageSize(paginationModel.pageSize);
   };
 
-  const handleFilterModelChange = (filterModel: GridFilterModel) => {
-    updateQuery(filterModel);
-  };
+  // const handleFilterModelChange = (filterModel: GridFilterModel) => {
+  //   updateQuery(filterModel);
+  // };
 
   return {
     ...tableConfig,
     handlePaginationModelChange,
-    handleFilterModelChange,
+    // handleFilterModelChange,
   };
 };
 

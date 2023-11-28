@@ -3,6 +3,9 @@ export type Translation = {
     login: string;
     loginTitle: string;
     logout: string;
+    hintUsername: string;
+    hintPassword: string;
+    forgotPassword: string;
   };
   news: {
     title: string;
@@ -27,7 +30,7 @@ export type Translation = {
       newsUpdateSuccess: string;
       error: string;
       errorWithStatusCode: string;
-    },
+    };
     altNewsImage: string;
     headlineFieldLabel: string;
     creatorNameFieldLabel: string;
@@ -46,7 +49,7 @@ export type Translation = {
       title: string;
       cancelButton: string;
       deleteButton: string;
-    },
+    };
     followNewsLinkButton: string;
     editButton: string;
     deleteButton: string;

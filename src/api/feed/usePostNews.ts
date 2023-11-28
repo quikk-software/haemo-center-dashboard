@@ -14,7 +14,12 @@ export type PostNewsProps = {
   link: string;
 };
 
-export const postNews = async ({ image, imageMIMEType, headline, text, creatorName, link }: PostNewsProps, accessToken: string | null, refreshToken: string | null, dispatch: Dispatch) => {
+export const postNews = async (
+  { image, imageMIMEType, headline, text, creatorName, link }: PostNewsProps,
+  accessToken: string | null,
+  refreshToken: string | null,
+  dispatch: Dispatch,
+) => {
   const response = await feedApi.api.v1NewsCreate(
     { image, imageMIMEType, headline, text, creatorName, link },
     {
@@ -24,7 +29,14 @@ export const postNews = async ({ image, imageMIMEType, headline, text, creatorNa
   return response;
 };
 
-const usePostNews = ({ image, imageMIMEType, headline, text, creatorName, link }: PostNewsProps) => {
+const usePostNews = ({
+  image,
+  imageMIMEType,
+  headline,
+  text,
+  creatorName,
+  link,
+}: PostNewsProps) => {
   const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
   const dispatch = useDispatch();
 
@@ -38,7 +50,17 @@ const usePostNews = ({ image, imageMIMEType, headline, text, creatorName, link }
       },
     );
     setResponse({ id: response.data.id });
-  }, [accessToken, dispatch, image, imageMIMEType, headline, text, creatorName, link, refreshToken]);
+  }, [
+    accessToken,
+    dispatch,
+    image,
+    imageMIMEType,
+    headline,
+    text,
+    creatorName,
+    link,
+    refreshToken,
+  ]);
 
   return { request, response };
 };

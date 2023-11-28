@@ -5,7 +5,7 @@ import { useCallback, useState } from "react";
 import { ListNewsResponse } from "@/@types/feed";
 
 const useGetNews = (page: number | undefined) => {
-  const pageNumber = (page === undefined || page <= 0 )? 1 : page;
+  const pageNumber = page === undefined || page <= 0 ? 1 : page;
 
   const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
   const dispatch = useDispatch();
@@ -16,7 +16,7 @@ const useGetNews = (page: number | undefined) => {
     const response = await feedApi.api.v1NewsList(
       {
         pageNumber,
-        pageSize: 10
+        pageSize: 10,
       },
       {
         ...(await getApi(accessToken, refreshToken, dispatch)),

@@ -2,7 +2,9 @@ import React, { PropsWithChildren, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import LoadingScreen from "@/components/layout/LoadingScreen";
 
-const LoadingGuard: React.FC<PropsWithChildren<Record<never, any>>> = ({ children }) => {
+const LoadingGuard: React.FC<PropsWithChildren<Record<never, any>>> = ({
+  children,
+}) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 

@@ -28,7 +28,7 @@ export const imageToDataURL = (image: Image | undefined) => {
     return "";
   }
   return `data:${image.mIMEType};base64,${image.data}`;
-}
+};
 
 /**
  * Convert image data (expected to be in base64 encoding) and MIME type to image object
@@ -38,25 +38,27 @@ export const imageToDataURL = (image: Image | undefined) => {
  * @param mIMEType image MIME type
  * @returns image object
  */
-export const imageDataAndMIMETypeToImage = (image: string, mIMEType: string) => {
+export const imageDataAndMIMETypeToImage = (
+  image: string,
+  mIMEType: string,
+) => {
   return { data: image, mIMEType } as Image;
-}
+};
 
 export type Image = {
-  data: string,
-  mIMEType: string,
-}
+  data: string;
+  mIMEType: string;
+};
 
 export type NewsState = {
-  headline?: string,
-  text?: string,
-  creatorName?: string,
-  image?: Image,
-  link?: string,
+  headline?: string;
+  text?: string;
+  creatorName?: string;
+  image?: Image;
+  link?: string;
 };
 
-export const initialState: NewsState = {
-};
+export const initialState: NewsState = {};
 
 export const newsSlice = createSlice({
   name: "news",
@@ -80,11 +82,6 @@ export const newsSlice = createSlice({
   },
 });
 
-export const {
-  setHeadline,
-  setText,
-  setCreatorName,
-  setImage,
-  setLink,
-} = newsSlice.actions;
+export const { setHeadline, setText, setCreatorName, setImage, setLink } =
+  newsSlice.actions;
 export default newsSlice.reducer;

@@ -15,6 +15,12 @@ const pages: readonly Page[] = [
     __dangerousPageSpecificStyling: center,
   },
   {
+    title: "Passwort vergessen",
+    pathname: "/auth/forgot-password",
+    description: "Passwort zurücksetzen",
+    __dangerousPageSpecificStyling: center,
+  },
+  {
     title: "News",
     pathname: "/news",
     description: "News anlegen und bearbeiten",
@@ -28,6 +34,21 @@ const pages: readonly Page[] = [
     title: "News Editor",
     pathname: "/news/edit/[id]",
     description: "News bearbeiten",
+  },
+  {
+    title: "Account Verifizierung",
+    pathname: "/verify/account/[code]",
+    description: "Account Verifizieren",
+  },
+  {
+    title: "Rezepte einsehen",
+    pathname: "/prescriptions/user/[id]",
+    description: "Rezepte einsehen",
+  },
+  {
+    title: "Rezept",
+    pathname: "/prescriptions/[id]",
+    description: "Rezept",
   },
   ...errorPages,
 ] as const;

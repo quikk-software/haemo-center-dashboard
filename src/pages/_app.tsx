@@ -20,7 +20,6 @@ const MyApp: React.FC<AppProps> = (props) => {
   const router = useRouter();
   const currentPage = pages.find((page) => page.pathname === router.pathname)!;
   const { title, description, __dangerousPageSpecificStyling } = currentPage;
-
   return (
     <ErrorBoundary>
       <Provider store={store}>
