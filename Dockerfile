@@ -13,6 +13,7 @@ ENV NEXT_PUBLIC_EXTERNAL_KEYCLOAK_BASE_URL https://hemmo.app/keycloak
 ENV NEXT_PUBLIC_EXTERNAL_USER_API_URL https://hemmo.app/user
 ENV NEXT_PUBLIC_EXTERNAL_FEED_API_URL https://hemmo.app/feed
 ENV NEXT_PUBLIC_EXTERNAL_PRESCRIPTION_API_URL https://hemmo.app/prescription
+ENV NEXT_PUBLIC_EXTERNAL_SCHEDULING_API_URL https://hemmo.app/scheduling
 RUN yarn build
 
 FROM node:18-alpine
