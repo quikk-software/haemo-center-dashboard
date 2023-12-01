@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   CardContent,
+  Checkbox,
   CircularProgress,
   Stack,
   TextField,
@@ -28,16 +29,19 @@ import React from "react";
 import { GetUserResponse, ListUsersResponse } from "@/@types/user";
 import { useSnackbarComponent } from "../layout/Snackbar";
 import useLanguage from "@/i18n/useLanguage";
+import NewsTypeCheckboxGroup from "@/components/news/NewsTypeCheckboxGroup";
+import { CENTER_ROLE } from "@/auth/auth.constants";
 
 const NewsCreateScreen: React.FC = () => {
   const [isCreatingNews, setIsCreatingNews] = useState(false);
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [users, setUsers] = useState<GetUserResponse[]>([]);
 
-  const { headline, creatorName, text, image, link } = useSelector(
-    (store: Store) => store.news,
+  const { headline, creatorName, text, image, link, isSponsored, isAdmin } =
+    useSelector((store: Store) => store.news);
+  const { accessToken, refreshToken, roles } = useSelector(
+    (s: Store) => s.auth,
   );
-  const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
   const query = "role:professional";
   const userPageSize = 20;
   const dispatch = useDispatch();
@@ -136,6 +140,8 @@ const NewsCreateScreen: React.FC = () => {
         text: text || "",
         creatorName: creatorName || "",
         link: link || "",
+        isSponsored,
+        isAdmin,
       },
       accessToken,
       refreshToken,
@@ -159,12 +165,6 @@ const NewsCreateScreen: React.FC = () => {
     <>
       <Card>
         <CardContent>
-          {image !== undefined && imageToDataURL(image) !== "" && (
-            // The Next.js Image component provides better image loading which makes no difference for data URLs
-            // also this requires specifying width and height (for data URLs at least) up front
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={imageToDataURL(image)} alt={t("news:altNewsImage")} />
-          )}
           <Stack>
             <TextField
               id="headline"
@@ -253,6 +253,11 @@ const NewsCreateScreen: React.FC = () => {
             >
               {t("news:createButton")}
             </Button>
+            <NewsTypeCheckboxGroup
+              isSponsored={isSponsored}
+              isAdmin={isAdmin}
+              userIsCenter={roles.includes(CENTER_ROLE)}
+            />
           </Stack>
         </CardContent>
       </Card>

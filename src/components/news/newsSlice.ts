@@ -56,9 +56,14 @@ export type NewsState = {
   creatorName?: string;
   image?: Image;
   link?: string;
+  isSponsored: boolean;
+  isAdmin: boolean;
 };
 
-export const initialState: NewsState = {};
+export const initialState: NewsState = {
+  isSponsored: false,
+  isAdmin: false,
+};
 
 export const newsSlice = createSlice({
   name: "news",
@@ -79,9 +84,22 @@ export const newsSlice = createSlice({
     setLink: (state, action: PayloadAction<string>) => {
       state.link = action.payload;
     },
+    setIsSponsored: (state, action: PayloadAction<string>) => {
+      state.isSponsored = action.payload;
+    },
+    setIsAdmin: (state, action: PayloadAction<string>) => {
+      state.isAdmin = action.payload;
+    },
   },
 });
 
-export const { setHeadline, setText, setCreatorName, setImage, setLink } =
-  newsSlice.actions;
+export const {
+  setHeadline,
+  setText,
+  setCreatorName,
+  setImage,
+  setLink,
+  setIsSponsored,
+  setIsAdmin,
+} = newsSlice.actions;
 export default newsSlice.reducer;

@@ -12,16 +12,36 @@ export type PostNewsProps = {
   text: string;
   creatorName: string;
   link: string;
+  isSponsored: boolean;
+  isAdmin: boolean;
 };
 
 export const postNews = async (
-  { image, imageMIMEType, headline, text, creatorName, link }: PostNewsProps,
+  {
+    image,
+    imageMIMEType,
+    headline,
+    text,
+    creatorName,
+    link,
+    isSponsored,
+    isAdmin,
+  }: PostNewsProps,
   accessToken: string | null,
   refreshToken: string | null,
   dispatch: Dispatch,
 ) => {
   const response = await feedApi.api.v1NewsCreate(
-    { image, imageMIMEType, headline, text, creatorName, link },
+    {
+      image,
+      imageMIMEType,
+      headline,
+      text,
+      creatorName,
+      link,
+      isSponsored,
+      isAdmin,
+    },
     {
       ...(await getApi(accessToken, refreshToken, dispatch)),
     },

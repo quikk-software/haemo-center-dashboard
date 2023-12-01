@@ -46,6 +46,10 @@ const news = {
   editButton: "Bearbeiten",
   deleteButton: "Löschen",
   creatorName: "Autor: ",
+  checkbox: {
+    isSponsored: "Gesponserter Beitrag",
+    isAdmin: "Administrator Beitrag",
+  },
 };
 
 export default news;

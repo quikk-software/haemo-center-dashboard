@@ -18,15 +18,19 @@ import {
   imageDataAndMIMETypeToImage,
   dataURLToImage,
   imageToDataURL,
+  setIsSponsored,
+  setIsAdmin,
 } from "./newsSlice";
 import NewsItem from "./item";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import useGetNewsItem from "@/api/feed/useGetNewsItem";
 import logger from "@/core/logger";
 import { patchNews } from "@/api/feed/patchNews";
 import { useSnackbarComponent } from "../layout/Snackbar";
 import useLanguage from "@/i18n/useLanguage";
+import { CENTER_ROLE } from "@/auth/auth.constants";
+import NewsTypeCheckboxGroup from "@/components/news/NewsTypeCheckboxGroup";
 
 export type Props = {
   id?: string;
@@ -35,10 +39,11 @@ export type Props = {
 const NewsEditScreen: React.FC<Props> = ({ id }) => {
   const [isEditingNews, setIsEditingNews] = useState(false);
 
-  const { headline, creatorName, text, image, link } = useSelector(
-    (store: Store) => store.news,
+  const { headline, creatorName, text, image, link, isSponsored, isAdmin } =
+    useSelector((store: Store) => store.news);
+  const { accessToken, refreshToken, roles } = useSelector(
+    (s: Store) => s.auth,
   );
-  const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
   const dispatch = useDispatch();
   const router = useRouter();
   const { t } = useLanguage();
@@ -62,6 +67,8 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
       dispatch(setCreatorName(response?.creatorName || ""));
       dispatch(setText(response?.text || ""));
       dispatch(setLink(response?.link || ""));
+      dispatch(setIsSponsored(response?.isSponsored ?? false));
+      dispatch(setIsAdmin(response?.isAdmin ?? false));
       if (response?.image && response?.imageMIMEType) {
         dispatch(
           setImage(
@@ -136,13 +143,15 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
         text: text || "",
         creatorName: creatorName || "",
         link: link || "",
+        isSponsored,
+        isAdmin,
       },
       accessToken,
       refreshToken,
       dispatch,
     )
       .then((response) => {
-        if (response.status === 200) {
+        if (response.status === 204) {
           displaySuccess(t("news:msg.newsUpdateSuccess"));
         } else {
           displayError(
@@ -174,16 +183,12 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
     <>
       <Card>
         <CardContent>
-          {image !== undefined && imageToDataURL(image) !== "" && (
-            // see create screen for additional info
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={imageToDataURL(image)} alt={t("news:altNewsImage")} />
-          )}
           <Stack>
             <TextField
               id="headline"
               sx={{ margin: 1 }}
               value={headline}
+              defaultValue={headline}
               label={t("news:headlineFieldLabel")}
               variant="standard"
               disabled={isEditingNews}
@@ -193,6 +198,7 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
               id="creator"
               sx={{ margin: 1 }}
               value={creatorName}
+              defaultValue={creatorName}
               label={t("news:creatorNameFieldLabel")}
               variant="standard"
               disabled={isEditingNews}
@@ -202,6 +208,7 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
               id="link"
               sx={{ margin: 1 }}
               value={link}
+              defaultValue={link}
               label={t("news:linkFieldLabel")}
               variant="standard"
               disabled={isEditingNews}
@@ -210,6 +217,7 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
             <TextField
               sx={{ margin: 1 }}
               value={text}
+              defaultValue={text}
               multiline
               minRows={3}
               id="content"
@@ -237,6 +245,11 @@ const NewsEditScreen: React.FC<Props> = ({ id }) => {
             >
               {t("news:updateButton")}
             </Button>
+            <NewsTypeCheckboxGroup
+              isSponsored={isSponsored}
+              isAdmin={isAdmin}
+              userIsCenter={roles.includes(CENTER_ROLE)}
+            />
           </Stack>
         </CardContent>
       </Card>
