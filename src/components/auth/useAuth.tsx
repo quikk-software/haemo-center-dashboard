@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import qs from "qs";
 import axios from "axios";
@@ -15,10 +15,10 @@ import {
   setUsername,
 } from "@/components/auth/authSlice";
 import logger from "@/core/logger";
-import { LOGIN_URL, USER_DATA_URL } from "@/constants";
 import useRedirect from "@/core/useRedirect";
 import { useRouter } from "next/router";
 import { Store } from "@/redux";
+import { getLoginURL } from "@/api/urls";
 
 const useAuth = () => {
   const dispatch = useDispatch();
@@ -37,7 +37,7 @@ const useAuth = () => {
 
       // TODO: Sobald die API Route steht: Tatsächlichen Namen fetchen
 
-      // const res = await axios.get(USER_DATA_URL(userId), {
+      // const res = await axios.get(getUserDataURL(userId), {
       //   headers: {
       //     Authorization: `Bearer ${accessToken}`,
       //   },
@@ -80,7 +80,7 @@ const useAuth = () => {
 
       try {
         const response = await axios.post(
-          LOGIN_URL,
+          getLoginURL(),
           qs.stringify({
             grant_type: "password",
             client_id: "haemo",

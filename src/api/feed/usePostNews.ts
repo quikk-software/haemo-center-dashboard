@@ -49,7 +49,7 @@ const usePostNews = ({
         ...(await getApi(accessToken, refreshToken, dispatch)),
       },
     );
-    setResponse({ id: response.data.id });
+    setResponse({ newsId: response.data.newsId });
   }, [
     accessToken,
     dispatch,

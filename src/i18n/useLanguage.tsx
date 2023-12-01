@@ -22,7 +22,7 @@ const useLanguage = () => {
     await changeLanguageFromI18n(language);
   };
 
-  const t = (key: TypeSafeIdentifier, options?: TOptions) => {
+  const t = (key: TypeSafeIdentifier | string, options?: TOptions) => {
     return tFromI18n(key, options);
   };
 

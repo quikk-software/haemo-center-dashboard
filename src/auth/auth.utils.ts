@@ -2,7 +2,7 @@ import jwtDecode from "jwt-decode";
 import axios from "axios";
 import qs from "qs";
 import logger from "@/core/logger";
-import { LOGIN_URL } from "@/constants";
+import { getLoginURL } from "@/api/urls";
 
 /**
  * Function returns the user ID inside of an access token.
@@ -35,7 +35,7 @@ const getAccessTokenUsingRefreshToken = async (refreshToken: string) => {
   if (refreshToken !== "") {
     try {
       return await axios.post(
-        LOGIN_URL,
+        getLoginURL(),
         qs.stringify({
           grant_type: "refresh_token",
           client_id: "haemo",
