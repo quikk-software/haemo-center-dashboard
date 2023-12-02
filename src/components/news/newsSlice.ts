@@ -1,5 +1,5 @@
-import type { PayloadAction } from "@reduxjs/toolkit";
-import { createSlice } from "@reduxjs/toolkit";
+import type {PayloadAction} from "@reduxjs/toolkit";
+import {createSlice} from "@reduxjs/toolkit";
 
 const dataURLRe = /^data:([a-zA-Z0-9/]+);base64,(.*)$/;
 
@@ -10,11 +10,11 @@ const dataURLRe = /^data:([a-zA-Z0-9/]+);base64,(.*)$/;
  * @returns undefined if the data URL could not be parsed or image object
  */
 export const dataURLToImage = (dataURL: string) => {
-  const m = dataURLRe.exec(dataURL);
-  if (m === null) {
-    return undefined;
-  }
-  return { data: m[2], mIMEType: m[1] } as Image;
+    const m = dataURLRe.exec(dataURL);
+    if (m === null) {
+        return undefined;
+    }
+    return {data: m[2], mIMEType: m[1]} as Image;
 };
 
 /**
@@ -24,10 +24,10 @@ export const dataURLToImage = (dataURL: string) => {
  * @returns data URL if the image is not undefined, otherwise empty string
  */
 export const imageToDataURL = (image: Image | undefined) => {
-  if (image === undefined) {
-    return "";
-  }
-  return `data:${image.mIMEType};base64,${image.data}`;
+    if (image === undefined) {
+        return "";
+    }
+    return `data:${image.mIMEType};base64,${image.data}`;
 };
 
 /**
@@ -39,67 +39,78 @@ export const imageToDataURL = (image: Image | undefined) => {
  * @returns image object
  */
 export const imageDataAndMIMETypeToImage = (
-  image: string,
-  mIMEType: string,
+    image: string,
+    mIMEType: string,
 ) => {
-  return { data: image, mIMEType } as Image;
+    return {data: image, mIMEType} as Image;
 };
 
 export type Image = {
-  data: string;
-  mIMEType: string;
+    data: string;
+    mIMEType: string;
 };
 
+export type CenterNews = {
+    centerId: string;
+    centerName: string;
+}
+
 export type NewsState = {
-  headline?: string;
-  text?: string;
-  creatorName?: string;
-  image?: Image;
-  link?: string;
-  isSponsored: boolean;
-  isAdmin: boolean;
+    headline?: string;
+    text?: string;
+    creatorName?: string;
+    image?: Image;
+    link?: string;
+    isSponsored: boolean;
+    isAdmin: boolean;
+    centers: CenterNews[];
 };
 
 export const initialState: NewsState = {
-  isSponsored: false,
-  isAdmin: false,
+    isSponsored: false,
+    isAdmin: false,
+    centers: []
 };
 
 export const newsSlice = createSlice({
-  name: "news",
-  initialState,
-  reducers: {
-    setHeadline: (state, action: PayloadAction<string>) => {
-      state.headline = action.payload;
+    name: "news",
+    initialState,
+    reducers: {
+        setHeadline: (state, action: PayloadAction<string>) => {
+            state.headline = action.payload;
+        },
+        setText: (state, action: PayloadAction<string>) => {
+            state.text = action.payload;
+        },
+        setCreatorName: (state, action: PayloadAction<string>) => {
+            state.creatorName = action.payload;
+        },
+        setImage: (state, action: PayloadAction<Image>) => {
+            state.image = action.payload;
+        },
+        setLink: (state, action: PayloadAction<string>) => {
+            state.link = action.payload;
+        },
+        setIsSponsored: (state, action: PayloadAction<string>) => {
+            state.isSponsored = action.payload;
+        },
+        setIsAdmin: (state, action: PayloadAction<string>) => {
+            state.isAdmin = action.payload;
+        },
+        setNewsCenters: (state, action: PayloadAction<CenterNews[]>) => {
+            state.centers = action.payload;
+        },
     },
-    setText: (state, action: PayloadAction<string>) => {
-      state.text = action.payload;
-    },
-    setCreatorName: (state, action: PayloadAction<string>) => {
-      state.creatorName = action.payload;
-    },
-    setImage: (state, action: PayloadAction<Image>) => {
-      state.image = action.payload;
-    },
-    setLink: (state, action: PayloadAction<string>) => {
-      state.link = action.payload;
-    },
-    setIsSponsored: (state, action: PayloadAction<string>) => {
-      state.isSponsored = action.payload;
-    },
-    setIsAdmin: (state, action: PayloadAction<string>) => {
-      state.isAdmin = action.payload;
-    },
-  },
 });
 
 export const {
-  setHeadline,
-  setText,
-  setCreatorName,
-  setImage,
-  setLink,
-  setIsSponsored,
-  setIsAdmin,
+    setHeadline,
+    setText,
+    setCreatorName,
+    setImage,
+    setLink,
+    setIsSponsored,
+    setIsAdmin,
+    setNewsCenters
 } = newsSlice.actions;
 export default newsSlice.reducer;
