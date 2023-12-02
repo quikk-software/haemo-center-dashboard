@@ -21,3 +21,5 @@ export type Page = PageBase & {
 export type PageProps = PageBase & {
   children: React.ReactNode;
 };
+
+export type BreadcrumbConfig = Pick<Page, "title" | "pathname">;

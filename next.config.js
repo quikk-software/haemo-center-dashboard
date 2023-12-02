@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-    basePath: process.env.NEXT_PUBLIC_PATH_PREFIX || "",
-    assetPrefix: process.env.NEXT_PUBLIC_PATH_PREFIX  || undefined
-}
+const withImages = require("next-images");
 
-module.exports = nextConfig
+const nextConfig = {
+  basePath: process.env.NEXT_PUBLIC_PATH_PREFIX || "",
+  assetPrefix: process.env.NEXT_PUBLIC_PATH_PREFIX || undefined,
+};
+
+module.exports = withImages(nextConfig);
