@@ -1,8 +1,7 @@
 import React from "react";
-import UserTable from "@/components/overview/users/UserTable";
 
-const Index: React.FC = () => {
-  return <UserTable />;
+const Homepage: React.FC = () => {
+  return <>Startseite</>;
 };
 
-export default Index;
+export default Homepage;
