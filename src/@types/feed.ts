@@ -31,6 +31,11 @@ export interface PostNewsRequest {
   text?: string;
   creatorName?: string;
   link?: string;
+  isSponsored?: boolean;
+  isAdmin?: boolean;
+  centers: {
+    centerId: string;
+  }[];
 }
 
 export interface PostNewsResponse {
@@ -55,6 +60,11 @@ export interface PatchNewsRequest {
   text?: string;
   creatorName?: string;
   link?: string;
+  isSponsored?: boolean;
+  isAdmin?: boolean;
+  centers: {
+    centerId: string;
+  }[];
 }
 
 export interface PatchIsAdminNewsRequest {
@@ -65,6 +75,12 @@ export interface PatchIsAdminNewsRequest {
 export interface PatchIsSponsoredNewsRequest {
   newsId: number;
   IsSponsored: boolean;
+}
+
+export interface PostCenterToNewsRequest {
+  newsId: number;
+  centerId: string;
+  centerName: string;
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -113,7 +129,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "http://128.140.25.158:80/feed/";
+  public baseUrl: string = "";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -280,7 +296,6 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title Feed Service
  * @version 0.1.0
- * @baseUrl http://128.140.25.158:80/feed/
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
   api = {
@@ -417,6 +432,25 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       this.request<void, void>({
         path: `/api/v1/news/isSponsored`,
         method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description The requesting user must be an admin.
+     *
+     * @tags News
+     * @name V1NewsAssignCenterCreate
+     * @summary Assigns a center to a news.
+     * @request POST:/api/v1/news/assignCenter
+     * @secure
+     */
+    v1NewsAssignCenterCreate: (data: PostCenterToNewsRequest, params: RequestParams = {}) =>
+      this.request<void, void>({
+        path: `/api/v1/news/assignCenter`,
+        method: "POST",
         body: data,
         secure: true,
         type: ContentType.Json,

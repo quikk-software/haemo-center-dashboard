@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": "./",
     "target": "es5",
     "lib": [
       "dom",
@@ -18,7 +19,9 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "plugins": [
       {
         "name": "next"
