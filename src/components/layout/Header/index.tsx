@@ -3,15 +3,16 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Container from "@mui/material/Container";
 import { theme } from "../../../theme";
-import { Box, NoSsr, Typography } from "@mui/material";
+import { Box, NoSsr, Stack, Typography } from "@mui/material";
 import { APP_NAME } from "@/constants";
 import Link from "@/components/common/Link";
-import VaccinesIcon from "@mui/icons-material/Vaccines";
 import useAuth from "@/components/auth/useAuth";
 import { useEffect } from "react";
 import Avatar from "@/components/layout/Header/Avatar";
 import { hasPageBeenMounted } from "@/core/utils";
 import { NoSSR } from "next/dist/shared/lib/lazy-dynamic/dynamic-no-ssr";
+import Size from "@/components/layout/size";
+import Navbar from "@/components/layout/Navbar";
 
 const getInitials = (name: string) =>
   name
@@ -41,15 +42,7 @@ const Index = () => {
             style={{ justifyContent: "space-between" }}
             suppressHydrationWarning
           >
-            <Typography
-              variant="h3"
-              color={theme.palette.text.primary}
-              suppressHydrationWarning
-            >
-              <Link href="/">
-                {APP_NAME} <VaccinesIcon fontSize="inherit" />
-              </Link>
-            </Typography>
+            <Navbar />
             <NoSSR>
               {isLoggedIn && hasPageBeenMounted() ? (
                 <Avatar alt={username} suppressHydrationWarning>
@@ -62,6 +55,7 @@ const Index = () => {
           </Toolbar>
         </Container>
       </AppBar>
+
       <Toolbar />
     </Box>
   );

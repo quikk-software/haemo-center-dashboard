@@ -3,27 +3,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { Store } from "@/redux";
 import { useCallback, useState } from "react";
 import { Dispatch } from "redux";
-import { setPrescriptions } from "@/components/overview/prescriptions/prescriptionSlice";
-import logger from "@/core/logger";
+import { PatchPrescriptionRequest } from "@/@types/prescription";
 
-const useGetPrescriptions = () => {
+const useUpdatePrescription = () => {
   const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
   const dispatch = useDispatch();
 
   const [response, setResponse] = useState<boolean | undefined>(undefined);
 
   const request = useCallback(
-    async (id: string) => {
-      const res = await getPrescriptions(
-        { id },
+    async (prescription: PatchPrescriptionRequest) => {
+      await updatePrescription(
+        prescription,
         accessToken,
         refreshToken,
         dispatch,
       );
-
-      if (res !== undefined) {
-        dispatch(setPrescriptions(res.prescriptions));
-      }
     },
     [accessToken, dispatch, refreshToken],
   );
@@ -31,21 +26,16 @@ const useGetPrescriptions = () => {
   return { request, response };
 };
 
-export const getPrescriptions = async (
-  { id }: { id: string },
+export const updatePrescription = async (
+  prescription: PatchPrescriptionRequest,
   accessToken: string | null,
   refreshToken: string | null,
   dispatch: Dispatch,
 ) => {
-  if (id === undefined) {
-    logger.error("useGetPrescriptions:::id is undefined");
-    return;
-  }
-  const res = await prescriptionApi.api.v1PrescriptionsUserDetail(id, {
+  // TODO: usePagination verwenden für die Params!
+  await prescriptionApi.api.v1PrescriptionsPartialUpdate(prescription, {
     ...(await getApi(accessToken, refreshToken, dispatch)),
   });
-  logger.debug(res.data);
-  return res.data;
 };
 
-export default useGetPrescriptions;
+export default useUpdatePrescription;

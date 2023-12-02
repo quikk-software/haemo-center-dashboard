@@ -27,7 +27,7 @@ const UserTable: React.FC = () => {
       rows={users}
       // @ts-ignore
       columns={createColumns(() => request()) ?? []}
-      title={"Accounts"}
+      title={"Übersicht Nutzer:innen"}
     />
   );
 };

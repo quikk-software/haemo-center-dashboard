@@ -6,7 +6,7 @@ import { Link as MUILink, LinkProps as MUILinkProps } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
 export type Props = {
-  href: string;
+  href: NextLinkProps["href"];
   displayText?: string;
   muiLinkProps?: MUILinkProps;
   nextLinkProps?: NextLinkProps;
@@ -20,7 +20,9 @@ const Link: React.FC<PropsWithChildren<Props>> = ({
   muiLinkProps,
   hideIcon = false,
 }) => {
-  const isExternal = !href.startsWith("/");
+  const isExternal =
+    (href instanceof String || typeof href === "string") &&
+    !href.startsWith("/");
 
   const externalHrefProps = {
     rel: isExternal ? "noopener noreferrer" : undefined,

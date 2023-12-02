@@ -13,13 +13,13 @@ import LoadingGuard from "@/components/layout/LoadingGuard";
 import LocalizedThemeProvider from "@/components/i18n/LocalizedThemeProvider";
 import "../i18n";
 import SnackbarComponent from "@/components/layout/Snackbar";
+import useCurrentPage from "@/routes/useCurrentPage";
 
 const MyApp: React.FC<AppProps> = (props) => {
   const { Component, pageProps } = props;
 
-  const router = useRouter();
-  const currentPage = pages.find((page) => page.pathname === router.pathname)!;
-  const { title, description, __dangerousPageSpecificStyling } = currentPage;
+  const { title, description, __dangerousPageSpecificStyling } =
+    useCurrentPage();
   return (
     <ErrorBoundary>
       <Provider store={store}>

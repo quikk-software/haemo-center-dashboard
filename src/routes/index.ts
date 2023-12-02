@@ -1,12 +1,91 @@
 import type { Page } from "./routes.types";
+import { BreadcrumbConfig } from "./routes.types";
 import errorPages from "@/routes/errorPages";
 import { center } from "@/routes/routes.styles";
 
-const pages: readonly Page[] = [
+const flattenPages = (pages: Page[]) => {
+  const flattenedPages: Page[] = [];
+  pages.forEach((p) => {
+    flattenedPages.push(p);
+    if (p.children) {
+      flattenedPages.push(...flattenPages(p.children));
+    }
+  });
+  return flattenedPages;
+};
+
+const createBreadcrumbConfig = (
+  pages: Page[],
+  parent: BreadcrumbConfig[] = [],
+): BreadcrumbConfig[][] => {
+  const bcConfig: BreadcrumbConfig[][] = [];
+  flattenPages(pages).forEach((p) => {
+    if (p.children) {
+      bcConfig.push(
+        ...createBreadcrumbConfig(p.children, [
+          { pathname: p.pathname, title: p.title },
+          ...parent,
+        ]),
+      );
+    }
+    bcConfig.push([{ pathname: p.pathname, title: p.title }, ...parent]);
+  });
+  return bcConfig;
+};
+
+const pages: Page[] = [
   {
-    title: "Zentrumsübersicht",
+    title: "Startseite",
     pathname: "/",
-    description: "Beschreibung",
+    description: "Startseite",
+  },
+  {
+    title: "News",
+    pathname: "/news",
+    description: "News anlegen und bearbeiten",
+    children: [
+      {
+        title: "News anlegen",
+        pathname: "/news/create",
+        description: "News anlegen",
+      },
+      {
+        title: "News Editor",
+        pathname: "/news/edit/[id]",
+        description: "News bearbeiten",
+      },
+    ],
+  },
+  {
+    title: "Übersicht Nutzer:innen",
+    pathname: "/users",
+    description: "Übersicht Nutzer:innen",
+    children: [
+      {
+        title: "Rezepte einsehen",
+        pathname: "/prescriptions/user/[id]",
+        description: "Rezepte einsehen",
+        children: [
+          {
+            title: "Rezept",
+            pathname: "/prescriptions/[id]",
+            description: "Rezept",
+          },
+        ],
+      },
+      {
+        title: "Termine einsehen",
+        pathname: "/meetings/user/[id]",
+        description: "Termine einsehen",
+        children: [
+          {
+            title: "Termin",
+            pathname: "/meetings/[id]",
+            description: "Termin",
+          },
+        ],
+      },
+    ],
   },
   {
     title: "Anmeldung",
@@ -21,36 +100,12 @@ const pages: readonly Page[] = [
     __dangerousPageSpecificStyling: center,
   },
   {
-    title: "News",
-    pathname: "/news",
-    description: "News anlegen und bearbeiten",
-  },
-  {
-    title: "News anlegen",
-    pathname: "/news/create",
-    description: "News anlegen",
-  },
-  {
-    title: "News Editor",
-    pathname: "/news/edit/[id]",
-    description: "News bearbeiten",
-  },
-  {
     title: "Account Verifizierung",
     pathname: "/verify/account/[code]",
     description: "Account Verifizieren",
   },
-  {
-    title: "Rezepte einsehen",
-    pathname: "/prescriptions/user/[id]",
-    description: "Rezepte einsehen",
-  },
-  {
-    title: "Rezept",
-    pathname: "/prescriptions/[id]",
-    description: "Rezept",
-  },
   ...errorPages,
-] as const;
+];
 
-export default pages;
+export default flattenPages(pages);
+export const breadcrumbConfig = createBreadcrumbConfig(pages);

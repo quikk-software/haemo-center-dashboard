@@ -1,10 +1,11 @@
 import React, { CSSProperties, PropsWithChildren } from "react";
 import Footer from "./Footer";
 import { NextSeo } from "next-seo";
-import { Box, Container } from "@mui/material";
+import { Box, Container, Divider, Stack } from "@mui/material";
 import { APP_NAME } from "@/constants";
-import Index from "./Header";
+import Header from "./Header";
 import Size from "@/components/layout/size";
+import Breadcrumbs from "@/components/layout/Breadcrumbs";
 
 type PageProps = {
   title: string;
@@ -25,16 +26,22 @@ const Page: React.FC<PropsWithChildren<PageProps>> = ({
         description={description}
         titleTemplate={`%s - ${APP_NAME}`}
       />
-      <Index />
+      <Header />
       <Container
         style={{
           flex: "1 0 auto",
           ...styleOverwrite,
         }}
       >
-        <Box pt={Size.MEDIUM} pb={Size.MEDIUM} style={styleOverwrite}>
-          {children}
-        </Box>
+        <Stack>
+          <Box pt={Size.MEDIUM} pb={Size.MEDIUM} style={styleOverwrite}>
+            <Breadcrumbs />
+          </Box>
+          <Divider />
+          <Box pt={Size.MEDIUM} pb={Size.MEDIUM} style={styleOverwrite}>
+            {children}
+          </Box>
+        </Stack>
       </Container>
       <Footer />
     </Box>

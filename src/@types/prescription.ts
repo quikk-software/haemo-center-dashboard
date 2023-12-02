@@ -443,6 +443,24 @@ export class Api<
       }),
 
     /**
+     * @description The requesting user must be a center or admin and the user must be related to only a requesting center.
+     *
+     * @tags Prescriptions
+     * @name V1PrescriptionsUserDetail
+     * @summary Lists all prescriptions of a user for a requesting center or admin.
+     * @request GET:/api/v1/prescriptions/user/{userId}
+     * @secure
+     */
+    v1PrescriptionsUserDetail: (userId: string, params: RequestParams = {}) =>
+      this.request<ListPrescriptionsResponse, void>({
+        path: `/api/v1/prescriptions/user/${userId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description The requesting user must be the professional of the prescription, else an Unauthorized-Exception will be thrown.
      *
      * @tags Prescriptions
@@ -452,7 +470,7 @@ export class Api<
      * @secure
      */
     v1PrescriptionsAcceptDetail: (id: number, params: RequestParams = {}) =>
-      this.request<any, void>({
+      this.request<void, void>({
         path: `/api/v1/prescriptions/accept/${id}`,
         method: "GET",
         secure: true,

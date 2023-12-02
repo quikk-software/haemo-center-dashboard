@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import useVerifyAccount from "@/api/users/useVerifyAccount";
 import { NoSSR } from "next/dist/shared/lib/lazy-dynamic/dynamic-no-ssr";
-import { useRouter } from "next/router";
 import { GetServerSidePropsContext } from "next";
 import {
   Alert,
@@ -13,6 +12,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import useQuery from "@/utils/useQuery";
 
 type Props = {};
 
@@ -41,13 +41,10 @@ const AccountVerifyCodePage: React.FC<Props> = ({}) => {
   const [responseState, setResponseState] = useState<undefined | State>(
     undefined,
   );
-  const router = useRouter();
   const theme = useTheme();
-  const { code } = router.query;
-  const codeSanitized =
-    typeof code === "string" ? code : Array.isArray(code) ? code[0] : "";
+  const code = useQuery("code");
 
-  const { request, response } = useVerifyAccount({ code: codeSanitized });
+  const { request, response } = useVerifyAccount({ code });
 
   useEffect(() => {
     request();
@@ -88,7 +85,7 @@ const AccountVerifyCodePage: React.FC<Props> = ({}) => {
                 textAlign: "center",
               }}
             >
-              {codeSanitized}
+              {code}
             </Box>
           </>
         ) : (

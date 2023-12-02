@@ -7,10 +7,10 @@ type ViewPrescriptionsProps = Pick<Props, "id">;
 const ViewPrescriptions: React.FC<ViewPrescriptionsProps> = ({ id }) => {
   const router = useRouter();
   const handleClick = useCallback(async () => {
-    await router.push(`/prescriptions/user/${id}`);
+    await router.push(`/meetings/user/${id}`);
   }, []);
 
-  return <MenuItem onClick={handleClick}>Rezepte anzeigen</MenuItem>;
+  return <MenuItem onClick={handleClick}>Termine anzeigen</MenuItem>;
 };
 
 export default ViewPrescriptions;

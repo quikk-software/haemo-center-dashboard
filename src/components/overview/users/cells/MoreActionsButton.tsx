@@ -13,6 +13,8 @@ import { initialTableConfig } from "@/components/overview/table/useTableConfig";
 import Verify from "@/components/overview/users/cells/Verify";
 import Block from "@/components/overview/users/cells/Block";
 import ViewPrescriptions from "@/components/overview/users/cells/ViewPrescriptions";
+import ViewAppointments from "@/components/overview/users/cells/ViewAppointments";
+import ActionMenu from "@/components/common/ActionMenu";
 
 export type Props = {
   id: string;
@@ -38,33 +40,29 @@ const MoreActionsButton: React.FC<Props> = ({ id, blocked, enabled }) => {
   }, [setAnchorEl]);
 
   return (
-    <>
-      <IconButton onClick={handleClick}>
-        <MoreVert />
-      </IconButton>
-      <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleClose}>
-        <ViewPrescriptions handleClose={handleClose} id={id} />
-        <Divider />
-        <Verify
-          enabled={enabled}
-          handleClose={handleClose}
-          id={id}
-          handleSuccess={async () => {
-            await request();
-            logger.log("erfolgreich: activate");
-          }}
-        />
-        <Block
-          blocked={blocked}
-          handleClose={handleClose}
-          id={id}
-          handleSuccess={async () => {
-            await request();
-            logger.log("erfolgreich: block");
-          }}
-        />
-      </Menu>
-    </>
+    <ActionMenu>
+      <ViewAppointments id={id} />
+      <ViewPrescriptions id={id} />
+      <Divider />
+      <Verify
+        enabled={enabled}
+        handleClose={handleClose}
+        id={id}
+        handleSuccess={async () => {
+          await request();
+          logger.log("erfolgreich: activate");
+        }}
+      />
+      <Block
+        blocked={blocked}
+        handleClose={handleClose}
+        id={id}
+        handleSuccess={async () => {
+          await request();
+          logger.log("erfolgreich: block");
+        }}
+      />
+    </ActionMenu>
   );
 };
 

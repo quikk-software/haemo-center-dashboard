@@ -1,18 +1,18 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 import Table from "@/components/overview/table/Table";
-import { createColumns } from "@/components/overview/prescriptions/prescriptionTable.coldef";
+import { createColumns } from "@/components/overview/meetings/meetingTable.coldef.";
 import { useSelector } from "react-redux";
 import { Store } from "@/redux";
-import useGetPrescriptions from "@/api/prescriptions/useGetPrescriptions";
+import useGetMeetings from "@/api/scheduling/useGetMeetings";
 import useQuery from "@/utils/useQuery";
 
-const PrescriptionTable: React.FC = () => {
+const MeetingTable: React.FC = () => {
   const router = useRouter();
   const id = useQuery("id");
 
-  const { request } = useGetPrescriptions();
-  const { prescriptions } = useSelector((store: Store) => store.prescriptions);
+  const { request } = useGetMeetings();
+  const { meetings } = useSelector((store: Store) => store.meetings);
 
   useEffect(() => {
     if (id !== undefined) {
@@ -22,12 +22,12 @@ const PrescriptionTable: React.FC = () => {
 
   return (
     <Table
-      title={`Rezepte für ${id}`}
-      rows={prescriptions}
+      title={`Termine für ${id}`}
+      rows={meetings}
       // @ts-ignore
       columns={createColumns() ?? []}
     />
   );
 };
 
-export default PrescriptionTable;
+export default MeetingTable;
