@@ -10,14 +10,22 @@
  */
 
 export interface PostUserRequest {
+  /** @default "johndoe1" */
   alias?: string;
+  /** @default "johndoe@quikk.de" */
   email?: string;
+  /** @default "1234JohnDoe!" */
   password?: string;
+  /** @default "John" */
   firstName?: string;
+  /** @default "Doe" */
   lastName?: string;
+  /** @default "patient" */
   role?: string;
   phoneNumber?: string;
+  /** @default "YYYY-MM-DD" */
   birthDay?: string;
+  /** @default "Valid center ID here!" */
   centerId?: string;
   avatar?: string;
 }
@@ -28,7 +36,6 @@ export interface PatchUserRequest {
   lastName?: string;
   phoneNumber?: string;
   birthDay?: string;
-  avatar?: string;
 }
 
 export interface PatchUserAliasRequest {
@@ -82,6 +89,7 @@ export interface GetUserResponse {
   centerId?: string;
   avatar?: string;
   enabled?: boolean;
+  verifiedEmail?: boolean;
   blocked?: boolean;
   createdAt?: string;
 }
@@ -113,6 +121,30 @@ export interface ListUsersResponse {
 
 export interface ListCenterUsersResponse {
   centers: GetCenterUserResponse[];
+}
+
+export interface PostUserAvatarRequest {
+  image: string;
+  imageMIMEType: string;
+}
+
+export interface PostUserAvatarResponse {
+  userAvatarId?: number;
+}
+
+export interface GetUserAvatarRequest {
+  id: string;
+  userId: string;
+  image: string;
+  imageMIMEType: string;
+}
+
+export interface PostRequestPasswordRequest {
+  email: string;
+}
+
+export interface PostResetPasswordRequest {
+  newPassword: string;
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -483,6 +515,45 @@ export class Api<
       }),
 
     /**
+     * @description This route returns a center user by its business location number.
+     *
+     * @tags Users
+     * @name V1UsersCentersBusinessLocationNumberDetail
+     * @summary Gets a center user by its business location number.
+     * @request GET:/api/v1/users/centers/business-location-number/{businessLocationNumber}
+     * @secure
+     */
+    v1UsersCentersBusinessLocationNumberDetail: (
+      businessLocationNumber: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<GetCenterUserResponse, void>({
+        path: `/api/v1/users/centers/business-location-number/${businessLocationNumber}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description This route returns a center user by its user ID.
+     *
+     * @tags Users
+     * @name V1UsersCentersDetail
+     * @summary Gets a center user.
+     * @request GET:/api/v1/users/centers/{centerUserId}
+     * @secure
+     */
+    v1UsersCentersDetail: (centerUserId: string, params: RequestParams = {}) =>
+      this.request<GetCenterUserResponse, void>({
+        path: `/api/v1/users/centers/${centerUserId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description This route returns all center users. No authentication needed and no further filtering possible.
      *
      * @tags Users
@@ -661,6 +732,109 @@ export class Api<
         path: `/api/v1/verification-code/verify-account/${code}`,
         method: "GET",
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description The route will use the given email and relate it to a verification code.
+     *
+     * @tags Passwords
+     * @name V1ResetPasswordRequestCreate
+     * @summary Requests a password reset.
+     * @request POST:/api/v1/reset-password/request
+     * @secure
+     */
+    v1ResetPasswordRequestCreate: (
+      data: PostRequestPasswordRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, void>({
+        path: `/api/v1/reset-password/request`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description The route will use the given new password and verification code to reset the password of an user.
+     *
+     * @tags Passwords
+     * @name V1ResetPasswordVerifyCreate
+     * @summary Resets a password.
+     * @request POST:/api/v1/reset-password/verify/{verificationCode}
+     * @secure
+     */
+    v1ResetPasswordVerifyCreate: (
+      verificationCode: string,
+      data: PostResetPasswordRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, void>({
+        path: `/api/v1/reset-password/verify/${verificationCode}`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description The route will automatically either create a new user avatar or update an existing one.
+     *
+     * @tags User Avatars
+     * @name V1UserAvatarsCreate
+     * @summary Upserts an user avatar.
+     * @request POST:/api/v1/user-avatars
+     * @secure
+     */
+    v1UserAvatarsCreate: (
+      data: PostUserAvatarRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<PostUserAvatarResponse, void>({
+        path: `/api/v1/user-avatars`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The route will automatically get the authenticated user's ID and delete the corresponding avatar.
+     *
+     * @tags User Avatars
+     * @name V1UserAvatarsDelete
+     * @summary Deletes an user avatar.
+     * @request DELETE:/api/v1/user-avatars
+     * @secure
+     */
+    v1UserAvatarsDelete: (params: RequestParams = {}) =>
+      this.request<void, void>({
+        path: `/api/v1/user-avatars`,
+        method: "DELETE",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description The route handles avatars as a public resource throughout the application, which means everyone can access avatars as long as the user is authenticated and has the role patient, professional or center.
+     *
+     * @tags User Avatars
+     * @name V1UserAvatarsDetail
+     * @summary Gets an user avatar by user ID.
+     * @request GET:/api/v1/user-avatars/{userId}
+     * @secure
+     */
+    v1UserAvatarsDetail: (userId: string, params: RequestParams = {}) =>
+      this.request<any, void>({
+        path: `/api/v1/user-avatars/${userId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
         ...params,
       }),
   };

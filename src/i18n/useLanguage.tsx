@@ -21,7 +21,6 @@ const useLanguage = () => {
     await changeLanguageFromI18n(language);
   };
 
-  // TODO: for now, we will use string as translation key (Lukas)
   const t = (key: string, options?: TOptions) => {
     return tFromI18n(key, options);
   };
