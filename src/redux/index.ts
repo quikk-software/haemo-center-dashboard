@@ -29,9 +29,14 @@ import {
   UserOverviewState,
   initialState as userOverviewInitialState,
 } from "@/components/overview/users/userOverviewSlice";
-
-import thunkMiddleware from "redux-thunk";
-import { composeWithDevTools } from "redux-devtools-extension";
+import {
+  PrescriptionState,
+  initialState as prescriptionInitialState,
+} from "@/components/overview/prescriptions/prescriptionSlice";
+import {
+  MeetingState,
+  initialState as meetingInitialState,
+} from "@/components/overview/meetings/meetingSlice";
 
 const accessToken = getLocalStorageItem<string, string | null>(
   LocalStorageKey.accessToken,
@@ -55,6 +60,8 @@ export interface Store {
   news: NewsState;
   i18n: I18nState;
   userOverview: UserOverviewState;
+  prescriptions: PrescriptionState;
+  meetings: MeetingState;
 }
 
 const initialStore: Store = {
@@ -75,6 +82,8 @@ const initialStore: Store = {
     language,
   },
   userOverview: { ...userOverviewInitialState },
+  prescriptions: { ...prescriptionInitialState },
+  meetings: { ...meetingInitialState },
 };
 
 export const store = configureStore({

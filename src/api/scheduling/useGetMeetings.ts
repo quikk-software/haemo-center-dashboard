@@ -1,12 +1,12 @@
-import { getApi, prescriptionApi } from "@/@types";
+import { getApi, schedulingApi } from "@/@types";
 import { useDispatch, useSelector } from "react-redux";
 import { Store } from "@/redux";
 import { useCallback, useState } from "react";
 import { Dispatch } from "redux";
-import { setPrescriptions } from "@/components/overview/prescriptions/prescriptionSlice";
+import { setMeetings } from "@/components/overview/meetings/meetingSlice";
 import logger from "@/core/logger";
 
-const useGetPrescriptions = () => {
+const useGetMeetings = () => {
   const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
   const dispatch = useDispatch();
 
@@ -14,7 +14,7 @@ const useGetPrescriptions = () => {
 
   const request = useCallback(
     async (id: string) => {
-      const res = await getPrescriptions(
+      const res = await getMeetings(
         { id },
         accessToken,
         refreshToken,
@@ -22,7 +22,7 @@ const useGetPrescriptions = () => {
       );
 
       if (res !== undefined) {
-        dispatch(setPrescriptions(res.prescriptions));
+        dispatch(setMeetings(res.meetings));
       }
     },
     [accessToken, dispatch, refreshToken],
@@ -31,7 +31,7 @@ const useGetPrescriptions = () => {
   return { request, response };
 };
 
-export const getPrescriptions = async (
+export const getMeetings = async (
   { id }: { id: string },
   accessToken: string | null,
   refreshToken: string | null,
@@ -41,11 +41,16 @@ export const getPrescriptions = async (
     logger.error("useGetPrescriptions:::id is undefined");
     return;
   }
-  const res = await prescriptionApi.api.v1PrescriptionsUserDetail(id, {
-    ...(await getApi(accessToken, refreshToken, dispatch)),
-  });
+  // TODO: usePagination verwenden für die Params!
+  const res = await schedulingApi.api.v1MeetingsUserDetail(
+    id,
+    {},
+    {
+      ...(await getApi(accessToken, refreshToken, dispatch)),
+    },
+  );
   logger.debug(res.data);
   return res.data;
 };
 
-export default useGetPrescriptions;
+export default useGetMeetings;
