@@ -1,7 +1,7 @@
 import {getApi, feedApi} from "@/@types";
 import {useDispatch, useSelector} from "react-redux";
 import {Store} from "@/redux";
-import {useCallback, useState} from "react";
+import {useCallback} from "react";
 import {Dispatch} from "redux";
 
 export type CenterNewsProps = {
@@ -34,14 +34,14 @@ export const assignCenterToNews = async (
 };
 
 const useAssignCenterToNews = ({
-                                   newsId, centerId
+                                   newsId, centerId, centerName
                                }: CenterNewsProps) => {
     const {accessToken, refreshToken} = useSelector((s: Store) => s.auth);
     const dispatch = useDispatch();
 
     const request = useCallback(async () => {
         await feedApi.api.v1NewsAssignCenterCreate(
-            {newsId, centerId},
+            {newsId, centerId, centerName},
             {
                 ...(await getApi(accessToken, refreshToken, dispatch)),
             },
@@ -49,6 +49,7 @@ const useAssignCenterToNews = ({
     }, [
         newsId,
         centerId,
+        centerName,
         accessToken,
         dispatch,
         refreshToken,

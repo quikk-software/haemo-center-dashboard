@@ -20,6 +20,10 @@ export interface GetNewsResponse {
   link?: string;
   isSponsored?: boolean;
   isAdmin?: boolean;
+  centers: {
+    centerId: string;
+    centerName: string;
+  }[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -39,7 +43,7 @@ export interface PostNewsRequest {
 }
 
 export interface PostNewsResponse {
-  newsId?: number;
+  newsId: number;
 }
 
 export interface ListNewsResponse {

@@ -60,6 +60,7 @@ const usePostNews = ({
                          text,
                          creatorName,
                          link,
+                         centers,
                      }: PostNewsProps) => {
     const {accessToken, refreshToken} = useSelector((s: Store) => s.auth);
     const dispatch = useDispatch();
@@ -68,7 +69,7 @@ const usePostNews = ({
 
     const request = useCallback(async () => {
         const response = await feedApi.api.v1NewsCreate(
-            {image, imageMIMEType, headline, text, creatorName, link},
+            {image, imageMIMEType, headline, text, creatorName, link, centers},
             {
                 ...(await getApi(accessToken, refreshToken, dispatch)),
             },
@@ -83,6 +84,7 @@ const usePostNews = ({
         text,
         creatorName,
         link,
+        centers,
         refreshToken,
     ]);
 
