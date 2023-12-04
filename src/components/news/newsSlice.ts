@@ -91,10 +91,10 @@ export const newsSlice = createSlice({
         setLink: (state, action: PayloadAction<string>) => {
             state.link = action.payload;
         },
-        setIsSponsored: (state, action: PayloadAction<string>) => {
+        setIsSponsored: (state, action: PayloadAction<boolean>) => {
             state.isSponsored = action.payload;
         },
-        setIsAdmin: (state, action: PayloadAction<string>) => {
+        setIsAdmin: (state, action: PayloadAction<boolean>) => {
             state.isAdmin = action.payload;
         },
         setNewsCenters: (state, action: PayloadAction<CenterNews[]>) => {

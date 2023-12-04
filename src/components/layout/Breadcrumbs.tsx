@@ -17,7 +17,7 @@ const Breadcrumbs: React.FC = () => {
         i === breadcrumbs.length - 1 ||
         b.pathname.includes("[") ||
         b.pathname.includes("]") ? (
-          <Typography color="text.primary">{b.title}</Typography>
+          <Typography color="text.primary" key={i}>{b.title}</Typography>
         ) : (
           <Link href={b.pathname} key={i}>
             {b.title}

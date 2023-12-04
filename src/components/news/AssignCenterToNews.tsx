@@ -58,14 +58,14 @@ const AssignCenterToNews: FunctionComponent<AssignCenterToNewsProps> = ({initial
         const {
             target: {value},
         } = event;
-        const newCenterIds = [...value]
+        const newCenterIds = (typeof value === "string")? [value] : [...value];
         setCenters(newCenterIds);
         dispatch(setNewsCenters(newCenterIds.map(newCenterId => {
-            const centerName = response.find(r => r.id === newCenterId)?.centerName
+            const centerName = response.find(r => r.id === newCenterId)?.centerName || "";
             return {
                 centerId: newCenterId,
                 centerName
-            }
+            };
         })));
     }, [response]);
 
