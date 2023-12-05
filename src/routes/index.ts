@@ -88,6 +88,18 @@ const pages: Page[] = [
     ],
   },
   {
+    title: "Administration",
+    pathname: "/admin",
+    description: "Administrative Funktionen",
+    children: [
+      {
+        title: "Zentrum anlegen",
+        pathname: "/admin/create-center",
+        description: "Zentrum anlegen",
+      },
+    ],
+  },
+  {
     title: "Anmeldung",
     pathname: "/auth/login",
     description: "Beschreibung",
