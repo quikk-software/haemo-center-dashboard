@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { FunctionComponent } from "react";
+import type { ChangeEvent, FormEvent, FunctionComponent } from "react";
 import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import useCreateCenterUser from "@/api/users/useCreateCenterUser";
 import { PostCenterUserRequest } from "@/@types/user";
@@ -83,18 +83,19 @@ const Index: FunctionComponent = () => {
   const { displaySuccess, displayWarning, displayError } =
     useSnackbarComponent();
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormValues({
       ...formValues,
       [name]: {
+        // @ts-ignore
         ...formValues[name],
         value,
       },
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const formFields = Object.keys(formValues);
@@ -102,6 +103,7 @@ const Index: FunctionComponent = () => {
 
     for (let index = 0; index < formFields.length; index++) {
       const currentField = formFields[index];
+      // @ts-ignore
       const currentValue = formValues[currentField].value;
 
       if (currentValue === "") {
