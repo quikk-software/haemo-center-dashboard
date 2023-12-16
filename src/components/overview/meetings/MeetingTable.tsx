@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 import Table from "@/components/overview/table/Table";
-import { createColumns } from "@/components/overview/meetings/meetingTable.coldef.";
+import { createColumns } from "@/components/overview/meetings/meetingTable.coldef";
 import { useSelector } from "react-redux";
 import { Store } from "@/redux";
 import useGetMeetings from "@/api/scheduling/useGetMeetings";

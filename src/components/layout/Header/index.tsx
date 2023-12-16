@@ -45,9 +45,7 @@ const Index = () => {
             <Navbar />
             <NoSSR>
               {isLoggedIn && hasPageBeenMounted() ? (
-                <Avatar alt={username} suppressHydrationWarning>
-                  {getInitials(username)}
-                </Avatar>
+                <Avatar alt={username} suppressHydrationWarning src="" />
               ) : (
                 <></>
               )}
