@@ -1,21 +1,29 @@
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { GetPrescriptionResponse } from "@/@types/prescription";
-import { GetMeetingResponse } from "@/@types/scheduling";
 import ActionMenu from "@/components/common/ActionMenu";
 import ViewPrescription from "@/components/overview/prescriptions/ViewPrescription";
 
 export const createColumns: () => GridColDef<GetPrescriptionResponse>[] =
   () => [
-    { field: "id", alias: "" },
-    { field: "patientId", alias: "" },
-    { field: "professionalId", alias: "" },
-    { field: "bodyWeight", alias: "" },
-    { field: "bodyHeight", alias: "" },
-    { field: "preparation", alias: "" },
-    { field: "dosage", alias: "" },
-    { field: "dosageUnit", alias: "" },
-    { field: "risk", alias: "" },
-    { field: "isAccepted", alias: "" },
+    // { field: "id", headerName: "" },
+    // { field: "patientId", headerName: "" },
+    // { field: "professionalId", headerName: "" },
+    { field: "bodyWeight", headerName: "Gewicht" },
+    { field: "bodyHeight", headerName: "Größe" },
+    { field: "preparation", headerName: "Zubereitung" },
+    { field: "dosage", headerName: "Dosis" },
+    { field: "dosageUnit", headerName: "Dosis Einheit" },
+    { field: "risk", headerName: "Risiko" },
+    {
+      field: "isAccepted",
+      headerName: "Freigegeben",
+      valueGetter: (params: GridRenderCellParams<GetPrescriptionResponse>) => {
+        return params.row.isAccepted ? "Ja" : "Nein";
+      },
+      renderCell: (params: GridRenderCellParams<GetPrescriptionResponse>) => {
+        return params.row.isAccepted ? "Ja" : "Nein";
+      },
+    },
     {
       field: "actions",
       headerName: "Aktionen",

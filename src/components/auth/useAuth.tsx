@@ -53,7 +53,7 @@ const useAuth = () => {
       //   };
       // } = res;
 
-      const username = "TEST USER!";
+      const username = "";
 
       dispatch(setUsername(username));
     },
