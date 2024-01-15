@@ -3,6 +3,7 @@ import { Box, Container, Typography } from "@mui/material";
 import { theme } from "../../theme";
 import Size from "@/components/layout/size";
 import { COMPANY_LEGAL_NAME } from "@/constants";
+import Link from "@/components/common/Link";
 
 const Footer = () => {
   return (
@@ -17,6 +18,9 @@ const Footer = () => {
           <Typography variant="caption" display="block">
             © {new Date().getFullYear()} {COMPANY_LEGAL_NAME} - Alle Rechte
             vorbehalten.
+          </Typography>
+          <Typography variant="caption" display="inline">
+            <Link href="https://www.iatro.de/impressum">Impressum</Link>
           </Typography>
         </Container>
       </Box>

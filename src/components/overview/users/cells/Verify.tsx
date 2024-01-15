@@ -62,7 +62,7 @@ const Verify: React.FC<VerifyProps> = ({
         close();
       }}
       onClose={close}
-      okText="Verifizieren"
+      okText={displayText}
       closeText="Abbrechen"
       title={`${displayText} bestätigen`}
       text={`Bitte bestätigen Sie die Aktion "${displayText}".`}

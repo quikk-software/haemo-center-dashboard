@@ -62,7 +62,7 @@ const Block: React.FC<BlockProps> = ({
         close();
       }}
       onClose={close}
-      okText="Blockieren"
+      okText={displayText}
       closeText="Abbrechen"
       title={`${displayText} bestätigen`}
       text={`Bitte bestätigen Sie die Aktion "${displayText}".`}
