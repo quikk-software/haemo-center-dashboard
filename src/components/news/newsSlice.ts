@@ -77,28 +77,28 @@ export const newsSlice = createSlice({
   initialState,
   reducers: {
     setHeadline: (state, action: PayloadAction<string>) => {
-      state.headline = action.payload;
+        state.headline = action.payload;
     },
     setText: (state, action: PayloadAction<string>) => {
-      state.text = action.payload;
+        state.text = action.payload;
     },
     setCreatorName: (state, action: PayloadAction<string>) => {
-      state.creatorName = action.payload;
+        state.creatorName = action.payload;
     },
     setImage: (state, action: PayloadAction<Image>) => {
-      state.image = action.payload;
+        state.image = action.payload;
     },
     setLink: (state, action: PayloadAction<string>) => {
-      state.link = action.payload;
+        state.link = action.payload;
     },
-    setIsSponsored: (state, action: PayloadAction<string>) => {
-      state.isSponsored = action.payload;
+    setIsSponsored: (state, action: PayloadAction<boolean>) => {
+        state.isSponsored = action.payload;
     },
-    setIsAdmin: (state, action: PayloadAction<string>) => {
-      state.isAdmin = action.payload;
+    setIsAdmin: (state, action: PayloadAction<boolean>) => {
+        state.isAdmin = action.payload;
     },
     setNewsCenters: (state, action: PayloadAction<CenterNews[]>) => {
-      state.centers = action.payload;
+        state.centers = action.payload;
     },
   },
 });

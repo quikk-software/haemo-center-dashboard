@@ -54,28 +54,22 @@ const AssignCenterToNews: FunctionComponent<AssignCenterToNewsProps> = ({
     })();
   }, []);
 
-  const handleChange = useCallback(
-    (event: SelectChangeEvent<typeof centers>) => {
-      const {
-        target: { value },
-      } = event;
-      const newCenterIds = [...value];
-      setCenters(newCenterIds);
-      dispatch(
-        setNewsCenters(
-          newCenterIds.map((newCenterId) => {
-            const centerName = response.find((r) => r.id === newCenterId)
-              ?.centerName;
+    const handleChange = useCallback((event: SelectChangeEvent<typeof centers>) => {
+        const {
+            target: {value},
+        } = event;
+        const newCenterIds = (typeof value === "string")? [value] : [...value];
+        setCenters(newCenterIds);
+        dispatch(setNewsCenters(newCenterIds.map((newCenterId) => {
+            const centerName = response.find((r) => r.id === newCenterId)?.centerName || "";
             return {
-              centerId: newCenterId,
-              centerName,
+                centerId: newCenterId,
+                centerName,
             };
           }),
         ),
       );
-    },
-    [response],
-  );
+    }, [response]);
 
   if (!roles.includes(ADMIN_ROLE) || !response) {
     return <></>;

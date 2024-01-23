@@ -54,37 +54,39 @@ export const postNews = async (
 };
 
 const usePostNews = ({
-  image,
-  imageMIMEType,
-  headline,
-  text,
-  creatorName,
-  link,
-}: PostNewsProps) => {
-  const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
-  const dispatch = useDispatch();
+                         image,
+                         imageMIMEType,
+                         headline,
+                         text,
+                         creatorName,
+                         link,
+                         centers,
+                     }: PostNewsProps) => {
+    const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
+    const dispatch = useDispatch();
 
-  const [response, setResponse] = useState<PostNewsResponse>();
+    const [response, setResponse] = useState<PostNewsResponse>();
 
-  const request = useCallback(async () => {
-    const response = await feedApi.api.v1NewsCreate(
-      { image, imageMIMEType, headline, text, creatorName, link },
-      {
-        ...(await getApi(accessToken, refreshToken, dispatch)),
-      },
-    );
-    setResponse({ newsId: response.data.newsId });
-  }, [
-    accessToken,
-    dispatch,
-    image,
-    imageMIMEType,
-    headline,
-    text,
-    creatorName,
-    link,
-    refreshToken,
-  ]);
+    const request = useCallback(async () => {
+        const response = await feedApi.api.v1NewsCreate(
+            { image, imageMIMEType, headline, text, creatorName, link, centers },
+            {
+                ...(await getApi(accessToken, refreshToken, dispatch)),
+            },
+        );
+        setResponse({ newsId: response.data.newsId });
+    }, [
+        accessToken,
+        dispatch,
+        image,
+        imageMIMEType,
+        headline,
+        text,
+        creatorName,
+        link,
+        centers,
+        refreshToken,
+    ]);
 
   return { request, response };
 };

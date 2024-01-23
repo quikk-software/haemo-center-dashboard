@@ -29,18 +29,27 @@ export const assignCenterToNews = async (
   return response;
 };
 
-const useAssignCenterToNews = ({ newsId, centerId }: CenterNewsProps) => {
-  const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
-  const dispatch = useDispatch();
+const useAssignCenterToNews = ({
+                                   newsId, centerId, centerName
+                               }: CenterNewsProps) => {
+    const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
+    const dispatch = useDispatch();
 
-  const request = useCallback(async () => {
-    await feedApi.api.v1NewsAssignCenterCreate(
-      { newsId, centerId },
-      {
-        ...(await getApi(accessToken, refreshToken, dispatch)),
-      },
-    );
-  }, [newsId, centerId, accessToken, dispatch, refreshToken]);
+    const request = useCallback(async () => {
+        await feedApi.api.v1NewsAssignCenterCreate(
+            { newsId, centerId, centerName },
+            {
+                ...(await getApi(accessToken, refreshToken, dispatch)),
+            },
+        );
+    }, [
+        newsId,
+        centerId,
+        centerName,
+        accessToken,
+        dispatch,
+        refreshToken,
+    ]);
 
   return { request };
 };
