@@ -24,6 +24,7 @@ import { NoSsr } from "@mui/material";
 const publicUrls = [
   "/auth/login",
   "/auth/forgot-password",
+  "/auth/reset-password",
   "/verify/account/[code]",
 ];
 const isPublicUrl = (url: string) => {

@@ -84,8 +84,11 @@ const LoginScreen: React.FC = () => {
         </Button>
         <Grid container>
           <Grid item xs>
-            <Link href="/forgot-password" muiLinkProps={{ variant: "body2" }}>
-              {t("auth:forgotPassword")}
+            <Link
+              href="/auth/reset-password"
+              muiLinkProps={{ variant: "body2" }}
+            >
+              {t("auth:resetPassword")}
             </Link>
           </Grid>
         </Grid>

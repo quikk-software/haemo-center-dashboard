@@ -5,6 +5,7 @@ const auth = {
   hintUsername: "Username",
   hintPassword: "Password",
   forgotPassword: "Forgot Password?",
+  resetPassword: "Reset password",
 };
 
 export default auth;

@@ -88,6 +88,18 @@ const pages: Page[] = [
     ],
   },
   {
+    title: "Administration",
+    pathname: "/admin",
+    description: "Administrative Funktionen",
+    children: [
+      {
+        title: "Zentrum anlegen",
+        pathname: "/admin/create-center",
+        description: "Zentrum anlegen",
+      },
+    ],
+  },
+  {
     title: "Anmeldung",
     pathname: "/auth/login",
     description: "Beschreibung",
@@ -96,6 +108,12 @@ const pages: Page[] = [
   {
     title: "Passwort vergessen",
     pathname: "/auth/forgot-password",
+    description: "Passwort vergessen",
+    __dangerousPageSpecificStyling: center,
+  },
+  {
+    title: "Passwort zurücksetzen",
+    pathname: "/auth/reset-password",
     description: "Passwort zurücksetzen",
     __dangerousPageSpecificStyling: center,
   },
