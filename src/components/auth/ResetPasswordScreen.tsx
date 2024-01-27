@@ -18,7 +18,7 @@ const ResetPasswordScreen: FunctionComponent = () => {
     try {
       await request(email);
       displaySuccess("Sie erhalten eine E-Mail mit weiteren Anweisungen.");
-    } catch (e) {
+    } catch (e: any) {
       displayError(
         `Beim Zurücksetzen des Passworts ist ein Fehler aufgetreten: ${
           e ?? "Keine Fehlermeldung vorhanden"
