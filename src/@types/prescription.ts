@@ -16,9 +16,10 @@ export interface GetPrescriptionResponse {
   bodyWeight?: number;
   bodyHeight?: number;
   preparation?: string;
-  dosage?: number;
+  dosage?: string;
   dosageUnit?: string;
   risk?: string;
+  note?: string;
   isAccepted?: boolean;
 }
 
@@ -26,6 +27,7 @@ export interface PostPrescriptionRequest {
   professionalId: number;
   bodyWeight: number;
   bodyHeight: number;
+  note?: string;
 }
 
 export interface PostPrescriptionResponse {
@@ -44,7 +46,7 @@ export interface ListPrescriptionsResponse {
 export interface PatchPrescriptionRequest {
   prescriptionId: number;
   preparation: string;
-  dosage: number;
+  dosage: string;
   dosageUnit: string;
   risk: string;
 }
@@ -140,7 +142,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "";
+  public baseUrl: string = "http://localhost:3005/";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -339,11 +341,29 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title Prescription Service
  * @version 0.1.0
+ * @baseUrl http://localhost:3005/
  */
 export class Api<
   SecurityDataType extends unknown,
 > extends HttpClient<SecurityDataType> {
   api = {
+    /**
+     * @description The requesting user needs to be a center and can only delete prescriptions of related professionals.
+     *
+     * @tags Prescriptions
+     * @name V1PrescriptionsCenterDelete
+     * @summary Deletes a prescription by its ID and by a center user.
+     * @request DELETE:/api/v1/prescriptions/{id}/center
+     * @secure
+     */
+    v1PrescriptionsCenterDelete: (id: number, params: RequestParams = {}) =>
+      this.request<void, void>({
+        path: `/api/v1/prescriptions/${id}/center`,
+        method: "DELETE",
+        secure: true,
+        ...params,
+      }),
+
     /**
      * @description The requesting user must either be the patient or the professional of the prescription, else an Unauthorized-Exception will be thrown
      *
@@ -443,6 +463,28 @@ export class Api<
       }),
 
     /**
+     * @description The requesting user must be a center and can only update prescriptions of related professionals.
+     *
+     * @tags Prescriptions
+     * @name V1PrescriptionsCenterPartialUpdate
+     * @summary Updates an existing prescription by center user.
+     * @request PATCH:/api/v1/prescriptions/center
+     * @secure
+     */
+    v1PrescriptionsCenterPartialUpdate: (
+      data: PatchPrescriptionRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, void>({
+        path: `/api/v1/prescriptions/center`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
      * @description The requesting user must be a center or admin and the user must be related to only a requesting center.
      *
      * @tags Prescriptions
@@ -451,10 +493,20 @@ export class Api<
      * @request GET:/api/v1/prescriptions/user/{userId}
      * @secure
      */
-    v1PrescriptionsUserDetail: (userId: string, params: RequestParams = {}) =>
+    v1PrescriptionsUserDetail: (
+      userId: string,
+      query?: {
+        /** The current page number. */
+        pageNumber?: number;
+        /** The page size. */
+        pageSize?: number;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<ListPrescriptionsResponse, void>({
         path: `/api/v1/prescriptions/user/${userId}`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -509,6 +561,46 @@ export class Api<
         path: `/api/v1/prescriptionUsers/${id}`,
         method: "DELETE",
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Users with center or admin role are allowed to fetch the prescription user.
+     *
+     * @name V1PrescriptionUsersCenterDetail
+     * @summary Gets a prescription user by ID.
+     * @request GET:/api/v1/prescriptionUsers/center/{prescriptionUserId}
+     * @secure
+     */
+    v1PrescriptionUsersCenterDetail: (
+      prescriptionUserId: number,
+      params: RequestParams = {},
+    ) =>
+      this.request<GetPrescriptionUserResponse, void>({
+        path: `/api/v1/prescriptionUsers/center/${prescriptionUserId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Users with center or admin role are allowed to fetch the prescription user.
+     *
+     * @name V1PrescriptionUsersCenterUsersDetail
+     * @summary Gets a prescription user by user ID.
+     * @request GET:/api/v1/prescriptionUsers/center/users/{userId}
+     * @secure
+     */
+    v1PrescriptionUsersCenterUsersDetail: (
+      userId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<GetPrescriptionUserResponse, void>({
+        path: `/api/v1/prescriptionUsers/center/users/${userId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
         ...params,
       }),
 

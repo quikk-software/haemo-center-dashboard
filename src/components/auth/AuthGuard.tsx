@@ -29,7 +29,7 @@ const publicUrls = [
 ];
 const isPublicUrl = (url: string) => {
   const isPublic = publicUrls.includes(url);
-  logger.debug(`${isPublic}: ${url}`);
+  logger.log(`### ${url} is${isPublic ? " " : " not "}public`);
   return isPublic;
 };
 

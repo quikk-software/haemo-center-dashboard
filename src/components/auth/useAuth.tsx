@@ -19,11 +19,14 @@ import useRedirect from "@/core/useRedirect";
 import { useRouter } from "next/router";
 import { Store } from "@/redux";
 import { getLoginURL } from "@/api/urls";
+import { useSnackbarComponent } from "@/components/layout/Snackbar";
 
 const useAuth = () => {
   const dispatch = useDispatch();
   const { redirectUrl } = useRedirect();
   const router = useRouter();
+  const { displaySuccess, displayWarning, displayError } =
+    useSnackbarComponent();
 
   const { accessToken, username, userId } = useSelector(
     (store: Store) => store.auth,
@@ -90,6 +93,7 @@ const useAuth = () => {
           }),
         );
         if (response.status === 200) {
+          displaySuccess("Anmeldung erfolgreich.");
           // const decodedToken = jwtDecode(response.data.access_token);
           const accessToken = response.data.access_token;
           const refreshToken = response.data.refresh_token;
@@ -102,6 +106,7 @@ const useAuth = () => {
         }
       } catch (err) {
         logger.error(err);
+        displayError("Fehler bei der Anmeldung.");
       }
     },
     [accessToken],

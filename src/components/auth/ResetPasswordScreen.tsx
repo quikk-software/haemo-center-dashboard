@@ -21,7 +21,7 @@ const ResetPasswordScreen: FunctionComponent = () => {
     } catch (e) {
       displayError(
         `Beim Zurücksetzen des Passworts ist ein Fehler aufgetreten: ${
-          e.error?.detail ?? "Keine Fehlermeldung vorhanden"
+          e ?? "Keine Fehlermeldung vorhanden"
         }`,
       );
     }
@@ -39,7 +39,7 @@ const ResetPasswordScreen: FunctionComponent = () => {
       <Typography component="h1" variant="h5">
         Passwort über E-Mail zurücksetzen
       </Typography>
-      <Box sx={{ mt: Size.SMALL }} gap={Size.Large}>
+      <Box sx={{ mt: Size.SMALL }} gap={Size.LARGE}>
         <TextField
           margin="normal"
           fullWidth
