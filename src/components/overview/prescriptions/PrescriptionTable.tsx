@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import Table from "@/components/overview/table/Table";
 import { createColumns } from "@/components/overview/prescriptions/prescriptionTable.coldef";
@@ -14,15 +14,22 @@ const PrescriptionTable: React.FC = () => {
   const { request } = useGetPrescriptions();
   const { prescriptions } = useSelector((store: Store) => store.prescriptions);
 
+  const { users } = useSelector((state: Store) => state.userOverview);
+
   useEffect(() => {
     if (id !== undefined) {
       request(id);
     }
   }, [router]);
 
+  const name = useMemo(() => {
+    const user = users.find((u) => u.id === id);
+    return `${user?.firstName} ${user?.lastName}`;
+  }, [users]);
+
   return (
     <Table
-      title={`Rezepte für ${id}`}
+      title={`Rezepte für ${name}`}
       rows={prescriptions}
       // @ts-ignore
       columns={createColumns() ?? []}

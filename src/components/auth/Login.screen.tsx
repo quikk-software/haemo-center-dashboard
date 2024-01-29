@@ -33,7 +33,7 @@ const LoginScreen: React.FC = () => {
         return handleLoginButtonClick();
       }
     },
-    [isUsernameAndPasswordProvided],
+    [isUsernameAndPasswordProvided, handleLoginButtonClick],
   );
 
   const { t } = useLanguage();

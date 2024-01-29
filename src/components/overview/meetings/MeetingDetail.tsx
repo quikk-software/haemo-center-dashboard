@@ -24,10 +24,33 @@ import {
 } from "@/components/overview/meetings/meeting.types";
 import { getDateFormat, getTimeFormat } from "@/dayjs";
 import useUpdateMeetingState from "@/api/scheduling/useUpdateMeetingState";
+import {
+  useResolveSchedulingProfessionalName,
+  useResolveSchedulingPatientName,
+} from "@/api/scheduling/useResolveSchedulingUserName";
 
 const MeetingDetail: React.FC = () => {
   const id = useQuery("id");
   const dispatch = useDispatch();
+
+  const { request: patientNameRequest } =
+    useResolveSchedulingProfessionalName();
+  const { request: professionalNameRequest } =
+    useResolveSchedulingPatientName();
+
+  const {
+    schedulingProfessionalName,
+    schedulingPatientName,
+    meetings,
+    meeting,
+  } = useSelector((store: Store) => store.meetings);
+
+  useEffect(() => {
+    if (meeting) {
+      patientNameRequest(String(meeting.patientUserId));
+      professionalNameRequest(String(meeting.doctorUserId));
+    }
+  }, [meeting]);
 
   const { request } = useUpdateMeetingState();
 
@@ -48,8 +71,6 @@ const MeetingDetail: React.FC = () => {
     });
     dispatch(setMeeting(nextMeeting));
   };
-
-  const { meeting, meetings } = useSelector((store: Store) => store.meetings);
 
   useEffect(() => {
     // Meeting Id is always a number
@@ -113,20 +134,24 @@ const MeetingDetail: React.FC = () => {
         </Typography>
       </Grid>
       <Grid item xs={6}>
-        <TextField
-          label="Arzt"
-          defaultValue={doctorUserId}
-          fullWidth
-          disabled
-        />
+        {schedulingProfessionalName !== null && (
+          <TextField
+            label="Arzt"
+            value={schedulingProfessionalName}
+            fullWidth
+            disabled
+          />
+        )}
       </Grid>
       <Grid item xs={6}>
-        <TextField
-          label="Patient"
-          defaultValue={patientUserId}
-          fullWidth
-          disabled
-        />
+        {schedulingPatientName !== null && (
+          <TextField
+            label="Patient"
+            value={schedulingPatientName}
+            fullWidth
+            disabled
+          />
+        )}
       </Grid>
       <Grid item xs={12}>
         <Typography variant="h5" color={theme.palette.text.primary}>

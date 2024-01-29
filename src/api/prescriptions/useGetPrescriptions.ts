@@ -41,9 +41,13 @@ export const getPrescriptions = async (
     logger.error("useGetPrescriptions:::id is undefined");
     return;
   }
-  const res = await prescriptionApi.api.v1PrescriptionsUserDetail(id, {
-    ...(await getApi(accessToken, refreshToken, dispatch)),
-  });
+  const res = await prescriptionApi.api.v1PrescriptionsUserDetail(
+    id,
+    {},
+    {
+      ...(await getApi(accessToken, refreshToken, dispatch)),
+    },
+  );
   logger.debug(res.data);
   return res.data;
 };

@@ -136,6 +136,10 @@ export interface PostTimeFrameResponse {
   id?: number;
 }
 
+export interface ListTimeFramesRequest {
+  userId?: number;
+}
+
 export interface ListTimeFramesResponse {
   count?: number;
   hasPreviousPage?: boolean;
@@ -208,7 +212,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "";
+  public baseUrl: string = "http://localhost:3002/";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -407,6 +411,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title Scheduling Service
  * @version 0.1.0
+ * @baseUrl http://localhost:3002/
  */
 export class Api<
   SecurityDataType extends unknown,
@@ -418,16 +423,12 @@ export class Api<
      * @tags Meetings
      * @name V1MeetingCenterDelete
      * @summary Deletes a meeting by its ID by a center.
-     * @request DELETE:/api/v1/meeting/{meetingId}/center/{schedulingUserId}
+     * @request DELETE:/api/v1/meeting/{meetingId}/center
      * @secure
      */
-    v1MeetingCenterDelete: (
-      meetingId: number,
-      schedulingUserId: number,
-      params: RequestParams = {},
-    ) =>
+    v1MeetingCenterDelete: (meetingId: number, params: RequestParams = {}) =>
       this.request<void, void>({
-        path: `/api/v1/meeting/${meetingId}/center/${schedulingUserId}`,
+        path: `/api/v1/meeting/${meetingId}/center`,
         method: "DELETE",
         secure: true,
         ...params,
@@ -587,7 +588,64 @@ export class Api<
       }),
 
     /**
+     * @description The requesting user must be a center related to the professional of the meeting.
+     *
+     * @tags Meetings
+     * @name V1MeetingAcceptCenterPartialUpdate
+     * @summary Accepts a meeting by a center user.
+     * @request PATCH:/api/v1/meeting/accept/{id}/center
+     * @secure
+     */
+    v1MeetingAcceptCenterPartialUpdate: (
+      id: number,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, void>({
+        path: `/api/v1/meeting/accept/${id}/center`,
+        method: "PATCH",
+        secure: true,
+        ...params,
+      }),
+
+    /**
      * @description The requesting user must be the owner of the meeting, else an Unauthorized-Exception will be thrown.
+     *
+     * @tags Meetings
+     * @name V1MeetingRejectPartialUpdate
+     * @summary Rejects a meeting.
+     * @request PATCH:/api/v1/meeting/reject/{id}
+     * @secure
+     */
+    v1MeetingRejectPartialUpdate: (id: number, params: RequestParams = {}) =>
+      this.request<void, void>({
+        path: `/api/v1/meeting/reject/${id}`,
+        method: "PATCH",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description The requesting user must be a center related to the professional of the meeting.
+     *
+     * @tags Meetings
+     * @name V1MeetingRejectCenterPartialUpdate
+     * @summary Rejects a meeting by a center user.
+     * @request PATCH:/api/v1/meeting/reject/{id}/center
+     * @secure
+     */
+    v1MeetingRejectCenterPartialUpdate: (
+      id: number,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, void>({
+        path: `/api/v1/meeting/reject/${id}/center`,
+        method: "PATCH",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description The requesting user must be a patient and related to the meeting, else an Unauthorized-Exception will be thrown.
      *
      * @tags Meetings
      * @name V1MeetingDeclinePartialUpdate
@@ -598,23 +656,6 @@ export class Api<
     v1MeetingDeclinePartialUpdate: (id: number, params: RequestParams = {}) =>
       this.request<void, void>({
         path: `/api/v1/meeting/decline/${id}`,
-        method: "PATCH",
-        secure: true,
-        ...params,
-      }),
-
-    /**
-     * @description The requesting user must be a patient and related to the meeting, else an Unauthorized-Exception will be thrown.
-     *
-     * @tags Meetings
-     * @name V1MeetingCancelPartialUpdate
-     * @summary Cancels a meeting.
-     * @request PATCH:/api/v1/meeting/cancel/{id}
-     * @secure
-     */
-    v1MeetingCancelPartialUpdate: (id: number, params: RequestParams = {}) =>
-      this.request<void, void>({
-        path: `/api/v1/meeting/cancel/${id}`,
         method: "PATCH",
         secure: true,
         ...params,
@@ -728,6 +769,46 @@ export class Api<
       }),
 
     /**
+     * @description Users with center or admin role are allowed to fetch the scheduling user.
+     *
+     * @name V1SchedulingUsersCenterDetail
+     * @summary Gets a scheduling user by ID.
+     * @request GET:/api/v1/schedulingUsers/center/{schedulingUserId}
+     * @secure
+     */
+    v1SchedulingUsersCenterDetail: (
+      schedulingUserId: number,
+      params: RequestParams = {},
+    ) =>
+      this.request<GetSchedulingUserResponse, void>({
+        path: `/api/v1/schedulingUsers/center/${schedulingUserId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Users with center or admin role are allowed to fetch the scheduling user.
+     *
+     * @name V1SchedulingUsersCenterUsersDetail
+     * @summary Gets a scheduling user by user ID.
+     * @request GET:/api/v1/schedulingUsers/center/users/{userId}
+     * @secure
+     */
+    v1SchedulingUsersCenterUsersDetail: (
+      userId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<GetSchedulingUserResponse, void>({
+        path: `/api/v1/schedulingUsers/center/users/${userId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description The requesting user must be a professional or the schedulingUser himself, else an Unauthorized-Exception will be thrown
      *
      * @tags Scheduling User
@@ -746,38 +827,27 @@ export class Api<
       }),
 
     /**
-     * @description Requieres the requesting user to be the schedulingUser, else an Unauthorized-Exception is thrown
-     *
-     * @tags Scheduling User
-     * @name V1SchedulingUsersDelete
-     * @summary Deletes a schedulingUser by its ID.
-     * @request DELETE:/api/v1/schedulingUsers/{id}
-     * @secure
-     */
-    v1SchedulingUsersDelete: (id: number, params: RequestParams = {}) =>
-      this.request<void, void>({
-        path: `/api/v1/schedulingUsers/${id}`,
-        method: "DELETE",
-        secure: true,
-        ...params,
-      }),
-
-    /**
      * No description
      *
      * @tags Scheduling User
-     * @name V1SchedulingUsersProfessionalsDetail
+     * @name V1ProfessionalsSchedulingUsersList
      * @summary Gets professional scheduling users by a given center ID.
-     * @request GET:/api/v1/schedulingUsers/professionals/{id}
+     * @request GET:/api/v1/professionals/schedulingUsers
      * @secure
      */
-    v1SchedulingUsersProfessionalsDetail: (
-      id: string,
+    v1ProfessionalsSchedulingUsersList: (
+      query?: {
+        /** The current page number. */
+        pageNumber?: number;
+        /** The page size. */
+        pageSize?: number;
+      },
       params: RequestParams = {},
     ) =>
       this.request<ListSchedulingUsersResponse, void>({
-        path: `/api/v1/schedulingUsers/professionals/${id}`,
+        path: `/api/v1/professionals/schedulingUsers`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -815,10 +885,19 @@ export class Api<
      * @request GET:/api/v1/schedulingUsers
      * @secure
      */
-    v1SchedulingUsersList: (params: RequestParams = {}) =>
+    v1SchedulingUsersList: (
+      query?: {
+        /** The current page number. */
+        pageNumber?: number;
+        /** The page size. */
+        pageSize?: number;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<ListSchedulingUsersResponse, void>({
         path: `/api/v1/schedulingUsers`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -913,11 +992,23 @@ export class Api<
      * @request GET:/api/v1/timeFrame
      * @secure
      */
-    v1TimeFrameList: (params: RequestParams = {}) =>
+    v1TimeFrameList: (
+      query?: {
+        /** The current page number. */
+        pageNumber?: number;
+        /** The page size. */
+        pageSize?: number;
+      },
+      data?: ListTimeFramesRequest,
+      params: RequestParams = {},
+    ) =>
       this.request<ListTimeFramesResponse, void>({
         path: `/api/v1/timeFrame`,
         method: "GET",
+        query: query,
+        body: data,
         secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),

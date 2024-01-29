@@ -83,7 +83,9 @@ const Index: FunctionComponent = () => {
   const { displaySuccess, displayWarning, displayError } =
     useSnackbarComponent();
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
     setFormValues({
       ...formValues,

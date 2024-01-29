@@ -8,6 +8,7 @@ import {
   increaseNumberOfRequests,
 } from "@/requests/requestSlice";
 import logger from "@/core/logger";
+import { useSnackbarComponent } from "@/components/layout/Snackbar";
 
 function useRequest<T>() {
   const [isLoading, setIsLoading] = useState(false);
@@ -15,6 +16,8 @@ function useRequest<T>() {
   const [axiosResponse, setAxiosResponse] =
     useState<AxiosResponse<ResponseSuccess<T>>>();
   const dispatch = useDispatch();
+  const { displaySuccess, displayWarning, displayError } =
+    useSnackbarComponent();
 
   const handleRequest = (config: InternalAxiosRequestConfig) => {
     setIsLoading(true);
@@ -29,6 +32,8 @@ function useRequest<T>() {
     setAxiosResponse(axiosResponse);
 
     if (axiosResponse.status < 300) {
+      displaySuccess("Aktion erfolgreich");
+      logger.debug("xdd");
       setData(axiosResponse.data);
     } else {
       const { errors } = axiosResponse.data as unknown as ResponseError;
@@ -37,7 +42,10 @@ function useRequest<T>() {
       );
 
       if (errors) {
-        errors?.map((e) => logger.error(e, additionalInfo));
+        errors?.map((e) => {
+          logger.error(e, additionalInfo);
+          displayError(`${e.title}: ${e.description}`);
+        });
       } else {
         logger.error(additionalInfo);
       }

@@ -18,10 +18,32 @@ import { MEETING_STATES } from "@/components/overview/meetings/meeting.types";
 import { produce } from "immer";
 import { setMeeting } from "@/components/overview/meetings/meetingSlice";
 import { PatchPrescriptionRequest } from "@/@types/prescription";
+import {
+  useResolvePrescriptionProfessionalName,
+  useResolvePrescriptionPatientName,
+} from "@/api/prescriptions/useResolvePrescriptionUserName";
 
 const PrescriptionDetail: React.FC = () => {
   const id = useQuery("id");
   const dispatch = useDispatch();
+
+  const { request: patientNameRequest } = useResolvePrescriptionPatientName();
+  const { request: professionalNameRequest } =
+    useResolvePrescriptionProfessionalName();
+
+  const {
+    prescriptionPatientName,
+    prescriptionProfessionalName,
+    prescription,
+    prescriptions,
+  } = useSelector((store: Store) => store.prescriptions);
+
+  useEffect(() => {
+    if (prescription) {
+      patientNameRequest(String(prescription.patientId));
+      professionalNameRequest(String(prescription.professionalId));
+    }
+  }, [prescription]);
 
   const updatePrescription = (
     updatedPrescription: Partial<PatchPrescriptionRequest>,
@@ -44,12 +66,8 @@ const PrescriptionDetail: React.FC = () => {
 
   const { request } = useUpdatePrescription();
 
-  const { prescription, prescriptions } = useSelector(
-    (store: Store) => store.prescriptions,
-  );
-
   useEffect(() => {
-    // Meeting Id is always a number
+    // Prescription Id is always a number
 
     const prescriptionCandidate = prescriptions.find(
       (m) => m.id === Number(id),
@@ -76,6 +94,7 @@ const PrescriptionDetail: React.FC = () => {
     bodyWeight,
     bodyHeight,
     risk,
+    note,
   } = prescription;
 
   return (
@@ -91,12 +110,15 @@ const PrescriptionDetail: React.FC = () => {
         </Typography>
       </Grid>
       <Grid item xs={12}>
-        <TextField
-          label="Patient"
-          defaultValue={patientId}
-          fullWidth
-          disabled
-        />
+        {prescriptionPatientName !== null && (
+          <TextField
+            label="Patient"
+            defaultValue={prescriptionPatientName}
+            value={prescriptionPatientName}
+            fullWidth
+            disabled
+          />
+        )}
       </Grid>
       <Grid item xs={6}>
         <TextField label="Größe" defaultValue={bodyHeight} fullWidth disabled />
@@ -115,12 +137,14 @@ const PrescriptionDetail: React.FC = () => {
         </Typography>
       </Grid>
       <Grid item xs={6}>
-        <TextField
-          label="Arzt"
-          defaultValue={professionalId}
-          fullWidth
-          disabled
-        />
+        {prescriptionProfessionalName !== null && (
+          <TextField
+            label="Arzt"
+            value={prescriptionProfessionalName}
+            fullWidth
+            disabled
+          />
+        )}
       </Grid>
       <Grid item xs={6}>
         <TextField
@@ -130,32 +154,33 @@ const PrescriptionDetail: React.FC = () => {
           onChange={(e) => updatePrescription({ preparation: e.target.value })}
         />
       </Grid>
-      <Grid item xs={6}>
+      <Grid item xs={12}>
         <TextField
           label="Dosierung"
           defaultValue={dosage}
           fullWidth
-          onChange={(e) =>
-            updatePrescription({ dosage: Number(e.target.value) })
-          }
-        />
-      </Grid>
-      <Grid item xs={6}>
-        <TextField
-          label="Einheit"
-          defaultValue={dosageUnit}
-          fullWidth
-          onChange={(e) => updatePrescription({ dosageUnit: e.target.value })}
+          onChange={(e) => updatePrescription({ dosage: e.target.value })}
         />
       </Grid>
       <Grid item xs={12}>
-        <TextField
-          label="Risiko"
-          defaultValue={risk}
-          fullWidth
-          onChange={(e) => updatePrescription({ risk: e.target.value })}
-        />
+        <TextField label="Notiz" defaultValue={note} fullWidth disabled />
       </Grid>
+      {/*<Grid item xs={6}>*/}
+      {/*  <TextField*/}
+      {/*    label="Einheit"*/}
+      {/*    defaultValue={dosageUnit}*/}
+      {/*    fullWidth*/}
+      {/*    onChange={(e) => updatePrescription({ dosageUnit: e.target.value })}*/}
+      {/*  />*/}
+      {/*</Grid>*/}
+      {/*<Grid item xs={12}>*/}
+      {/*  <TextField*/}
+      {/*    label="Risiko"*/}
+      {/*    defaultValue={risk}*/}
+      {/*    fullWidth*/}
+      {/*    onChange={(e) => updatePrescription({ risk: e.target.value })}*/}
+      {/*  />*/}
+      {/*</Grid>*/}
       <Grid item xs={12}>
         <Button
           fullWidth
@@ -164,7 +189,7 @@ const PrescriptionDetail: React.FC = () => {
           onClick={() =>
             request({
               preparation: "",
-              dosage: 0,
+              dosage: dosage ?? "",
               dosageUnit: "",
               risk: "",
               ...prescription,

@@ -41,7 +41,7 @@ export const updateMeetingState = async (
   const endpoint =
     String(state) === "ACCEPTED"
       ? schedulingApi.api.v1MeetingAcceptPartialUpdate
-      : schedulingApi.api.v1MeetingCancelPartialUpdate;
+      : schedulingApi.api.v1MeetingRejectCenterPartialUpdate;
 
   // TODO: usePagination verwenden für die Params!
   await endpoint(Number(id), {
