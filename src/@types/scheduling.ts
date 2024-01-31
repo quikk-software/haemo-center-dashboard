@@ -182,22 +182,16 @@ export interface FullRequestParams extends Omit<RequestInit, "body"> {
   cancelToken?: CancelToken;
 }
 
-export type RequestParams = Omit<
-  FullRequestParams,
-  "body" | "method" | "query" | "path"
->;
+export type RequestParams = Omit<FullRequestParams, "body" | "method" | "query" | "path">;
 
 export interface ApiConfig<SecurityDataType = unknown> {
   baseUrl?: string;
   baseApiParams?: Omit<RequestParams, "baseUrl" | "cancelToken" | "signal">;
-  securityWorker?: (
-    securityData: SecurityDataType | null,
-  ) => Promise<RequestParams | void> | RequestParams | void;
+  securityWorker?: (securityData: SecurityDataType | null) => Promise<RequestParams | void> | RequestParams | void;
   customFetch?: typeof fetch;
 }
 
-export interface HttpResponse<D extends unknown, E extends unknown = unknown>
-  extends Response {
+export interface HttpResponse<D extends unknown, E extends unknown = unknown> extends Response {
   data: D;
   error: E;
 }
@@ -212,12 +206,11 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "http://localhost:3002/";
+  public baseUrl: string = "http://localhost:3001/";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
-  private customFetch = (...fetchParams: Parameters<typeof fetch>) =>
-    fetch(...fetchParams);
+  private customFetch = (...fetchParams: Parameters<typeof fetch>) => fetch(...fetchParams);
 
   private baseApiParams: RequestParams = {
     credentials: "same-origin",
@@ -236,9 +229,7 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected encodeQueryParam(key: string, value: any) {
     const encodedKey = encodeURIComponent(key);
-    return `${encodedKey}=${encodeURIComponent(
-      typeof value === "number" ? value : `${value}`,
-    )}`;
+    return `${encodedKey}=${encodeURIComponent(typeof value === "number" ? value : `${value}`)}`;
   }
 
   protected addQueryParam(query: QueryParamsType, key: string) {
@@ -252,15 +243,9 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected toQueryString(rawQuery?: QueryParamsType): string {
     const query = rawQuery || {};
-    const keys = Object.keys(query).filter(
-      (key) => "undefined" !== typeof query[key],
-    );
+    const keys = Object.keys(query).filter((key) => "undefined" !== typeof query[key]);
     return keys
-      .map((key) =>
-        Array.isArray(query[key])
-          ? this.addArrayQueryParam(query, key)
-          : this.addQueryParam(query, key),
-      )
+      .map((key) => (Array.isArray(query[key]) ? this.addArrayQueryParam(query, key) : this.addQueryParam(query, key)))
       .join("&");
   }
 
@@ -271,13 +256,8 @@ export class HttpClient<SecurityDataType = unknown> {
 
   private contentFormatters: Record<ContentType, (input: any) => any> = {
     [ContentType.Json]: (input: any) =>
-      input !== null && (typeof input === "object" || typeof input === "string")
-        ? JSON.stringify(input)
-        : input,
-    [ContentType.Text]: (input: any) =>
-      input !== null && typeof input !== "string"
-        ? JSON.stringify(input)
-        : input,
+      input !== null && (typeof input === "object" || typeof input === "string") ? JSON.stringify(input) : input,
+    [ContentType.Text]: (input: any) => (input !== null && typeof input !== "string" ? JSON.stringify(input) : input),
     [ContentType.FormData]: (input: any) =>
       Object.keys(input || {}).reduce((formData, key) => {
         const property = input[key];
@@ -294,10 +274,7 @@ export class HttpClient<SecurityDataType = unknown> {
     [ContentType.UrlEncoded]: (input: any) => this.toQueryString(input),
   };
 
-  protected mergeRequestParams(
-    params1: RequestParams,
-    params2?: RequestParams,
-  ): RequestParams {
+  protected mergeRequestParams(params1: RequestParams, params2?: RequestParams): RequestParams {
     return {
       ...this.baseApiParams,
       ...params1,
@@ -310,9 +287,7 @@ export class HttpClient<SecurityDataType = unknown> {
     };
   }
 
-  protected createAbortSignal = (
-    cancelToken: CancelToken,
-  ): AbortSignal | undefined => {
+  protected createAbortSignal = (cancelToken: CancelToken): AbortSignal | undefined => {
     if (this.abortControllers.has(cancelToken)) {
       const abortController = this.abortControllers.get(cancelToken);
       if (abortController) {
@@ -356,28 +331,15 @@ export class HttpClient<SecurityDataType = unknown> {
     const payloadFormatter = this.contentFormatters[type || ContentType.Json];
     const responseFormat = format || requestParams.format;
 
-    return this.customFetch(
-      `${baseUrl || this.baseUrl || ""}${path}${
-        queryString ? `?${queryString}` : ""
-      }`,
-      {
-        ...requestParams,
-        headers: {
-          ...(requestParams.headers || {}),
-          ...(type && type !== ContentType.FormData
-            ? { "Content-Type": type }
-            : {}),
-        },
-        signal:
-          (cancelToken
-            ? this.createAbortSignal(cancelToken)
-            : requestParams.signal) || null,
-        body:
-          typeof body === "undefined" || body === null
-            ? null
-            : payloadFormatter(body),
+    return this.customFetch(`${baseUrl || this.baseUrl || ""}${path}${queryString ? `?${queryString}` : ""}`, {
+      ...requestParams,
+      headers: {
+        ...(requestParams.headers || {}),
+        ...(type && type !== ContentType.FormData ? { "Content-Type": type } : {}),
       },
-    ).then(async (response) => {
+      signal: (cancelToken ? this.createAbortSignal(cancelToken) : requestParams.signal) || null,
+      body: typeof body === "undefined" || body === null ? null : payloadFormatter(body),
+    }).then(async (response) => {
       const r = response as HttpResponse<T, E>;
       r.data = null as unknown as T;
       r.error = null as unknown as E;
@@ -411,11 +373,9 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title Scheduling Service
  * @version 0.1.0
- * @baseUrl http://localhost:3002/
+ * @baseUrl http://localhost:3001/
  */
-export class Api<
-  SecurityDataType extends unknown,
-> extends HttpClient<SecurityDataType> {
+export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
   api = {
     /**
      * @description A center can delete meetings of its professionals with this route by providing a meeting ID and the ID of the professional related to this meeting.
@@ -557,10 +517,7 @@ export class Api<
      * @request PATCH:/api/v1/meeting
      * @secure
      */
-    v1MeetingPartialUpdate: (
-      data: PatchMeetingRequest,
-      params: RequestParams = {},
-    ) =>
+    v1MeetingPartialUpdate: (data: PatchMeetingRequest, params: RequestParams = {}) =>
       this.request<void, void>({
         path: `/api/v1/meeting`,
         method: "PATCH",
@@ -596,10 +553,7 @@ export class Api<
      * @request PATCH:/api/v1/meeting/accept/{id}/center
      * @secure
      */
-    v1MeetingAcceptCenterPartialUpdate: (
-      id: number,
-      params: RequestParams = {},
-    ) =>
+    v1MeetingAcceptCenterPartialUpdate: (id: number, params: RequestParams = {}) =>
       this.request<void, void>({
         path: `/api/v1/meeting/accept/${id}/center`,
         method: "PATCH",
@@ -633,10 +587,7 @@ export class Api<
      * @request PATCH:/api/v1/meeting/reject/{id}/center
      * @secure
      */
-    v1MeetingRejectCenterPartialUpdate: (
-      id: number,
-      params: RequestParams = {},
-    ) =>
+    v1MeetingRejectCenterPartialUpdate: (id: number, params: RequestParams = {}) =>
       this.request<void, void>({
         path: `/api/v1/meeting/reject/${id}/center`,
         method: "PATCH",
@@ -776,10 +727,7 @@ export class Api<
      * @request GET:/api/v1/schedulingUsers/center/{schedulingUserId}
      * @secure
      */
-    v1SchedulingUsersCenterDetail: (
-      schedulingUserId: number,
-      params: RequestParams = {},
-    ) =>
+    v1SchedulingUsersCenterDetail: (schedulingUserId: number, params: RequestParams = {}) =>
       this.request<GetSchedulingUserResponse, void>({
         path: `/api/v1/schedulingUsers/center/${schedulingUserId}`,
         method: "GET",
@@ -796,10 +744,7 @@ export class Api<
      * @request GET:/api/v1/schedulingUsers/center/users/{userId}
      * @secure
      */
-    v1SchedulingUsersCenterUsersDetail: (
-      userId: string,
-      params: RequestParams = {},
-    ) =>
+    v1SchedulingUsersCenterUsersDetail: (userId: string, params: RequestParams = {}) =>
       this.request<GetSchedulingUserResponse, void>({
         path: `/api/v1/schedulingUsers/center/users/${userId}`,
         method: "GET",
@@ -862,10 +807,7 @@ export class Api<
      * @request POST:/api/v1/schedulingUsers
      * @secure
      */
-    v1SchedulingUsersCreate: (
-      data: PostSchedulingUserRequest,
-      params: RequestParams = {},
-    ) =>
+    v1SchedulingUsersCreate: (data: PostSchedulingUserRequest, params: RequestParams = {}) =>
       this.request<PostSchedulingUserResponse, void>({
         path: `/api/v1/schedulingUsers`,
         method: "POST",
@@ -912,10 +854,7 @@ export class Api<
      * @request PATCH:/api/v1/schedulingUsers
      * @secure
      */
-    v1SchedulingUsersPartialUpdate: (
-      data: PatchSchedulingUserRequest,
-      params: RequestParams = {},
-    ) =>
+    v1SchedulingUsersPartialUpdate: (data: PatchSchedulingUserRequest, params: RequestParams = {}) =>
       this.request<void, void>({
         path: `/api/v1/schedulingUsers`,
         method: "PATCH",
@@ -969,10 +908,7 @@ export class Api<
      * @request POST:/api/v1/timeFrame
      * @secure
      */
-    v1TimeFrameCreate: (
-      data: PostTimeFrameRequest,
-      params: RequestParams = {},
-    ) =>
+    v1TimeFrameCreate: (data: PostTimeFrameRequest, params: RequestParams = {}) =>
       this.request<PostTimeFrameResponse, void>({
         path: `/api/v1/timeFrame`,
         method: "POST",
@@ -999,16 +935,13 @@ export class Api<
         /** The page size. */
         pageSize?: number;
       },
-      data?: ListTimeFramesRequest,
       params: RequestParams = {},
     ) =>
       this.request<ListTimeFramesResponse, void>({
         path: `/api/v1/timeFrame`,
         method: "GET",
         query: query,
-        body: data,
         secure: true,
-        type: ContentType.Json,
         format: "json",
         ...params,
       }),
@@ -1022,10 +955,7 @@ export class Api<
      * @request PATCH:/api/v1/timeFrame
      * @secure
      */
-    v1TimeFramePartialUpdate: (
-      data: PatchTimeFrameRequest,
-      params: RequestParams = {},
-    ) =>
+    v1TimeFramePartialUpdate: (data: PatchTimeFrameRequest, params: RequestParams = {}) =>
       this.request<void, void>({
         path: `/api/v1/timeFrame`,
         method: "PATCH",
