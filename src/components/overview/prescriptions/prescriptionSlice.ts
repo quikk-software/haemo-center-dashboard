@@ -1,12 +1,16 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
-import { GetPrescriptionResponse } from "@/@types/prescription";
+import {
+  GetPrescriptionResponse,
+  ListPrescriptionsResponse,
+} from "@/@types/prescription";
 
 export type PrescriptionState = {
   prescriptions: GetPrescriptionResponse[];
   prescription: GetPrescriptionResponse | null;
   prescriptionPatientName: string | null;
   prescriptionProfessionalName: string | null;
+  allPrescriptions: ListPrescriptionsResponse["prescriptions"];
 };
 
 export const initialState: PrescriptionState = {
@@ -14,6 +18,7 @@ export const initialState: PrescriptionState = {
   prescription: null,
   prescriptionPatientName: null,
   prescriptionProfessionalName: null,
+  allPrescriptions: [],
 };
 
 export const prescriptionSlice = createSlice({
@@ -35,6 +40,12 @@ export const prescriptionSlice = createSlice({
     setPrescriptionProfessionalName: (state, action: PayloadAction<string>) => {
       state.prescriptionProfessionalName = action.payload;
     },
+    setAllPrescriptions: (
+      state,
+      action: PayloadAction<ListPrescriptionsResponse["prescriptions"]>,
+    ) => {
+      state.allPrescriptions = action.payload;
+    },
   },
 });
 
@@ -43,5 +54,6 @@ export const {
   setPrescription,
   setPrescriptionProfessionalName,
   setPrescriptionPatientName,
+  setAllPrescriptions,
 } = prescriptionSlice.actions;
 export default prescriptionSlice.reducer;

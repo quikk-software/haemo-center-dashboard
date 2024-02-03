@@ -57,9 +57,19 @@ const pages: Page[] = [
     ],
   },
   {
-    title: "Übersicht Nutzer:innen",
+    title: "Übersicht Rezepte",
+    pathname: "/prescriptions",
+    description: "Übersicht Rezepte",
+  },
+  {
+    title: "Übersicht Termine",
+    pathname: "/meetings",
+    description: "Übersicht Termine",
+  },
+  {
+    title: "Übersicht Nutzer",
     pathname: "/users",
-    description: "Übersicht Nutzer:innen",
+    description: "Übersicht Nutzer",
     children: [
       {
         title: "Rezepte einsehen",

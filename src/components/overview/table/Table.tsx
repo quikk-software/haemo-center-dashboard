@@ -8,13 +8,65 @@ import { Stack, Typography } from "@mui/material";
 import {
   DataGridProProps,
   DataGridPro as DataGrid,
+  GridCallbackDetails,
+  GridSortModel,
 } from "@mui/x-data-grid-pro";
-import React from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { theme } from "@/theme";
+import logger from "@/core/logger";
+import { GridFilterModel, GridPaginationModel } from "@mui/x-data-grid";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  initialState,
+  setTableSettings,
+  setTableSettingsTable,
+} from "@/components/overview/table/tableSlice";
+import { Store } from "@/redux";
+import { initialTableConfig } from "@/components/overview/table/useTableConfig";
 
-type Props = { title: string } & Pick<DataGridProProps, "rows" | "columns">;
+type Props = { title: string } & Pick<
+  DataGridProProps,
+  "rows" | "columns" | "onPaginationModelChange" | "onSortModelChange"
+>;
 
-const Table: React.FC<Props> = ({ rows, columns, title }) => {
+const Table: React.FC<Props> = ({
+  rows,
+  columns,
+  title,
+  onPaginationModelChange,
+  onSortModelChange,
+}) => {
+  const dispatch = useDispatch();
+
+  const { tableSettings } = useSelector((state: Store) => state.table);
+
+  const handlePaginationChange = useCallback(
+    (model: GridPaginationModel, details: GridCallbackDetails) => {
+      const { pageSize, page } = model;
+      dispatch(
+        setTableSettingsTable({ ...tableSettings, pageSize, pageNumber: page }),
+      );
+
+      logger.log("handlePaginationChange:before", tableSettings);
+
+      if (onPaginationModelChange) {
+        onPaginationModelChange(model, details);
+      }
+
+      logger.log("handlePaginationChange:after", tableSettings);
+    },
+    [onPaginationModelChange],
+  );
+
+  const { count, pageSize, pageNumber, hasPreviousPage, hasNextPage } =
+    tableSettings;
+
+  useEffect(() => {
+    return () => {
+      dispatch(setTableSettings(initialTableConfig));
+    };
+  }, []);
+
   return (
     <Stack direction="column" spacing={Size.SMALL}>
       <Typography variant="h4" color={theme.palette.text.primary}>
@@ -26,25 +78,18 @@ const Table: React.FC<Props> = ({ rows, columns, title }) => {
         onStateChange={removeMuiLicenseMissing}
         // @ts-ignore
         sx={{ m: Size.MEDIUM }}
+        onPaginationModelChange={handlePaginationChange}
+        onSortModelChange={onSortModelChange}
+        disableRowSelectionOnClick
         initialState={{
-          pagination: { paginationModel: { pageSize: DEFAULT_PAGE_SIZE } },
+          pagination: {
+            paginationModel: { pageSize },
+          },
         }}
         pageSizeOptions={PAGE_SIZE_OPTIONS}
-        checkboxSelection
-        disableRowSelectionOnClick
-        // onFilterModelChange={handleFilterModelChange}
-        slots={{
-          noRowsOverlay: () => (
-            <Stack height="30vh" alignItems="center" justifyContent="center">
-              No rows in DataGrid
-            </Stack>
-          ),
-          noResultsOverlay: () => (
-            <Stack height="30vh" alignItems="center" justifyContent="center">
-              Local filter returns no result
-            </Stack>
-          ),
-        }}
+        pagination
+        paginationMode="server"
+        rowCount={count}
       />
     </Stack>
   );

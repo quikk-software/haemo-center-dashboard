@@ -37,6 +37,11 @@ import {
   MeetingState,
   initialState as meetingInitialState,
 } from "@/components/overview/meetings/meetingSlice";
+import {
+  initialState as tableInitialState,
+  TableState,
+} from "@/components/overview/table/tableSlice";
+import table from "@/components/overview/table";
 
 const accessToken = getLocalStorageItem<string, string | null>(
   LocalStorageKey.accessToken,
@@ -62,6 +67,7 @@ export interface Store {
   userOverview: UserOverviewState;
   prescriptions: PrescriptionState;
   meetings: MeetingState;
+  table: TableState;
 }
 
 const initialStore: Store = {
@@ -84,6 +90,7 @@ const initialStore: Store = {
   userOverview: { ...userOverviewInitialState },
   prescriptions: { ...prescriptionInitialState },
   meetings: { ...meetingInitialState },
+  table: { ...tableInitialState },
 };
 
 export const store = configureStore({

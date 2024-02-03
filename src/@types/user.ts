@@ -42,6 +42,11 @@ export interface PatchUserAliasRequest {
   alias?: string;
 }
 
+export interface PatchUserCenterRequest {
+  businessLocationNumber?: string;
+  role?: string;
+}
+
 export interface PostCenterUserRequest {
   alias?: string;
   password?: string;
@@ -169,22 +174,16 @@ export interface FullRequestParams extends Omit<RequestInit, "body"> {
   cancelToken?: CancelToken;
 }
 
-export type RequestParams = Omit<
-  FullRequestParams,
-  "body" | "method" | "query" | "path"
->;
+export type RequestParams = Omit<FullRequestParams, "body" | "method" | "query" | "path">;
 
 export interface ApiConfig<SecurityDataType = unknown> {
   baseUrl?: string;
   baseApiParams?: Omit<RequestParams, "baseUrl" | "cancelToken" | "signal">;
-  securityWorker?: (
-    securityData: SecurityDataType | null,
-  ) => Promise<RequestParams | void> | RequestParams | void;
+  securityWorker?: (securityData: SecurityDataType | null) => Promise<RequestParams | void> | RequestParams | void;
   customFetch?: typeof fetch;
 }
 
-export interface HttpResponse<D extends unknown, E extends unknown = unknown>
-  extends Response {
+export interface HttpResponse<D extends unknown, E extends unknown = unknown> extends Response {
   data: D;
   error: E;
 }
@@ -199,12 +198,11 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "";
+  public baseUrl: string = "http://localhost:3004/";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
-  private customFetch = (...fetchParams: Parameters<typeof fetch>) =>
-    fetch(...fetchParams);
+  private customFetch = (...fetchParams: Parameters<typeof fetch>) => fetch(...fetchParams);
 
   private baseApiParams: RequestParams = {
     credentials: "same-origin",
@@ -223,9 +221,7 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected encodeQueryParam(key: string, value: any) {
     const encodedKey = encodeURIComponent(key);
-    return `${encodedKey}=${encodeURIComponent(
-      typeof value === "number" ? value : `${value}`,
-    )}`;
+    return `${encodedKey}=${encodeURIComponent(typeof value === "number" ? value : `${value}`)}`;
   }
 
   protected addQueryParam(query: QueryParamsType, key: string) {
@@ -239,15 +235,9 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected toQueryString(rawQuery?: QueryParamsType): string {
     const query = rawQuery || {};
-    const keys = Object.keys(query).filter(
-      (key) => "undefined" !== typeof query[key],
-    );
+    const keys = Object.keys(query).filter((key) => "undefined" !== typeof query[key]);
     return keys
-      .map((key) =>
-        Array.isArray(query[key])
-          ? this.addArrayQueryParam(query, key)
-          : this.addQueryParam(query, key),
-      )
+      .map((key) => (Array.isArray(query[key]) ? this.addArrayQueryParam(query, key) : this.addQueryParam(query, key)))
       .join("&");
   }
 
@@ -258,13 +248,8 @@ export class HttpClient<SecurityDataType = unknown> {
 
   private contentFormatters: Record<ContentType, (input: any) => any> = {
     [ContentType.Json]: (input: any) =>
-      input !== null && (typeof input === "object" || typeof input === "string")
-        ? JSON.stringify(input)
-        : input,
-    [ContentType.Text]: (input: any) =>
-      input !== null && typeof input !== "string"
-        ? JSON.stringify(input)
-        : input,
+      input !== null && (typeof input === "object" || typeof input === "string") ? JSON.stringify(input) : input,
+    [ContentType.Text]: (input: any) => (input !== null && typeof input !== "string" ? JSON.stringify(input) : input),
     [ContentType.FormData]: (input: any) =>
       Object.keys(input || {}).reduce((formData, key) => {
         const property = input[key];
@@ -281,10 +266,7 @@ export class HttpClient<SecurityDataType = unknown> {
     [ContentType.UrlEncoded]: (input: any) => this.toQueryString(input),
   };
 
-  protected mergeRequestParams(
-    params1: RequestParams,
-    params2?: RequestParams,
-  ): RequestParams {
+  protected mergeRequestParams(params1: RequestParams, params2?: RequestParams): RequestParams {
     return {
       ...this.baseApiParams,
       ...params1,
@@ -297,9 +279,7 @@ export class HttpClient<SecurityDataType = unknown> {
     };
   }
 
-  protected createAbortSignal = (
-    cancelToken: CancelToken,
-  ): AbortSignal | undefined => {
+  protected createAbortSignal = (cancelToken: CancelToken): AbortSignal | undefined => {
     if (this.abortControllers.has(cancelToken)) {
       const abortController = this.abortControllers.get(cancelToken);
       if (abortController) {
@@ -343,28 +323,15 @@ export class HttpClient<SecurityDataType = unknown> {
     const payloadFormatter = this.contentFormatters[type || ContentType.Json];
     const responseFormat = format || requestParams.format;
 
-    return this.customFetch(
-      `${baseUrl || this.baseUrl || ""}${path}${
-        queryString ? `?${queryString}` : ""
-      }`,
-      {
-        ...requestParams,
-        headers: {
-          ...(requestParams.headers || {}),
-          ...(type && type !== ContentType.FormData
-            ? { "Content-Type": type }
-            : {}),
-        },
-        signal:
-          (cancelToken
-            ? this.createAbortSignal(cancelToken)
-            : requestParams.signal) || null,
-        body:
-          typeof body === "undefined" || body === null
-            ? null
-            : payloadFormatter(body),
+    return this.customFetch(`${baseUrl || this.baseUrl || ""}${path}${queryString ? `?${queryString}` : ""}`, {
+      ...requestParams,
+      headers: {
+        ...(requestParams.headers || {}),
+        ...(type && type !== ContentType.FormData ? { "Content-Type": type } : {}),
       },
-    ).then(async (response) => {
+      signal: (cancelToken ? this.createAbortSignal(cancelToken) : requestParams.signal) || null,
+      body: typeof body === "undefined" || body === null ? null : payloadFormatter(body),
+    }).then(async (response) => {
       const r = response as HttpResponse<T, E>;
       r.data = null as unknown as T;
       r.error = null as unknown as E;
@@ -398,10 +365,9 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title User Service
  * @version 0.1.0
+ * @baseUrl http://localhost:3004/
  */
-export class Api<
-  SecurityDataType extends unknown,
-> extends HttpClient<SecurityDataType> {
+export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
   api = {
     /**
      * @description This route only returns the user related to the ID found in the requesting access token.
@@ -430,16 +396,31 @@ export class Api<
      * @request PATCH:/api/v1/users/user
      * @secure
      */
-    v1UsersUserPartialUpdate: (
-      data: PatchUserRequest,
-      params: RequestParams = {},
-    ) =>
+    v1UsersUserPartialUpdate: (data: PatchUserRequest, params: RequestParams = {}) =>
       this.request<void, void>({
         path: `/api/v1/users/user`,
         method: "PATCH",
         body: data,
         secure: true,
         type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description This route can only be used by centers and admins. An user must be related to an authenticated center.
+     *
+     * @tags Users
+     * @name V1UsersUserDetail
+     * @summary Gets an user by ID
+     * @request GET:/api/v1/users/user/{userId}
+     * @secure
+     */
+    v1UsersUserDetail: (userId: string, params: RequestParams = {}) =>
+      this.request<GetUserResponse, void>({
+        path: `/api/v1/users/user/${userId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
         ...params,
       }),
 
@@ -452,12 +433,28 @@ export class Api<
      * @request PATCH:/api/v1/users/user/alias
      * @secure
      */
-    v1UsersUserAliasPartialUpdate: (
-      data: PatchUserAliasRequest,
-      params: RequestParams = {},
-    ) =>
+    v1UsersUserAliasPartialUpdate: (data: PatchUserAliasRequest, params: RequestParams = {}) =>
       this.request<void, void>({
         path: `/api/v1/users/user/alias`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description Only the authenticated user's center will be updated. The user ID from the access token will be used for identifying the corresponding Keycloak user. The user needs to be re-activated by the new center or an admin.
+     *
+     * @tags Users
+     * @name V1UsersUserAssignCenterPartialUpdate
+     * @summary Updates a user's center
+     * @request PATCH:/api/v1/users/user/assign-center
+     * @secure
+     */
+    v1UsersUserAssignCenterPartialUpdate: (data: PatchUserCenterRequest, params: RequestParams = {}) =>
+      this.request<void, void>({
+        path: `/api/v1/users/user/assign-center`,
         method: "PATCH",
         body: data,
         secure: true,
@@ -523,10 +520,7 @@ export class Api<
      * @request GET:/api/v1/users/centers/business-location-number/{businessLocationNumber}
      * @secure
      */
-    v1UsersCentersBusinessLocationNumberDetail: (
-      businessLocationNumber: string,
-      params: RequestParams = {},
-    ) =>
+    v1UsersCentersBusinessLocationNumberDetail: (businessLocationNumber: string, params: RequestParams = {}) =>
       this.request<GetCenterUserResponse, void>({
         path: `/api/v1/users/centers/business-location-number/${businessLocationNumber}`,
         method: "GET",
@@ -589,10 +583,7 @@ export class Api<
      * @request POST:/api/v1/users/center
      * @secure
      */
-    v1UsersCenterCreate: (
-      data: PostCenterUserRequest,
-      params: RequestParams = {},
-    ) =>
+    v1UsersCenterCreate: (data: PostCenterUserRequest, params: RequestParams = {}) =>
       this.request<PostUserResponse, void>({
         path: `/api/v1/users/center`,
         method: "POST",
@@ -612,11 +603,7 @@ export class Api<
      * @request PATCH:/api/v1/users/centers/{centerId}
      * @secure
      */
-    v1UsersCentersPartialUpdate: (
-      centerId: string,
-      data: PatchCenterUserRequest,
-      params: RequestParams = {},
-    ) =>
+    v1UsersCentersPartialUpdate: (centerId: string, data: PatchCenterUserRequest, params: RequestParams = {}) =>
       this.request<PostUserResponse, void>({
         path: `/api/v1/users/centers/${centerId}`,
         method: "PATCH",
@@ -704,10 +691,7 @@ export class Api<
      * @request PATCH:/api/v1/users/user/center/{centerId}
      * @secure
      */
-    v1UsersUserCenterPartialUpdate: (
-      centerId: string,
-      params: RequestParams = {},
-    ) =>
+    v1UsersUserCenterPartialUpdate: (centerId: string, params: RequestParams = {}) =>
       this.request<void, void>({
         path: `/api/v1/users/user/center/${centerId}`,
         method: "PATCH",
@@ -724,10 +708,7 @@ export class Api<
      * @request GET:/api/v1/verification-code/verify-account/{code}
      * @secure
      */
-    v1VerificationCodeVerifyAccountDetail: (
-      code: string,
-      params: RequestParams = {},
-    ) =>
+    v1VerificationCodeVerifyAccountDetail: (code: string, params: RequestParams = {}) =>
       this.request<void, void>({
         path: `/api/v1/verification-code/verify-account/${code}`,
         method: "GET",
@@ -744,10 +725,7 @@ export class Api<
      * @request POST:/api/v1/reset-password/request
      * @secure
      */
-    v1ResetPasswordRequestCreate: (
-      data: PostRequestPasswordRequest,
-      params: RequestParams = {},
-    ) =>
+    v1ResetPasswordRequestCreate: (data: PostRequestPasswordRequest, params: RequestParams = {}) =>
       this.request<void, void>({
         path: `/api/v1/reset-password/request`,
         method: "POST",
@@ -781,6 +759,23 @@ export class Api<
       }),
 
     /**
+     * @description The route can be used to (re)distribute the user data of a specific user to all of the relevant services (e.g. scheduling, messaging, prescription and notification). This route can only be used by admins.
+     *
+     * @tags Events
+     * @name V1EventsUsersDistributeCreate
+     * @summary Distributes the user data of a given user ID to all services.
+     * @request POST:/api/v1/events/users/{userId}/distribute
+     * @secure
+     */
+    v1EventsUsersDistributeCreate: (userId: string, params: RequestParams = {}) =>
+      this.request<void, void>({
+        path: `/api/v1/events/users/${userId}/distribute`,
+        method: "POST",
+        secure: true,
+        ...params,
+      }),
+
+    /**
      * @description The route will automatically either create a new user avatar or update an existing one.
      *
      * @tags User Avatars
@@ -789,10 +784,7 @@ export class Api<
      * @request POST:/api/v1/user-avatars
      * @secure
      */
-    v1UserAvatarsCreate: (
-      data: PostUserAvatarRequest,
-      params: RequestParams = {},
-    ) =>
+    v1UserAvatarsCreate: (data: PostUserAvatarRequest, params: RequestParams = {}) =>
       this.request<PostUserAvatarResponse, void>({
         path: `/api/v1/user-avatars`,
         method: "POST",
