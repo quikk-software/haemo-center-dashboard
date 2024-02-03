@@ -14,15 +14,19 @@ const useGetPrescriptions = () => {
 
   const request = useCallback(
     async (id: string) => {
-      const res = await getPrescriptions(
-        { id },
-        accessToken,
-        refreshToken,
-        dispatch,
-      );
+      try {
+        const res = await getPrescriptions(
+          { id },
+          accessToken,
+          refreshToken,
+          dispatch,
+        );
 
-      if (res !== undefined) {
-        dispatch(setPrescriptions(res.prescriptions));
+        if (res !== undefined) {
+          dispatch(setPrescriptions(res.prescriptions));
+        }
+      } catch {
+        dispatch(setPrescriptions([]));
       }
     },
     [accessToken, dispatch, refreshToken],
@@ -49,6 +53,9 @@ export const getPrescriptions = async (
     },
   );
   logger.debug(res.data);
+  if (res.status >= 400) {
+    return;
+  }
   return res.data;
 };
 

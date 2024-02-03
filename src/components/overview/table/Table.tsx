@@ -19,14 +19,18 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   initialState,
   setTableSettings,
-  setTableSettingsTable,
 } from "@/components/overview/table/tableSlice";
 import { Store } from "@/redux";
 import { initialTableConfig } from "@/components/overview/table/useTableConfig";
 
 type Props = { title: string } & Pick<
   DataGridProProps,
-  "rows" | "columns" | "onPaginationModelChange" | "onSortModelChange"
+  | "rows"
+  | "columns"
+  | "onPaginationModelChange"
+  | "onSortModelChange"
+  | "onFilterModelChange"
+  | "paginationMode"
 >;
 
 const Table: React.FC<Props> = ({
@@ -35,6 +39,8 @@ const Table: React.FC<Props> = ({
   title,
   onPaginationModelChange,
   onSortModelChange,
+  onFilterModelChange,
+  paginationMode = "server",
 }) => {
   const dispatch = useDispatch();
 
@@ -44,24 +50,43 @@ const Table: React.FC<Props> = ({
     (model: GridPaginationModel, details: GridCallbackDetails) => {
       const { pageSize, page } = model;
       dispatch(
-        setTableSettingsTable({ ...tableSettings, pageSize, pageNumber: page }),
+        setTableSettings({ ...tableSettings, pageSize, pageNumber: page }),
       );
-
-      logger.log("handlePaginationChange:before", tableSettings);
 
       if (onPaginationModelChange) {
         onPaginationModelChange(model, details);
       }
-
-      logger.log("handlePaginationChange:after", tableSettings);
     },
     [onPaginationModelChange],
+  );
+
+  const handleSortChange = useCallback(
+    (model: GridSortModel, details: GridCallbackDetails) => {
+      logger.log(model);
+
+      if (onSortModelChange) {
+        onSortModelChange(model, details);
+      }
+    },
+    [onSortModelChange],
+  );
+
+  const handleFilterChange = useCallback(
+    (model: GridFilterModel, details: GridCallbackDetails) => {
+      logger.log(model);
+
+      if (onFilterModelChange) {
+        onFilterModelChange(model, details);
+      }
+    },
+    [onFilterModelChange],
   );
 
   const { count, pageSize, pageNumber, hasPreviousPage, hasNextPage } =
     tableSettings;
 
   useEffect(() => {
+    dispatch(setTableSettings(initialTableConfig));
     return () => {
       dispatch(setTableSettings(initialTableConfig));
     };
@@ -79,7 +104,8 @@ const Table: React.FC<Props> = ({
         // @ts-ignore
         sx={{ m: Size.MEDIUM }}
         onPaginationModelChange={handlePaginationChange}
-        onSortModelChange={onSortModelChange}
+        onSortModelChange={handleSortChange}
+        onFilterModelChange={handleFilterChange}
         disableRowSelectionOnClick
         initialState={{
           pagination: {
@@ -88,8 +114,8 @@ const Table: React.FC<Props> = ({
         }}
         pageSizeOptions={PAGE_SIZE_OPTIONS}
         pagination
-        paginationMode="server"
-        rowCount={count}
+        paginationMode={paginationMode}
+        rowCount={paginationMode === "server" ? count : undefined}
       />
     </Stack>
   );

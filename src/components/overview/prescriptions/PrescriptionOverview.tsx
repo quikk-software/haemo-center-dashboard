@@ -1,13 +1,22 @@
 import React, { useCallback, useEffect } from "react";
 import useTableConfig from "@/components/overview/table/useTableConfig";
 import useGetUsers from "@/api/users/useGetUsers";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Store } from "@/redux";
 import Table from "@/components/overview/table/Table";
 import { createColumns } from "@/components/overview/prescriptions/prescriptionTable.coldef";
 import useGetAllPrescriptions from "@/api/prescriptions/useGetAllPrescriptions";
-import { GridColDef, GridValueGetterParams } from "@mui/x-data-grid";
+import {
+  GridColDef,
+  GridPaginationModel,
+  GridValueGetterParams,
+} from "@mui/x-data-grid";
 import { useResolveSchedulingProfessionalName } from "@/api/scheduling/useResolveSchedulingUserName";
+import {
+  setPrescriptionTableFilter,
+  setPrescriptionTableSort,
+} from "@/components/overview/prescriptions/prescriptionSlice";
+import logger from "@/core/logger";
 
 const PrescriptionOverview: React.FC = () => {
   const {
@@ -20,10 +29,15 @@ const PrescriptionOverview: React.FC = () => {
     },
   } = useSelector((state: Store) => state.table);
 
+  const dispatch = useDispatch();
   const { request } = useGetAllPrescriptions();
-  const { request: resolveName } = useResolveSchedulingProfessionalName();
-  const { allPrescriptions } = useSelector(
-    (store: Store) => store.prescriptions,
+  const { allPrescriptions, prescriptionTableFilter, prescriptionTableSort } =
+    useSelector((store: Store) => store.prescriptions);
+
+  const reloadData = useCallback(
+    (sort: "asc" | "desc" | undefined = undefined) =>
+      request({ pageSize, pageNumber, sort }),
+    [pageSize, pageNumber],
   );
 
   useEffect(() => {
@@ -36,9 +50,43 @@ const PrescriptionOverview: React.FC = () => {
       // @ts-ignore
       columns={createColumns((resolveName) => request()) ?? []}
       title={"Übersicht Rezepte"}
-      onPaginationModelChange={(model, details) =>
-        request({ pageSize: model.pageSize, pageNumber: model.page })
-      }
+      onPaginationModelChange={(model, details) => {
+        request({
+          pageSize: model.pageSize,
+          pageNumber: model.page,
+          sort: prescriptionTableSort,
+          isAccepted: prescriptionTableFilter,
+        });
+      }}
+      onSortModelChange={(model) => {
+        const sort =
+          model.find((m) => m.field === "createdAt")?.sort ?? undefined;
+        dispatch(setPrescriptionTableSort(sort));
+        request({
+          pageSize,
+          pageNumber,
+          sort,
+          isAccepted: prescriptionTableFilter,
+        });
+      }}
+      onFilterModelChange={(model) => {
+        logger.debug({ model });
+        const isAcceptedFilter = model.items.find(
+          (i) => i.field === "isAccepted",
+        )?.value;
+        const isAccepted =
+          isAcceptedFilter === "" || isAcceptedFilter === undefined
+            ? undefined
+            : Boolean(isAcceptedFilter === "true");
+        logger.debug({ isAccepted });
+        dispatch(setPrescriptionTableFilter(isAccepted));
+        request({
+          pageSize,
+          pageNumber,
+          sort: prescriptionTableSort,
+          isAccepted,
+        });
+      }}
     />
   );
 };

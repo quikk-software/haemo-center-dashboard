@@ -18,15 +18,10 @@ export const tableSlice = createSlice({
   initialState,
   reducers: {
     setTableSettings: (state, action: PayloadAction<TableSettings>) => {
-      logger.log(`setTableSettings:response`, action.payload);
-      state.tableSettings = action.payload;
-    },
-    setTableSettingsTable: (state, action: PayloadAction<TableSettings>) => {
-      logger.log(`setTableSettings:table`, action.payload);
       state.tableSettings = action.payload;
     },
   },
 });
 
-export const { setTableSettings, setTableSettingsTable } = tableSlice.actions;
+export const { setTableSettings } = tableSlice.actions;
 export default tableSlice.reducer;
