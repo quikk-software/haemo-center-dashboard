@@ -17,6 +17,10 @@ import {
   setPrescriptionTableSort,
 } from "@/components/overview/prescriptions/prescriptionSlice";
 import logger from "@/core/logger";
+import {
+  setMeetingTableFilter,
+  setMeetingTableSort,
+} from "@/components/overview/meetings/meetingSlice";
 
 const PrescriptionOverview: React.FC = () => {
   const {
@@ -42,6 +46,11 @@ const PrescriptionOverview: React.FC = () => {
 
   useEffect(() => {
     request({ pageSize, pageNumber });
+
+    return () => {
+      dispatch(setPrescriptionTableSort());
+      dispatch(setPrescriptionTableFilter());
+    };
   }, []);
 
   return (

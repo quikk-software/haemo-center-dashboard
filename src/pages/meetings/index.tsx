@@ -1,7 +1,8 @@
 import React from "react";
+import MeetingOverview from "@/components/overview/meetings/MeetingOverview";
 
 const SchedulingPage: React.FC = () => {
-  return <></>;
+  return <MeetingOverview />;
 };
 
 export default SchedulingPage;

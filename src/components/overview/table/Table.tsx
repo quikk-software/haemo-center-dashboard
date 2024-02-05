@@ -49,6 +49,7 @@ const Table: React.FC<Props> = ({
   const handlePaginationChange = useCallback(
     (model: GridPaginationModel, details: GridCallbackDetails) => {
       const { pageSize, page } = model;
+      logger.log("pagination", model);
       dispatch(
         setTableSettings({ ...tableSettings, pageSize, pageNumber: page }),
       );
@@ -62,7 +63,7 @@ const Table: React.FC<Props> = ({
 
   const handleSortChange = useCallback(
     (model: GridSortModel, details: GridCallbackDetails) => {
-      logger.log(model);
+      logger.log("sort", model);
 
       if (onSortModelChange) {
         onSortModelChange(model, details);
@@ -73,7 +74,7 @@ const Table: React.FC<Props> = ({
 
   const handleFilterChange = useCallback(
     (model: GridFilterModel, details: GridCallbackDetails) => {
-      logger.log(model);
+      logger.log("filter", model);
 
       if (onFilterModelChange) {
         onFilterModelChange(model, details);
@@ -111,11 +112,16 @@ const Table: React.FC<Props> = ({
           pagination: {
             paginationModel: { pageSize },
           },
+          pinnedColumns: { right: ["actions"] },
         }}
         pageSizeOptions={PAGE_SIZE_OPTIONS}
         pagination
         paginationMode={paginationMode}
+        filterMode={paginationMode}
+        sortingMode={paginationMode}
+        rowsLoadingMode={paginationMode}
         rowCount={paginationMode === "server" ? count : undefined}
+        autoHeight
       />
     </Stack>
   );

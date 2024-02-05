@@ -1,4 +1,4 @@
-import React, { CSSProperties, PropsWithChildren } from "react";
+import React, { CSSProperties, PropsWithChildren, useEffect } from "react";
 import Footer from "./Footer";
 import { NextSeo } from "next-seo";
 import { Box, Container, Divider, Stack } from "@mui/material";
@@ -6,6 +6,9 @@ import { APP_NAME } from "@/constants";
 import Header from "./Header";
 import Size from "@/components/layout/size";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
+import { useDispatch } from "react-redux";
+import { setTableSettings } from "@/components/overview/table/tableSlice";
+import { initialTableConfig } from "@/components/overview/table/useTableConfig";
 
 type PageProps = {
   title: string;
@@ -19,6 +22,13 @@ const Page: React.FC<PropsWithChildren<PageProps>> = ({
   styleOverwrite = {},
   children,
 }) => {
+  const dispatch = useDispatch();
+
+  // init table config to allow fetching later
+  useEffect(() => {
+    dispatch(setTableSettings(initialTableConfig));
+  }, []);
+
   return (
     <Box style={{ display: "flex", flexDirection: "column" }}>
       <NextSeo

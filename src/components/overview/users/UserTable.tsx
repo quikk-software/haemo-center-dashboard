@@ -28,6 +28,7 @@ const UserTable: React.FC = () => {
       // @ts-ignore
       columns={createColumns(() => request()) ?? []}
       title={"Übersicht Nutzer"}
+      paginationMode="client"
     />
   );
 };
