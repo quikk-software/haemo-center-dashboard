@@ -21,6 +21,9 @@ export interface GetPrescriptionResponse {
   risk?: string;
   note?: string;
   isAccepted?: boolean;
+  hasWarning?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface PostPrescriptionRequest {
@@ -40,6 +43,7 @@ export interface ListPrescriptionsResponse {
   hasNextPage?: boolean;
   pageNumber?: number;
   pageSize?: number;
+  totalPages?: number;
   prescriptions: GetPrescriptionResponse[];
 }
 
@@ -431,10 +435,19 @@ export class Api<
      * @request GET:/api/v1/prescriptions
      * @secure
      */
-    v1PrescriptionsList: (params: RequestParams = {}) =>
+    v1PrescriptionsList: (
+      query?: {
+        /** The current page number. */
+        pageNumber?: number;
+        /** The page size. */
+        pageSize?: number;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<ListPrescriptionsResponse, void>({
         path: `/api/v1/prescriptions`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -459,6 +472,37 @@ export class Api<
         body: data,
         secure: true,
         type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description Route gets all prescriptions related to the center.
+     *
+     * @tags Prescriptions
+     * @name V1PrescriptionsCenterAllPrescriptionsList
+     * @summary Lists all prescriptions of the center
+     * @request GET:/api/v1/prescriptions/center/all-prescriptions
+     * @secure
+     */
+    v1PrescriptionsCenterAllPrescriptionsList: (
+      query?: {
+        /** Filters all accepted prescriptions. */
+        isAccepted?: boolean;
+        /** Indicator how to sort prescriptions by date. */
+        sort?: string;
+        /** The current page number. */
+        pageNumber?: number;
+        /** The page size. */
+        pageSize?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ListPrescriptionsResponse, void>({
+        path: `/api/v1/prescriptions/center/all-prescriptions`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
         ...params,
       }),
 
@@ -599,6 +643,33 @@ export class Api<
       this.request<GetPrescriptionUserResponse, void>({
         path: `/api/v1/prescriptionUsers/center/users/${userId}`,
         method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The requesting user must be a patient or a center, else Forbidden-Exception will be thrown
+     *
+     * @tags Prescription User
+     * @name V1ProfessionalsPrescriptionUsersList
+     * @summary Lists professional prescription users by center ID of a patient user
+     * @request GET:/api/v1/professionals/prescriptionUsers
+     * @secure
+     */
+    v1ProfessionalsPrescriptionUsersList: (
+      query?: {
+        /** The current page number. */
+        pageNumber?: number;
+        /** The page size. */
+        pageSize?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ListPrescriptionUsersResponse, void>({
+        path: `/api/v1/professionals/prescriptionUsers`,
+        method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,

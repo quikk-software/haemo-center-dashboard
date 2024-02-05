@@ -1,10 +1,10 @@
 export const MEETING_STATES = ["ACCEPTED", "PENDING", "CREATED"] as const;
 
 // TODO: Sorry, i18n habe ich hier erstmal außen vor gelassen - Lukas
-export const meetingTranslations: Record<MeetingState, string> = {
+export const meetingTranslations: Record<MeetingType, string> = {
   ACCEPTED: "Akzeptiert",
   PENDING: "Ausstehend",
-  CREATED: "Abgelehnt",
+  CREATED: "Erstellt",
 };
 
-type MeetingState = (typeof MEETING_STATES)[number];
+export type MeetingType = (typeof MEETING_STATES)[number];

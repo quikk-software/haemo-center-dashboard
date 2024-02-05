@@ -8,7 +8,7 @@ const Api = {
     "http://localhost:3005",
   SCHEDULING_API:
     process.env.NEXT_PUBLIC_EXTERNAL_SCHEDULING_API_URL ||
-    "http://localhost:3001",
+    "http://localhost:3002",
 };
 
 export default Api;

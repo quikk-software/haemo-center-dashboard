@@ -33,6 +33,7 @@ const MeetingTable: React.FC = () => {
       rows={meetings}
       // @ts-ignore
       columns={createColumns() ?? []}
+      paginationMode="client"
     />
   );
 };

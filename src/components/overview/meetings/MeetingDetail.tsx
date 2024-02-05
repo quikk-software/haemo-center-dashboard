@@ -43,6 +43,7 @@ const MeetingDetail: React.FC = () => {
     schedulingPatientName,
     meetings,
     meeting,
+    allMeetings,
   } = useSelector((store: Store) => store.meetings);
 
   useEffect(() => {
@@ -75,7 +76,9 @@ const MeetingDetail: React.FC = () => {
   useEffect(() => {
     // Meeting Id is always a number
 
-    const meetingCandidate = meetings.find((m) => m.id === Number(id));
+    const meetingCandidate = [...meetings, ...allMeetings].find(
+      (m) => m.id === Number(id),
+    );
     if (id !== undefined && meetingCandidate !== undefined) {
       dispatch(setMeeting(meetingCandidate));
     } else {
@@ -186,7 +189,7 @@ const MeetingDetail: React.FC = () => {
             }
 
             // @ts-ignore
-            request(id, state);
+            request(Number(id), state);
           }}
         >
           Speichern

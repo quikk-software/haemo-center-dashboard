@@ -7,6 +7,7 @@ import snackbarReducer from "@/components/layout/snackbarSlice";
 import userOverviewReducer from "@/components/overview/users/userOverviewSlice";
 import prescriptionReducer from "@/components/overview/prescriptions/prescriptionSlice";
 import meetingsReducer from "@/components/overview/meetings/meetingSlice";
+import tableReducer from "@/components/overview/table/tableSlice";
 import { Store } from "@/redux";
 
 export const rootReducer = combineReducers<Store>({
@@ -18,4 +19,5 @@ export const rootReducer = combineReducers<Store>({
   userOverview: userOverviewReducer,
   prescriptions: prescriptionReducer,
   meetings: meetingsReducer,
+  table: tableReducer,
 });

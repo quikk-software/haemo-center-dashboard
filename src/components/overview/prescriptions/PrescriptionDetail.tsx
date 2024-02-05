@@ -36,14 +36,16 @@ const PrescriptionDetail: React.FC = () => {
     prescriptionProfessionalName,
     prescription,
     prescriptions,
+    allPrescriptions,
   } = useSelector((store: Store) => store.prescriptions);
 
   useEffect(() => {
     if (prescription) {
       patientNameRequest(String(prescription.patientId));
       professionalNameRequest(String(prescription.professionalId));
+      dispatch(setPrescription(prescription));
     }
-  }, [prescription]);
+  }, [dispatch, patientNameRequest, prescription, professionalNameRequest]);
 
   const updatePrescription = (
     updatedPrescription: Partial<PatchPrescriptionRequest>,
@@ -69,7 +71,7 @@ const PrescriptionDetail: React.FC = () => {
   useEffect(() => {
     // Prescription Id is always a number
 
-    const prescriptionCandidate = prescriptions.find(
+    const prescriptionCandidate = [...prescriptions, ...allPrescriptions].find(
       (m) => m.id === Number(id),
     );
     if (id !== undefined && prescriptionCandidate !== undefined) {
@@ -188,7 +190,7 @@ const PrescriptionDetail: React.FC = () => {
           color="primary"
           onClick={() =>
             request({
-              preparation: "",
+              preparation: preparation ?? "",
               dosage: dosage ?? "",
               dosageUnit: "",
               risk: "",

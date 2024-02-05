@@ -25,6 +25,8 @@ const Navbar: React.FC = () => {
           </Stack>
         </Link>
         <Link href="/users">Nutzer</Link>
+        <Link href="/meetings">Termine</Link>
+        <Link href="/prescriptions">Rezepte</Link>
         <Link href="/news">News</Link>
         {roles.includes(ADMIN_ROLE) && <Link href="/admin">Admin</Link>}
       </Stack>

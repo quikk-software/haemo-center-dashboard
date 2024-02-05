@@ -42,6 +42,11 @@ export interface PatchUserAliasRequest {
   alias?: string;
 }
 
+export interface PatchUserCenterRequest {
+  businessLocationNumber?: string;
+  role?: string;
+}
+
 export interface PostCenterUserRequest {
   alias?: string;
   password?: string;
@@ -199,7 +204,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "";
+  public baseUrl: string = "http://localhost:3004/";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -398,6 +403,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title User Service
  * @version 0.1.0
+ * @baseUrl http://localhost:3004/
  */
 export class Api<
   SecurityDataType extends unknown,
@@ -444,6 +450,24 @@ export class Api<
       }),
 
     /**
+     * @description This route can only be used by centers and admins. An user must be related to an authenticated center.
+     *
+     * @tags Users
+     * @name V1UsersUserDetail
+     * @summary Gets an user by ID
+     * @request GET:/api/v1/users/user/{userId}
+     * @secure
+     */
+    v1UsersUserDetail: (userId: string, params: RequestParams = {}) =>
+      this.request<GetUserResponse, void>({
+        path: `/api/v1/users/user/${userId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Only the authenticated user's alias will be updated. The user ID from the access token will be used for identifying the corresponding Keycloak user. The alias can only be updated once in a 30 days time period.
      *
      * @tags Users
@@ -458,6 +482,28 @@ export class Api<
     ) =>
       this.request<void, void>({
         path: `/api/v1/users/user/alias`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description Only the authenticated user's center will be updated. The user ID from the access token will be used for identifying the corresponding Keycloak user. The user needs to be re-activated by the new center or an admin.
+     *
+     * @tags Users
+     * @name V1UsersUserAssignCenterPartialUpdate
+     * @summary Updates a user's center
+     * @request PATCH:/api/v1/users/user/assign-center
+     * @secure
+     */
+    v1UsersUserAssignCenterPartialUpdate: (
+      data: PatchUserCenterRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, void>({
+        path: `/api/v1/users/user/assign-center`,
         method: "PATCH",
         body: data,
         secure: true,
@@ -777,6 +823,26 @@ export class Api<
         body: data,
         secure: true,
         type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description The route can be used to (re)distribute the user data of a specific user to all of the relevant services (e.g. scheduling, messaging, prescription and notification). This route can only be used by admins.
+     *
+     * @tags Events
+     * @name V1EventsUsersDistributeCreate
+     * @summary Distributes the user data of a given user ID to all services.
+     * @request POST:/api/v1/events/users/{userId}/distribute
+     * @secure
+     */
+    v1EventsUsersDistributeCreate: (
+      userId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, void>({
+        path: `/api/v1/events/users/${userId}/distribute`,
+        method: "POST",
+        secure: true,
         ...params,
       }),
 

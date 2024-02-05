@@ -33,6 +33,7 @@ const PrescriptionTable: React.FC = () => {
       rows={prescriptions}
       // @ts-ignore
       columns={createColumns() ?? []}
+      paginationMode="client"
     />
   );
 };

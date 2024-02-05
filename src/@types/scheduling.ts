@@ -9,6 +9,8 @@
  * ---------------------------------------------------------------
  */
 
+import { getObjectWithUndefinedFieldsRemoved } from "@/utils/utils";
+
 export interface GetMeetingResponse {
   id?: number;
   timeFrameId?: number;
@@ -212,7 +214,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "http://localhost:3001/";
+  public baseUrl: string = "http://localhost:3002/";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -411,7 +413,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title Scheduling Service
  * @version 0.1.0
- * @baseUrl http://localhost:3001/
+ * @baseUrl http://localhost:3002/
  */
 export class Api<
   SecurityDataType extends unknown,
@@ -567,6 +569,37 @@ export class Api<
         body: data,
         secure: true,
         type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description This route returns all meetings of a center related to all of its professionals.
+     *
+     * @tags Meetings
+     * @name V1MeetingCenterAllMeetingsList
+     * @summary Lists all meetings of a center
+     * @request GET:/api/v1/meeting/center/all-meetings
+     * @secure
+     */
+    v1MeetingCenterAllMeetingsList: (
+      query?: {
+        /** The state of meetings. */
+        state?: string;
+        /** Indicator how to sort meetings by date. */
+        sort?: string;
+        /** The current page number. */
+        pageNumber?: number;
+        /** The page size. */
+        pageSize?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ListMeetingResponse, void>({
+        path: `/api/v1/meeting/center/all-meetings`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
         ...params,
       }),
 
