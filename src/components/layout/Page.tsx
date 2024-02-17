@@ -9,6 +9,7 @@ import Breadcrumbs from "@/components/layout/Breadcrumbs";
 import { useDispatch } from "react-redux";
 import { setTableSettings } from "@/components/overview/table/tableSlice";
 import { initialTableConfig } from "@/components/overview/table/useTableConfig";
+import SnackbarComponent from "@/components/layout/Snackbar";
 
 type PageProps = {
   title: string;

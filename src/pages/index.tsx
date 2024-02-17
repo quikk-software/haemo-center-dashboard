@@ -8,6 +8,7 @@ import { ADMIN_ROLE } from "@/auth/auth.constants";
 import { Stack, Typography } from "@mui/material";
 import DashboardRow from "@/components/dashboard/DashboardRow";
 import DashboardCard from "@/components/dashboard/DashboardCard";
+import MenuCard from "@/components/admin/MenuCard";
 
 const Homepage: React.FC = () => {
   const {
@@ -26,41 +27,26 @@ const Homepage: React.FC = () => {
   }, [query, pageSize, pageNumber]);
 
   return (
-    <>
-      <DashboardRow
-        title="Nutzer"
-        content={[
-          <Link href="/users" key="/users">
-            <DashboardCard
-              key={1}
-              content={
-                <>
-                  <Typography variant="h5" component="div">
-                    {users.length} Nutzer
-                  </Typography>
-                  <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                    gefunden
-                  </Typography>
-                </>
-              }
-            />
-          </Link>,
-          <DashboardCard
-            key={2}
-            content={
-              <>
-                <Typography variant="h5" component="div">
-                  {users.filter((u) => !u.enabled).length} Verifizierungen
-                </Typography>
-                <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                  ausstehend
-                </Typography>
-              </>
-            }
-          />,
-        ]}
+    <Stack direction="column" spacing={3}>
+      <MenuCard
+        title="Nutzer anzeigen"
+        description="Alle Nutzer für dieses Zentrum anzeigen"
+        linkText="Nutzer anzeigen"
+        link="/users"
       />
-    </>
+      <MenuCard
+        title="Termine anzeigen"
+        description="Alle Termine für dieses Zentrum anzeigen"
+        linkText="Termine anzeigen"
+        link="/meetings"
+      />
+      <MenuCard
+        title="Rezepte anzeigen"
+        description="Alle Rezepte für dieses Zentrum anzeigen"
+        linkText="Rezepte anzeigen"
+        link="/prescriptions"
+      />
+    </Stack>
   );
 };
 

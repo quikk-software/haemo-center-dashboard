@@ -25,14 +25,16 @@ const MenuCard: FunctionComponent<MenuCardProps> = ({
   return (
     <Card sx={{ minWidth: 275 }}>
       <CardContent>
-        <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+        <Typography color="text.secondary" gutterBottom>
           {title}
         </Typography>
         {description && <Typography variant="body2">{description}</Typography>}
       </CardContent>
       <CardActions>
         <Link href={link}>
-          <Button size="small">{linkText}</Button>
+          <Button size="small" variant="outlined">
+            {linkText}
+          </Button>
         </Link>
       </CardActions>
     </Card>

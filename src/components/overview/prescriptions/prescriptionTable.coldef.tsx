@@ -47,15 +47,12 @@ export const createColumns: () => GridColDef<GetPrescriptionResponse>[] = () =>
       },
     },
   ].map((coldef) => {
-    const colAddition = { filterable: false, sortable: false, minWidth: 250 };
+    const colAddition = { filterable: false, sortable: false };
     if (coldef.field === "createdAt") {
       colAddition.sortable = true;
     }
     if (coldef.field === "isAccepted") {
       colAddition.filterable = true;
-    }
-    if (coldef.field === "actions") {
-      colAddition.minWidth = 50;
     }
     return { ...coldef, ...colAddition };
   });

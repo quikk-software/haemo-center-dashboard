@@ -107,6 +107,11 @@ const pages: Page[] = [
         pathname: "/admin/create-center",
         description: "Zentrum anlegen",
       },
+      {
+        title: "Zentren anzeigen",
+        pathname: "/admin/view-centers",
+        description: "Zentren anzeigen",
+      },
     ],
   },
   {

@@ -113,11 +113,11 @@ const useAuth = () => {
     [accessToken],
   );
 
-  const handleLogout = useCallback(() => {
-    dispatch(reset());
-    router.push({
+  const handleLogout = useCallback(async () => {
+    await router.push({
       pathname: "/auth/login",
     });
+    dispatch(reset());
   }, []);
 
   const isLoggedIn = useCallback(() => {

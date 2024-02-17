@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import useTableConfig from "@/components/overview/table/useTableConfig";
-import useGetUsers from "@/api/users/useGetUsers";
 import { useSelector } from "react-redux";
 import { Store } from "@/redux";
 import Table from "@/components/overview/table/Table";
-import { createColumns } from "@/components/overview/users/userTable.coldef";
+import { createColumns } from "@/components/overview/centers/centerTable.coldef";
+import useGetCenters from "@/api/centers/useGetCenters";
 
-const UserTable: React.FC = () => {
+const CenterTable: React.FC = () => {
   const {
     handlePaginationModelChange,
     // handleFilterModelChange,
@@ -15,8 +15,8 @@ const UserTable: React.FC = () => {
     query,
   } = useTableConfig(true);
 
-  const { request } = useGetUsers({ query, pageSize, pageNumber });
-  const { users } = useSelector((store: Store) => store.userOverview);
+  const { request } = useGetCenters({ pageSize, pageNumber });
+  const { centers } = useSelector((store: Store) => store.centerOverview);
 
   useEffect(() => {
     request();
@@ -24,13 +24,13 @@ const UserTable: React.FC = () => {
 
   return (
     <Table
-      rows={users}
+      rows={centers}
       // @ts-ignore
       columns={createColumns(() => request()) ?? []}
-      title={"Übersicht Nutzer"}
+      title={"Übersicht Zentren"}
       paginationMode="client"
     />
   );
 };
 
-export default UserTable;
+export default CenterTable;

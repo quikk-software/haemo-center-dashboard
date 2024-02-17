@@ -58,16 +58,13 @@ export const createColumns: () => GridColDef<GetMeetingResponse>[] = () =>
       },
     },
   ].map((coldef) => {
-    const colAddition = { filterable: false, sortable: false, minWidth: 250 };
+    const colAddition = { filterable: false, sortable: false };
     if (coldef.field === "date") {
       colAddition.sortable = true;
     }
     if (coldef.field === "state") {
       colAddition.filterable = true;
       logger.log("filter state");
-    }
-    if (coldef.field === "actions") {
-      colAddition.minWidth = 50;
     }
     return { ...coldef, ...colAddition };
   });

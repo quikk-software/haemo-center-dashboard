@@ -3,14 +3,14 @@ import {
   GridRenderCellParams,
   GridValueGetterParams,
 } from "@mui/x-data-grid";
-import { GetUserResponse } from "@/@types/user";
+import { GetCenterUserResponse, GetUserResponse } from "@/@types/user";
 import Link from "@/components/common/Link";
 import MoreActionsButton from "@/components/overview/users/cells/MoreActionsButton";
 
 export const createColumns: () => GridColDef<GetUserResponse>[] = () =>
   // @ts-ignore
   [
-    { field: "alias", headerName: "Alias" },
+    { field: "alias", headerName: "Benutzername" },
     { field: "firstName", headerName: "Vorname" },
     { field: "lastName", headerName: "Nachname" },
     {
@@ -28,6 +28,10 @@ export const createColumns: () => GridColDef<GetUserResponse>[] = () =>
 
         return <Link href={`mailto:${email}`}>{email}</Link>;
       },
+      valueGetter: (params: GridValueGetterParams<GetUserResponse>) => {
+        const { email } = params.row;
+        return email;
+      },
     },
     {
       field: "phone",
@@ -36,7 +40,15 @@ export const createColumns: () => GridColDef<GetUserResponse>[] = () =>
       renderCell: (params: GridValueGetterParams<GetUserResponse>) => {
         const { phoneNumber } = params.row;
 
-        return <Link href={`tel:${phoneNumber}`}>{phoneNumber}</Link>;
+        return !!phoneNumber ? (
+          <Link href={`tel:${phoneNumber}`}>{phoneNumber}</Link>
+        ) : (
+          ""
+        );
+      },
+      valueGetter: (params: GridValueGetterParams<GetUserResponse>) => {
+        const { phoneNumber } = params.row;
+        return phoneNumber;
       },
     },
     {
@@ -75,10 +87,4 @@ export const createColumns: () => GridColDef<GetUserResponse>[] = () =>
         );
       },
     },
-  ].map((coldef) => {
-    const colAddition = { filterable: false, sortable: false, minWidth: 250 };
-    if (coldef.field === "actions") {
-      colAddition.minWidth = 50;
-    }
-    return { ...coldef, ...colAddition };
-  });
+  ];

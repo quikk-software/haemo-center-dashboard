@@ -19,8 +19,11 @@ const getFilterForType = (type: View) =>
     { field: "role", value: type, operator: "equals" },
   ]);
 
-const useTableConfig = () => {
-  const [tableConfig, setTableConfig] = useState(initialTableConfig);
+const useTableConfig = (isClientSide = false) => {
+  const [tableConfig, setTableConfig] = useState({
+    ...initialTableConfig,
+    ...(isClientSide ? { pageSize: 999 } : {}),
+  });
 
   // const updateQuery = (filter: GridFilterModel) => {
   //   const query = buildKeyCloakQueryString(filter.items);
