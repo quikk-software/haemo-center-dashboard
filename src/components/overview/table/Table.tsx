@@ -93,6 +93,27 @@ const Table: React.FC<Props> = ({
     };
   }, []);
 
+  // make sure that
+  // 1) actions column always has a certain width
+  // 2) client side columns are always filterable and sortable
+  const colDefs = useMemo(
+    () =>
+      columns.map((coldef) => {
+        const colAddition = {
+          minWidth: 250,
+          filterable: paginationMode === "client" ? true : coldef.filterable,
+          sortable: paginationMode === "client" ? true : coldef.sortable,
+        };
+
+        if (coldef.field === "actions") {
+          colAddition.minWidth = 50;
+        }
+
+        return { ...coldef, ...colAddition };
+      }),
+    [columns],
+  );
+
   return (
     <Stack direction="column" spacing={Size.SMALL}>
       <Typography variant="h4" color={theme.palette.text.primary}>
@@ -100,7 +121,7 @@ const Table: React.FC<Props> = ({
       </Typography>
       <DataGrid
         rows={rows}
-        columns={columns}
+        columns={colDefs}
         onStateChange={removeMuiLicenseMissing}
         // @ts-ignore
         sx={{ m: Size.MEDIUM }}

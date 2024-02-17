@@ -42,15 +42,14 @@ const MyApp: React.FC<AppProps> = (props) => {
           </Head>
           <LoadingGuard>
             <AuthGuard>
-              <SnackbarComponent>
-                <Page
-                  title={title}
-                  description={description}
-                  styleOverwrite={__dangerousPageSpecificStyling}
-                >
-                  <Component {...pageProps} />
-                </Page>
-              </SnackbarComponent>
+              <Page
+                title={title}
+                description={description}
+                styleOverwrite={__dangerousPageSpecificStyling}
+              >
+                <Component {...pageProps} />
+                <SnackbarComponent />
+              </Page>
             </AuthGuard>
           </LoadingGuard>
         </LocalizedThemeProvider>

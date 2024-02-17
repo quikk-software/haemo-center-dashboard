@@ -1,5 +1,11 @@
 import React, { PropsWithChildren, useCallback } from "react";
-import { Alert, AlertColor, Snackbar, SnackbarOrigin } from "@mui/material";
+import {
+  Alert,
+  AlertColor,
+  Box,
+  Snackbar,
+  SnackbarOrigin,
+} from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { Store } from "@/redux";
 import { setSnackbarState } from "./snackbarSlice";
@@ -72,24 +78,21 @@ const SnackbarComponent: React.FC<PropsWithChildren<Record<never, any>>> = ({
   };
 
   return (
-    <>
-      {children}
-      <Snackbar
-        anchorOrigin={snackbarOrigin}
-        open={snackbarState.open}
-        autoHideDuration={autoHideDuration}
+    <Snackbar
+      anchorOrigin={snackbarOrigin}
+      open={snackbarState.open}
+      // autoHideDuration={autoHideDuration}
+      onClose={handleCloseSnackbar}
+      // sx={{ justifyContent: "flex-end" }} // necessary to display at the bottom
+    >
+      <Alert
         onClose={handleCloseSnackbar}
-        sx={{ justifyContent: "flex-end" }} // necessary to display at the bottom
+        severity={snackbarState.severity}
+        sx={{ width: "100%" }}
       >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbarState.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarState.message}
-        </Alert>
-      </Snackbar>
-    </>
+        {snackbarState.message}
+      </Alert>
+    </Snackbar>
   );
 };
 

@@ -8,6 +8,7 @@ import userOverviewReducer from "@/components/overview/users/userOverviewSlice";
 import prescriptionReducer from "@/components/overview/prescriptions/prescriptionSlice";
 import meetingsReducer from "@/components/overview/meetings/meetingSlice";
 import tableReducer from "@/components/overview/table/tableSlice";
+import centerOverviewReducer from "@/components/overview/centers/centerOverviewSlice";
 import { Store } from "@/redux";
 
 export const rootReducer = combineReducers<Store>({
@@ -20,4 +21,5 @@ export const rootReducer = combineReducers<Store>({
   prescriptions: prescriptionReducer,
   meetings: meetingsReducer,
   table: tableReducer,
+  centerOverview: centerOverviewReducer,
 });
