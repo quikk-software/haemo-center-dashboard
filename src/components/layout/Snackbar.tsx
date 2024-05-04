@@ -65,7 +65,7 @@ const SnackbarComponent: React.FC<PropsWithChildren<Record<never, any>>> = ({
     vertical: "bottom",
     horizontal: "center",
   } as SnackbarOrigin;
-  const autoHideDuration = 6000; // ms
+  const autoHideDuration = 4000; // ms
 
   const handleCloseSnackbar = (
     _event?: React.SyntheticEvent | Event,
@@ -81,9 +81,8 @@ const SnackbarComponent: React.FC<PropsWithChildren<Record<never, any>>> = ({
     <Snackbar
       anchorOrigin={snackbarOrigin}
       open={snackbarState.open}
-      // autoHideDuration={autoHideDuration}
+      autoHideDuration={autoHideDuration}
       onClose={handleCloseSnackbar}
-      // sx={{ justifyContent: "flex-end" }} // necessary to display at the bottom
     >
       <Alert
         onClose={handleCloseSnackbar}

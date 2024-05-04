@@ -4,19 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { Store } from "@/redux";
 import logger from "@/core/logger";
 import { setPrescription } from "@/components/overview/prescriptions/prescriptionSlice";
-import {
-  Button,
-  Checkbox,
-  FormControlLabel,
-  Grid,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Button, Grid, TextField, Typography } from "@mui/material";
 import { theme } from "@/theme";
 import useUpdatePrescription from "@/api/prescriptions/useUpdatePrescription";
-import { MEETING_STATES } from "@/components/overview/meetings/meeting.types";
 import { produce } from "immer";
-import { setMeeting } from "@/components/overview/meetings/meetingSlice";
 import { PatchPrescriptionRequest } from "@/@types/prescription";
 import {
   useResolvePrescriptionProfessionalName,
@@ -40,12 +31,13 @@ const PrescriptionDetail: React.FC = () => {
   } = useSelector((store: Store) => store.prescriptions);
 
   useEffect(() => {
-    if (prescription) {
-      patientNameRequest(String(prescription.patientId));
-      professionalNameRequest(String(prescription.professionalId));
-      dispatch(setPrescription(prescription));
+    if (!prescription) {
+      return;
     }
-  }, [dispatch, patientNameRequest, prescription, professionalNameRequest]);
+    patientNameRequest(String(prescription.patientId));
+    professionalNameRequest(String(prescription.professionalId));
+    dispatch(setPrescription(prescription));
+  }, [dispatch, prescription]);
 
   const updatePrescription = (
     updatedPrescription: Partial<PatchPrescriptionRequest>,
@@ -87,17 +79,7 @@ const PrescriptionDetail: React.FC = () => {
     return <>Das Rezept mit der Nummer {id} konnte nicht geladen werden.</>;
   }
 
-  const {
-    patientId,
-    professionalId,
-    preparation,
-    dosage,
-    dosageUnit,
-    bodyWeight,
-    bodyHeight,
-    risk,
-    note,
-  } = prescription;
+  const { preparation, dosage, bodyWeight, bodyHeight, note } = prescription;
 
   return (
     <Grid container spacing={3}>
@@ -123,15 +105,10 @@ const PrescriptionDetail: React.FC = () => {
         )}
       </Grid>
       <Grid item xs={6}>
-        <TextField label="Größe" defaultValue={bodyHeight} fullWidth disabled />
+        <TextField label="Größe" value={bodyHeight} fullWidth disabled />
       </Grid>
       <Grid item xs={6}>
-        <TextField
-          label="Gewicht"
-          defaultValue={bodyWeight}
-          fullWidth
-          disabled
-        />
+        <TextField label="Gewicht" value={bodyWeight} fullWidth disabled />
       </Grid>
       <Grid item xs={12}>
         <Typography variant="h5" color={theme.palette.text.primary}>
@@ -151,7 +128,7 @@ const PrescriptionDetail: React.FC = () => {
       <Grid item xs={6}>
         <TextField
           label="Präparat"
-          defaultValue={preparation}
+          value={preparation}
           fullWidth
           onChange={(e) => updatePrescription({ preparation: e.target.value })}
         />
@@ -159,30 +136,14 @@ const PrescriptionDetail: React.FC = () => {
       <Grid item xs={12}>
         <TextField
           label="Dosierung"
-          defaultValue={dosage}
+          value={dosage}
           fullWidth
           onChange={(e) => updatePrescription({ dosage: e.target.value })}
         />
       </Grid>
       <Grid item xs={12}>
-        <TextField label="Notiz" defaultValue={note} fullWidth disabled />
+        <TextField label="Notiz" value={note} fullWidth disabled />
       </Grid>
-      {/*<Grid item xs={6}>*/}
-      {/*  <TextField*/}
-      {/*    label="Einheit"*/}
-      {/*    defaultValue={dosageUnit}*/}
-      {/*    fullWidth*/}
-      {/*    onChange={(e) => updatePrescription({ dosageUnit: e.target.value })}*/}
-      {/*  />*/}
-      {/*</Grid>*/}
-      {/*<Grid item xs={12}>*/}
-      {/*  <TextField*/}
-      {/*    label="Risiko"*/}
-      {/*    defaultValue={risk}*/}
-      {/*    fullWidth*/}
-      {/*    onChange={(e) => updatePrescription({ risk: e.target.value })}*/}
-      {/*  />*/}
-      {/*</Grid>*/}
       <Grid item xs={12}>
         <Button
           fullWidth

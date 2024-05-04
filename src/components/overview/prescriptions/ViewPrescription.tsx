@@ -9,7 +9,7 @@ const ViewPrescription: React.FC<ViewPrescriptionProps> = ({ id }) => {
   const router = useRouter();
   const handleClick = useCallback(async () => {
     await router.push(`/prescriptions/${id}`);
-  }, []);
+  }, [id, router]);
 
   return <MenuItem onClick={handleClick}>Rezept anzeigen</MenuItem>;
 };

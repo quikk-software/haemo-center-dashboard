@@ -27,7 +27,6 @@ const useGetPrescription = () => {
   const request = useCallback(
     async (id: number) => {
       const res = await getPrescription(
-        // Prisma ist kacke und fängt bei 1 an...
         id,
         accessToken,
         refreshToken,
