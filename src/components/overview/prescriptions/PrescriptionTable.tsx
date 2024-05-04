@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo } from "react";
-import { useRouter } from "next/router";
 import Table from "@/components/overview/table/Table";
 import { createColumns } from "@/components/overview/prescriptions/prescriptionTable.coldef";
 import { useSelector } from "react-redux";
@@ -8,7 +7,6 @@ import useGetPrescriptions from "@/api/prescriptions/useGetPrescriptions";
 import useQuery from "@/utils/useQuery";
 
 const PrescriptionTable: React.FC = () => {
-  const router = useRouter();
   const id = useQuery("id");
 
   const { request } = useGetPrescriptions();
@@ -17,10 +15,13 @@ const PrescriptionTable: React.FC = () => {
   const { users } = useSelector((state: Store) => state.userOverview);
 
   useEffect(() => {
-    if (id !== undefined) {
-      request(id);
+    if (id === undefined) {
+      return;
     }
-  }, [router]);
+    (async () => {
+      await request;
+    })();
+  }, [id, request]);
 
   const name = useMemo(() => {
     const user = users.find((u) => u.id === id);
