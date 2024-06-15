@@ -45,6 +45,9 @@ const AssignCenterToNews: FunctionComponent<AssignCenterToNewsProps> = ({
   const { roles } = useSelector((s: Store) => s.auth);
 
   useEffect(() => {
+    if (initialCenters.length === 0) {
+      return;
+    }
     setCenters(initialCenters.map((center) => center.centerId));
   }, [initialCenters]);
 
