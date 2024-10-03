@@ -151,7 +151,7 @@ const NewsCreateScreen: React.FC = () => {
         link: link || "",
         isSponsored,
         isAdmin,
-        centers: [],
+        centers,
       },
       accessToken,
       refreshToken,

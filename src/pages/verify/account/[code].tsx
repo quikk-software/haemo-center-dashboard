@@ -107,6 +107,6 @@ export const getServerSideProps = async (
   context: GetServerSidePropsContext,
 ) => {
   const { slug } = context.query;
-  const sanitizedSlug = Array.isArray(slug) ? slug[0] : slug ?? null;
+  const sanitizedSlug = Array.isArray(slug) ? slug[0] : (slug ?? null);
   return { props: { slug: sanitizedSlug } };
 };

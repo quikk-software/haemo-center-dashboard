@@ -7,8 +7,8 @@ const useQuery = (param: string) => {
     typeof paramValue === "string"
       ? paramValue
       : Array.isArray(paramValue)
-      ? paramValue[0]
-      : "";
+        ? paramValue[0]
+        : "";
 
   return sanitizedParamValue;
 };
