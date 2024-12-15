@@ -12,25 +12,22 @@ const useGetPrescriptions = () => {
 
   const [response, setResponse] = useState<boolean | undefined>(undefined);
 
-  const request = useCallback(
-    async (id: string) => {
-      try {
-        const res = await getPrescriptions(
-          { id },
-          accessToken,
-          refreshToken,
-          dispatch,
-        );
+  const request = async (id: string) => {
+    try {
+      const res = await getPrescriptions(
+        { id },
+        accessToken,
+        refreshToken,
+        dispatch,
+      );
 
-        if (res !== undefined) {
-          dispatch(setPrescriptions(res.prescriptions));
-        }
-      } catch {
-        dispatch(setPrescriptions([]));
+      if (res !== undefined) {
+        dispatch(setPrescriptions(res.prescriptions));
       }
-    },
-    [accessToken, dispatch, refreshToken],
-  );
+    } catch {
+      dispatch(setPrescriptions([]));
+    }
+  };
 
   return { request, response };
 };

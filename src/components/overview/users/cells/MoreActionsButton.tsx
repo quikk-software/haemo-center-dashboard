@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { Divider } from "@mui/material";
 import logger from "@/core/logger";
 import useGetUsers from "@/api/users/useGetUsers";
@@ -8,6 +8,8 @@ import Block from "@/components/overview/users/cells/Block";
 import ViewPrescriptions from "@/components/overview/users/cells/ViewPrescriptions";
 import ViewAppointments from "@/components/overview/users/cells/ViewAppointments";
 import ActionMenu from "@/components/common/ActionMenu";
+import { useDispatch } from "react-redux";
+import { setUsers } from "@/components/overview/users/userOverviewSlice";
 
 export type Props = {
   id: string;
@@ -16,12 +18,16 @@ export type Props = {
 };
 
 const MoreActionsButton: React.FC<Props> = ({ id, blocked, enabled }) => {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const menuOpen = useMemo(() => Boolean(anchorEl), [anchorEl]);
+  const [_anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
+  const dispatch = useDispatch();
   const { pageNumber, pageSize, query } = useTableConfig(true);
 
-  const { request } = useGetUsers({ pageNumber, pageSize, query });
+  const { request, response } = useGetUsers({ pageNumber, pageSize, query });
+
+  useEffect(() => {
+    dispatch(setUsers(response));
+  }, [response]);
 
   const handleClose = useCallback(() => {
     setAnchorEl(null);

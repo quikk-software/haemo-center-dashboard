@@ -1,6 +1,7 @@
 import { combineReducers } from "redux";
 import requestReducer from "@/requests/requestSlice";
 import authReducer from "@/components/auth/authSlice";
+import todoReducer from "@/components/todo/todoSlice";
 import i18nReducer from "@/components/i18n/i18nSlice";
 import newsReducer from "@/components/news/newsSlice";
 import snackbarReducer from "@/components/layout/snackbarSlice";
@@ -14,6 +15,7 @@ import { Store } from "@/redux";
 export const rootReducer = combineReducers<Store>({
   request: requestReducer,
   auth: authReducer,
+  todo: todoReducer,
   snackbar: snackbarReducer,
   i18n: i18nReducer,
   news: newsReducer,

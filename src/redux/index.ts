@@ -8,6 +8,10 @@ import {
   initialState as authInitialState,
 } from "../components/auth/authSlice";
 import {
+  TodoState,
+  initialState as todoInitialState,
+} from "../components/todo/todoSlice";
+import {
   I18nState,
   initialState as i18nInitialState,
 } from "../components/i18n/i18nSlice";
@@ -64,6 +68,7 @@ const language = getLocalStorageItem<Language, Language>(
 export interface Store {
   request: RequestState;
   auth: AuthState;
+  todo: TodoState;
   snackbar: SnackbarSliceState;
   news: NewsState;
   i18n: I18nState;
@@ -80,6 +85,9 @@ const initialStore: Store = {
     ...authInitialState,
     accessToken,
     refreshToken,
+  },
+  todo: {
+    ...todoInitialState,
   },
   snackbar: {
     ...snackbarInitialState,

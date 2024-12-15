@@ -14,7 +14,7 @@ import {
   useResolvePrescriptionPatientName,
 } from "@/api/prescriptions/useResolvePrescriptionUserName";
 
-const PrescriptionDetail: React.FC = () => {
+const PrescriptionDetail: React.FunctionComponent = () => {
   const id = useQuery("id");
   const dispatch = useDispatch();
 

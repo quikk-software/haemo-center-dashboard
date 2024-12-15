@@ -9,6 +9,22 @@
  * ---------------------------------------------------------------
  */
 
+export interface GetDisclaimerTrackerResponse {
+  id: number;
+  /** @example "SPONSORING" */
+  type: string;
+  userId: string;
+}
+
+export interface PostDisclaimerTrackerRequest {
+  /** @example "SPONSORING" */
+  type: string;
+}
+
+export interface PostDisclaimerTrackerResponse {
+  disclaimerTrackerId: number;
+}
+
 export interface GetPrescriptionResponse {
   id?: number;
   patientId?: number;
@@ -24,6 +40,25 @@ export interface GetPrescriptionResponse {
   hasWarning?: boolean;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface GetPrescriptionResponseV2 {
+  id?: number;
+  patientId?: number;
+  professionalId?: number;
+  bodyWeight?: number;
+  bodyHeight?: number;
+  preparation?: string;
+  dosage?: string;
+  dosageUnit?: string;
+  risk?: string;
+  note?: string;
+  isAccepted?: boolean;
+  hasWarning?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  patient?: GetPrescriptionUserResponse;
+  professional?: GetPrescriptionUserResponse;
 }
 
 export interface PostPrescriptionRequest {
@@ -45,6 +80,16 @@ export interface ListPrescriptionsResponse {
   pageSize?: number;
   totalPages?: number;
   prescriptions: GetPrescriptionResponse[];
+}
+
+export interface ListPrescriptionsResponseV2 {
+  count?: number;
+  hasPreviousPage?: boolean;
+  hasNextPage?: boolean;
+  pageNumber?: number;
+  pageSize?: number;
+  totalPages?: number;
+  prescriptions: GetPrescriptionResponseV2[];
 }
 
 export interface PatchPrescriptionRequest {
@@ -146,7 +191,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "http://localhost:3005/";
+  public baseUrl: string = "http://localhost:3007/";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -170,9 +215,7 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected encodeQueryParam(key: string, value: any) {
     const encodedKey = encodeURIComponent(key);
-    return `${encodedKey}=${encodeURIComponent(
-      typeof value === "number" ? value : `${value}`,
-    )}`;
+    return `${encodedKey}=${encodeURIComponent(typeof value === "number" ? value : `${value}`)}`;
   }
 
   protected addQueryParam(query: QueryParamsType, key: string) {
@@ -291,9 +334,7 @@ export class HttpClient<SecurityDataType = unknown> {
     const responseFormat = format || requestParams.format;
 
     return this.customFetch(
-      `${baseUrl || this.baseUrl || ""}${path}${
-        queryString ? `?${queryString}` : ""
-      }`,
+      `${baseUrl || this.baseUrl || ""}${path}${queryString ? `?${queryString}` : ""}`,
       {
         ...requestParams,
         headers: {
@@ -312,7 +353,7 @@ export class HttpClient<SecurityDataType = unknown> {
             : payloadFormatter(body),
       },
     ).then(async (response) => {
-      const r = response as HttpResponse<T, E>;
+      const r = response.clone() as HttpResponse<T, E>;
       r.data = null as unknown as T;
       r.error = null as unknown as E;
 
@@ -345,7 +386,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title Prescription Service
  * @version 0.1.0
- * @baseUrl http://localhost:3005/
+ * @baseUrl http://localhost:3007/
  */
 export class Api<
   SecurityDataType extends unknown,
@@ -499,6 +540,37 @@ export class Api<
     ) =>
       this.request<ListPrescriptionsResponse, void>({
         path: `/api/v1/prescriptions/center/all-prescriptions`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Route gets all prescriptions related to the center.
+     *
+     * @tags Prescriptions
+     * @name V2PrescriptionsCenterAllPrescriptionsList
+     * @summary Lists all prescriptions of the center
+     * @request GET:/api/v2/prescriptions/center/all-prescriptions
+     * @secure
+     */
+    v2PrescriptionsCenterAllPrescriptionsList: (
+      query?: {
+        /** Filters all accepted prescriptions. */
+        isAccepted?: boolean;
+        /** Indicator how to sort prescriptions by date. */
+        sort?: string;
+        /** The current page number. */
+        pageNumber?: number;
+        /** The page size. */
+        pageSize?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ListPrescriptionsResponseV2, void>({
+        path: `/api/v2/prescriptions/center/all-prescriptions`,
         method: "GET",
         query: query,
         secure: true,
@@ -735,6 +807,47 @@ export class Api<
         body: data,
         secure: true,
         type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description The requesting user must be the owner of a disclaimer tracker, else an Not Found Exception will be thrown
+     *
+     * @tags Disclaimers
+     * @name V1DisclaimersList
+     * @summary Gets the disclaimer tracker of the authenticated user
+     * @request GET:/api/v1/disclaimers
+     * @secure
+     */
+    v1DisclaimersList: (params: RequestParams = {}) =>
+      this.request<GetDisclaimerTrackerResponse, void>({
+        path: `/api/v1/disclaimers`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The requesting user will be added as the owner of the disclaimer tracker.
+     *
+     * @tags Disclaimers
+     * @name V1DisclaimersCreate
+     * @summary Creates a new disclaimer tracker.
+     * @request POST:/api/v1/disclaimers
+     * @secure
+     */
+    v1DisclaimersCreate: (
+      data: PostDisclaimerTrackerRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<PostDisclaimerTrackerResponse, void>({
+        path: `/api/v1/disclaimers`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
   };

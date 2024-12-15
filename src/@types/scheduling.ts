@@ -9,8 +9,6 @@
  * ---------------------------------------------------------------
  */
 
-import { getObjectWithUndefinedFieldsRemoved } from "@/utils/utils";
-
 export interface GetMeetingResponse {
   id?: number;
   timeFrameId?: number;
@@ -20,6 +18,37 @@ export interface GetMeetingResponse {
   startTime?: string;
   endTime?: string;
   state?: string;
+  timeFrameType?: string;
+}
+
+export interface GetMeetingResponseV2 {
+  id?: number;
+  timeFrameId?: number;
+  doctorUserId?: number;
+  patientUserId?: number;
+  date?: string;
+  startTime?: string;
+  endTime?: string;
+  state?: string;
+  timeFrameType?: string;
+  patient?: GetSchedulingUserResponse;
+  professional?: GetSchedulingUserResponse;
+}
+
+export interface GetDisclaimerTrackerResponse {
+  id: number;
+  /** @example "SPONSORING" */
+  type: string;
+  userId: string;
+}
+
+export interface PostDisclaimerTrackerRequest {
+  /** @example "SPONSORING" */
+  type: string;
+}
+
+export interface PostDisclaimerTrackerResponse {
+  disclaimerTrackerId: number;
 }
 
 export interface PostMeetingRequest {
@@ -50,6 +79,15 @@ export interface ListMeetingResponse {
   meetings: GetMeetingResponse[];
 }
 
+export interface ListMeetingResponseV2 {
+  count?: number;
+  hasPreviousPage?: boolean;
+  hasNextPage?: boolean;
+  pageNumber?: number;
+  pageSize?: number;
+  meetings: GetMeetingResponseV2[];
+}
+
 export interface PatchMeetingRequest {
   id: number;
   patientUserId?: number;
@@ -73,6 +111,10 @@ export interface ListProfessionalMeetingRequest {
 
 export interface ListProfessionalMeetingResponse {
   meetings: GetMeetingResponse[];
+}
+
+export interface ListProfessionalTimeFrameTypesResponse {
+  timeFrameTypes: string[];
 }
 
 export interface GetSchedulingUserResponse {
@@ -120,6 +162,7 @@ export interface GetTimeFrameResponse {
   endDate?: string;
   startTime?: string;
   endTime?: string;
+  type?: string;
   meetingDuration?: number;
   daysOfWeek?: number[];
 }
@@ -131,6 +174,7 @@ export interface PostTimeFrameRequest {
   startTime: string;
   endTime: string;
   meetingDuration: number;
+  type?: string;
   daysOfWeek: number[];
 }
 
@@ -159,6 +203,7 @@ export interface PatchTimeFrameRequest {
   endDate?: string;
   startTime?: string;
   endTime?: string;
+  type?: string;
   meetingDuration?: number;
 }
 
@@ -214,7 +259,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "http://localhost:3002/";
+  public baseUrl: string = "http://localhost:3001/";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -238,9 +283,7 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected encodeQueryParam(key: string, value: any) {
     const encodedKey = encodeURIComponent(key);
-    return `${encodedKey}=${encodeURIComponent(
-      typeof value === "number" ? value : `${value}`,
-    )}`;
+    return `${encodedKey}=${encodeURIComponent(typeof value === "number" ? value : `${value}`)}`;
   }
 
   protected addQueryParam(query: QueryParamsType, key: string) {
@@ -359,9 +402,7 @@ export class HttpClient<SecurityDataType = unknown> {
     const responseFormat = format || requestParams.format;
 
     return this.customFetch(
-      `${baseUrl || this.baseUrl || ""}${path}${
-        queryString ? `?${queryString}` : ""
-      }`,
+      `${baseUrl || this.baseUrl || ""}${path}${queryString ? `?${queryString}` : ""}`,
       {
         ...requestParams,
         headers: {
@@ -380,7 +421,7 @@ export class HttpClient<SecurityDataType = unknown> {
             : payloadFormatter(body),
       },
     ).then(async (response) => {
-      const r = response as HttpResponse<T, E>;
+      const r = response.clone() as HttpResponse<T, E>;
       r.data = null as unknown as T;
       r.error = null as unknown as E;
 
@@ -413,7 +454,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title Scheduling Service
  * @version 0.1.0
- * @baseUrl http://localhost:3002/
+ * @baseUrl http://localhost:3001/
  */
 export class Api<
   SecurityDataType extends unknown,
@@ -604,6 +645,37 @@ export class Api<
       }),
 
     /**
+     * @description This route returns all meetings of a center related to all of its professionals.
+     *
+     * @tags Meetings
+     * @name V2MeetingCenterAllMeetingsList
+     * @summary Lists all meetings of a center
+     * @request GET:/api/v2/meeting/center/all-meetings
+     * @secure
+     */
+    v2MeetingCenterAllMeetingsList: (
+      query?: {
+        /** The state of meetings. */
+        state?: string;
+        /** Indicator how to sort meetings by date. */
+        sort?: string;
+        /** The current page number. */
+        pageNumber?: number;
+        /** The page size. */
+        pageSize?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ListMeetingResponse, void>({
+        path: `/api/v2/meeting/center/all-meetings`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description The requesting user must be the owner of the meeting, else an Unauthorized-Exception will be thrown.
      *
      * @tags Meetings
@@ -743,6 +815,8 @@ export class Api<
       query?: {
         /** State of the meetings to get from a professional. */
         state?: string;
+        /** Timeframe type of the meetings to get from a professional. */
+        timeFrameType?: string;
       },
       params: RequestParams = {},
     ) =>
@@ -750,6 +824,27 @@ export class Api<
         path: `/api/v1/professional_meeting/${id}`,
         method: "GET",
         query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The requested user must be a professional.
+     *
+     * @tags TimeFrame
+     * @name V1TimeFrameProfessionalTimeFrameTypesDetail
+     * @summary Gets a distinct list of all time frame types of a professional
+     * @request GET:/api/v1/timeFrame/professional/{id}/timeFrameTypes
+     * @secure
+     */
+    v1TimeFrameProfessionalTimeFrameTypesDetail: (
+      id: number,
+      params: RequestParams = {},
+    ) =>
+      this.request<ListProfessionalTimeFrameTypesResponse, void>({
+        path: `/api/v1/timeFrame/professional/${id}/timeFrameTypes`,
+        method: "GET",
         secure: true,
         format: "json",
         ...params,
@@ -1062,6 +1157,47 @@ export class Api<
         body: data,
         secure: true,
         type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description The requesting user must be the owner of a disclaimer tracker, else an Not Found Exception will be thrown
+     *
+     * @tags Disclaimers
+     * @name V1DisclaimersList
+     * @summary Gets the disclaimer tracker of the authenticated user
+     * @request GET:/api/v1/disclaimers
+     * @secure
+     */
+    v1DisclaimersList: (params: RequestParams = {}) =>
+      this.request<GetDisclaimerTrackerResponse, void>({
+        path: `/api/v1/disclaimers`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The requesting user will be added as the owner of the disclaimer tracker.
+     *
+     * @tags Disclaimers
+     * @name V1DisclaimersCreate
+     * @summary Creates a new disclaimer tracker.
+     * @request POST:/api/v1/disclaimers
+     * @secure
+     */
+    v1DisclaimersCreate: (
+      data: PostDisclaimerTrackerRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<PostDisclaimerTrackerResponse, void>({
+        path: `/api/v1/disclaimers`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
   };

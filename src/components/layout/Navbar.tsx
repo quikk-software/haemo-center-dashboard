@@ -24,6 +24,7 @@ const Navbar: React.FC = () => {
             />
           </Stack>
         </Link>
+        <Link href="/todos">To Do&apos;s</Link>
         <Link href="/users">Nutzer</Link>
         <Link href="/meetings">Termine</Link>
         <Link href="/prescriptions">Rezepte</Link>

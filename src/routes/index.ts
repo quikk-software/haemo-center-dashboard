@@ -67,6 +67,11 @@ const pages: Page[] = [
     description: "Übersicht Termine",
   },
   {
+    title: "To Do's",
+    pathname: "/todos",
+    description: "Übersicht To Do's",
+  },
+  {
     title: "Übersicht Nutzer",
     pathname: "/users",
     description: "Übersicht Nutzer",

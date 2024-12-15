@@ -17,20 +17,20 @@ const Verify: React.FC<VerifyProps> = ({
   id,
 }) => {
   const { request: activateUser, response: activateUserResponse } =
-    useActivateUser({ id });
+    useActivateUser();
   const { request: deactivateUserRequest, response: deactivateUserResponse } =
-    useDeactivateUser({ id });
+    useDeactivateUser();
 
   const [open, setOpen] = useState(false);
 
-  const handleOnClick = useCallback(async () => {
+  const handleOnClick = async () => {
     if (enabled) {
-      await deactivateUserRequest();
+      await deactivateUserRequest(id);
     } else {
-      await activateUser();
+      await activateUser(id);
     }
     await handleSuccess();
-  }, [activateUser, enabled, deactivateUserRequest]);
+  };
 
   const displayText = useMemo(
     () => (enabled ? "Entverifizieren" : "Verifizieren"),

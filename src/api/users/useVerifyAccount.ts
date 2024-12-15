@@ -13,12 +13,9 @@ const useVerifyAccount = ({ code }: Props) => {
   const [response, setResponse] = useState<boolean | undefined>(undefined);
 
   const request = useCallback(async () => {
-    const response = await userApi.api.v1VerificationCodeVerifyAccountDetail(
-      code,
-      {
-        ...(await getApi(accessToken, refreshToken, dispatch)),
-      },
-    );
+    await userApi.api.v1VerificationCodeVerifyAccountDetail(code, {
+      ...(await getApi(accessToken, refreshToken, dispatch)),
+    });
     setResponse(true);
   }, [accessToken, dispatch, code, refreshToken]);
 
