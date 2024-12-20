@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Box,
@@ -26,6 +26,7 @@ import { GetPrescriptionResponseV2 } from "@/@types/prescription";
 import DeclinePrescriptionsDialog from "@/components/todo/DeclinePrescriptionsDialog";
 import DeclineIcon from "@/components/todo/DeclineIcon";
 import useDeletePrescription from "@/api/prescriptions/useDeletePrescription";
+import { LIGHT_HEX_OPACITY } from "@/theme";
 
 const PrescriptionTodoTable: React.FunctionComponent = () => {
   const [selectedPrescriptions, setSelectedPrescriptions] = useState<
@@ -44,6 +45,17 @@ const PrescriptionTodoTable: React.FunctionComponent = () => {
   const { prescriptions } = useSelector((s: Store) => s.todo);
 
   const { request: deletePrescription } = useDeletePrescription();
+
+  useEffect(() => {
+    if (!declinePrescriptionsIsSuccess && !declinePrescriptionsIsError) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      setDeclinePrescriptionsIsSuccess(false);
+      setDeclinePrescriptionsIsError(false);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [declinePrescriptionsIsSuccess, declinePrescriptionsIsError]);
 
   const handleCheckboxClick = (user: GetPrescriptionResponseV2) => {
     const updatedSelectedUsers = [...selectedPrescriptions];
@@ -194,62 +206,73 @@ const PrescriptionTodoTable: React.FunctionComponent = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {prescriptions.map((row) => (
-                <TableRow
-                  key={row.id}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell padding="checkbox" align="center">
-                    <Checkbox
-                      color="primary"
-                      inputProps={{
-                        "aria-label": "Rezepte auswählen",
-                      }}
-                      onChange={() => handleCheckboxClick(row)}
-                      checked={selectedPrescriptions.includes(row)}
-                    />
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    {row.patient?.firstName} {row.patient?.lastName}
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    scope="row"
+              {prescriptions.map((row) => {
+                const isSelected = !!selectedPrescriptions.find(
+                  (prescription) => prescription.id === row.id,
+                );
+                return (
+                  <TableRow
+                    key={row.id}
                     sx={{
-                      maxWidth: 200,
-                      overflow: "hidden",
-                      whiteSpace: "nowrap",
-                      textOverflow: "ellipsis",
+                      "&:last-child td, &:last-child th": { border: 0 },
+                      backgroundColor: (theme) =>
+                        isSelected
+                          ? `${theme.palette.primary.main}${LIGHT_HEX_OPACITY}`
+                          : undefined,
                     }}
                   >
-                    <Tooltip title={row.note}>
-                      <Typography>{row.note}</Typography>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    <Link href={`/prescriptions/${row.id}`}>
-                      <IconButton>
-                        <Edit />
-                      </IconButton>
-                    </Link>
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    <Stack direction="row" spacing={2}>
-                      <Box
-                        onClick={() => {
-                          setSelectedPrescriptions([row]);
-                          setDeclinePrescriptionsDialogOpen(true);
+                    <TableCell padding="checkbox" align="center">
+                      <Checkbox
+                        color="primary"
+                        inputProps={{
+                          "aria-label": "Rezepte auswählen",
                         }}
-                        sx={{
-                          cursor: "pointer",
-                        }}
-                      >
-                        <DeclineIcon />
-                      </Box>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ))}
+                        onChange={() => handleCheckboxClick(row)}
+                        checked={selectedPrescriptions.includes(row)}
+                      />
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      {row.patient?.firstName} {row.patient?.lastName}
+                    </TableCell>
+                    <TableCell
+                      component="th"
+                      scope="row"
+                      sx={{
+                        maxWidth: 200,
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      <Tooltip title={row.note}>
+                        <Typography>{row.note}</Typography>
+                      </Tooltip>
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      <Link href={`/prescriptions/${row.id}`}>
+                        <IconButton>
+                          <Edit />
+                        </IconButton>
+                      </Link>
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      <Stack direction="row" spacing={2}>
+                        <Box
+                          onClick={() => {
+                            setSelectedPrescriptions([row]);
+                            setDeclinePrescriptionsDialogOpen(true);
+                          }}
+                          sx={{
+                            cursor: "pointer",
+                          }}
+                        >
+                          <DeclineIcon />
+                        </Box>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>

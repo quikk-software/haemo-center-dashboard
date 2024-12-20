@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Box,
@@ -26,6 +26,7 @@ import ConfirmUserDialog from "@/components/todo/ConfirmUsersDialog";
 import useActivateUser from "@/api/users/useActivateUser";
 import { setRefetchUsers } from "@/components/todo/todoSlice";
 import Link from "@/components/common/Link";
+import { LIGHT_HEX_OPACITY } from "@/theme";
 
 const UserTodoTable: React.FunctionComponent = () => {
   const [selectedUsers, setSelectedUsers] = useState<GetUserResponse[]>([]);
@@ -38,6 +39,17 @@ const UserTodoTable: React.FunctionComponent = () => {
   const { users } = useSelector((s: Store) => s.todo);
 
   const { request: activateUser } = useActivateUser();
+
+  useEffect(() => {
+    if (!activateUsersIsSuccess && !activateUsersIsError) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      setActivateUsersIsSuccess(false);
+      setActivateUsersIsError(false);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [activateUsersIsSuccess, activateUsersIsError]);
 
   const handleCheckboxClick = (user: GetUserResponse) => {
     const updatedSelectedUsers = [...selectedUsers];
@@ -112,7 +124,7 @@ const UserTodoTable: React.FunctionComponent = () => {
                 direction="row"
                 spacing={1}
                 alignItems="center"
-                onClick={() => setConfirmUsersDialogOpen(true)}
+                onClick={() => !disabled && setConfirmUsersDialogOpen(true)}
                 sx={{
                   cursor: "pointer",
                 }}
@@ -185,44 +197,55 @@ const UserTodoTable: React.FunctionComponent = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {users.map((row) => (
-                <TableRow
-                  key={row.id}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell padding="checkbox" align="center">
-                    <Checkbox
-                      color="primary"
-                      inputProps={{
-                        "aria-label": "Nutzer auswählen",
-                      }}
-                      onChange={() => handleCheckboxClick(row)}
-                      checked={selectedUsers.includes(row)}
-                    />
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    {row.firstName} {row.lastName}
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    {dayjs(row.birthDay).format(DATE_FORMAT)}
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    <Stack direction="row" spacing={2}>
-                      <Box
-                        onClick={() => {
-                          setSelectedUsers([row]);
-                          setConfirmUsersDialogOpen(true);
+              {users.map((row) => {
+                const isSelected = !!selectedUsers.find(
+                  (user) => user.id === row.id,
+                );
+                return (
+                  <TableRow
+                    key={row.id}
+                    sx={{
+                      "&:last-child td, &:last-child th": { border: 0 },
+                      backgroundColor: (theme) =>
+                        isSelected
+                          ? `${theme.palette.primary.main}${LIGHT_HEX_OPACITY}`
+                          : undefined,
+                    }}
+                  >
+                    <TableCell padding="checkbox" align="center">
+                      <Checkbox
+                        color="primary"
+                        inputProps={{
+                          "aria-label": "Nutzer auswählen",
                         }}
-                        sx={{
-                          cursor: "pointer",
-                        }}
-                      >
-                        <CheckIcon />
-                      </Box>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ))}
+                        onChange={() => handleCheckboxClick(row)}
+                        checked={selectedUsers.includes(row)}
+                      />
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      {row.firstName} {row.lastName}
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      {dayjs(row.birthDay).format(DATE_FORMAT)}
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      <Stack direction="row" spacing={2}>
+                        <Box
+                          onClick={() => {
+                            setSelectedUsers([row]);
+                            setConfirmUsersDialogOpen(true);
+                          }}
+                          sx={{
+                            cursor: "pointer",
+                          }}
+                        >
+                          <CheckIcon />
+                        </Box>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>

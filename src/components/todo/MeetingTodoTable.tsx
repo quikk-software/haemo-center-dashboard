@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Box,
@@ -6,7 +6,6 @@ import {
   Grid,
   IconButton,
   Stack,
-  Tooltip,
   Typography,
 } from "@mui/material";
 import { CheckCircle, Clear, Edit } from "@mui/icons-material";
@@ -29,6 +28,7 @@ import useUpdateMeetingState from "@/api/scheduling/useUpdateMeetingState";
 import { DATE_FORMAT, dayjs, TIME_FORMAT } from "@/dayjs/Dayjs";
 import AcceptMeetingsDialog from "@/components/todo/AcceptMeetingsDialog";
 import RejectMeetingsDialog from "@/components/todo/RejectMeetingsDialog";
+import { LIGHT_HEX_OPACITY } from "@/theme";
 
 const MeetingTodoTable: React.FunctionComponent = () => {
   const [selectedMeetings, setSelectedMeetings] = useState<
@@ -49,6 +49,28 @@ const MeetingTodoTable: React.FunctionComponent = () => {
   const { meetings } = useSelector((s: Store) => s.todo);
 
   const { request: updateMeeting } = useUpdateMeetingState();
+
+  useEffect(() => {
+    if (!acceptMeetingsIsSuccess && !acceptMeetingsIsError) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      setAcceptMeetingsIsSuccess(false);
+      setAcceptMeetingsIsError(false);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [acceptMeetingsIsSuccess, acceptMeetingsIsError]);
+
+  useEffect(() => {
+    if (!rejectMeetingsIsSuccess && !rejectMeetingsIsError) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      setRejectMeetingsIsSuccess(false);
+      setRejectMeetingsIsError(false);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [rejectMeetingsIsSuccess, rejectMeetingsIsError]);
 
   const handleCheckboxClick = (user: GetMeetingResponseV2) => {
     const updatedSelectedUsers = [...selectedMeetings];
@@ -139,7 +161,7 @@ const MeetingTodoTable: React.FunctionComponent = () => {
                   <LaunchIcon />
                 </IconButton>
               </Link>
-              Rezepte
+              Termine
             </Typography>
             <Stack direction="row" spacing={2} alignItems="center">
               <Stack
@@ -181,7 +203,7 @@ const MeetingTodoTable: React.FunctionComponent = () => {
                 />
               }
             >
-              Rezepte erfolgreich abgelehnt.
+              Termine erfolgreich abgelehnt.
             </Alert>
           ) : null}
           {rejectMeetingsIsError ? (
@@ -197,7 +219,40 @@ const MeetingTodoTable: React.FunctionComponent = () => {
                 />
               }
             >
-              Beim Ablehnen der Rezepte ist ein Fehler aufgetreten. Bitte
+              Beim Ablehnen der Termine ist ein Fehler aufgetreten. Bitte
+              überprüfen Sie Ihre Auswahl und versuchen Sie es erneut.
+            </Alert>
+          ) : null}
+          {acceptMeetingsIsSuccess ? (
+            <Alert
+              icon={<CheckCircle fontSize="inherit" />}
+              severity="success"
+              action={
+                <Clear
+                  onClick={() => setRejectMeetingsIsSuccess(false)}
+                  sx={{
+                    cursor: "pointer",
+                  }}
+                />
+              }
+            >
+              Termin erfolgreich angenommen.
+            </Alert>
+          ) : null}
+          {acceptMeetingsIsError ? (
+            <Alert
+              icon={<Clear fontSize="inherit" />}
+              severity="error"
+              action={
+                <Clear
+                  onClick={() => setRejectMeetingsIsError(false)}
+                  sx={{
+                    cursor: "pointer",
+                  }}
+                />
+              }
+            >
+              Beim Annehmen der Termine ist ein Fehler aufgetreten. Bitte
               überprüfen Sie Ihre Auswahl und versuchen Sie es erneut.
             </Alert>
           ) : null}
@@ -205,14 +260,14 @@ const MeetingTodoTable: React.FunctionComponent = () => {
       </Grid>
       <Grid item xs={12}>
         <TableContainer component={Paper}>
-          <Table aria-label="Rezepte To Do's">
+          <Table aria-label="Termine To Do's">
             <TableHead>
               <TableRow>
                 <TableCell>
                   <Checkbox
                     color="primary"
                     inputProps={{
-                      "aria-label": "Alle Rezepte auswählen",
+                      "aria-label": "Alle Termine auswählen",
                     }}
                     onClick={handleSelectAll}
                     checked={selectedMeetings.length > 0}
@@ -221,72 +276,83 @@ const MeetingTodoTable: React.FunctionComponent = () => {
                 <TableCell>Name</TableCell>
                 <TableCell>Arzt</TableCell>
                 <TableCell>Datum</TableCell>
-                <TableCell>Terminart</TableCell>
+                <TableCell>Termindetails</TableCell>
                 <TableCell />
               </TableRow>
             </TableHead>
             <TableBody>
-              {meetings.map((row) => (
-                <TableRow
-                  key={row.id}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell padding="checkbox" align="center">
-                    <Checkbox
-                      color="primary"
-                      inputProps={{
-                        "aria-label": "Rezepte auswählen",
-                      }}
-                      onChange={() => handleCheckboxClick(row)}
-                      checked={selectedMeetings.includes(row)}
-                    />
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    {row.patient?.firstName} {row.patient?.lastName}
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    {row.professional?.firstName} {row.professional?.lastName}
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    {dayjs(row.date).format(DATE_FORMAT)},<br />
-                    {dayjs(row.startTime).format(TIME_FORMAT)} -{" "}
-                    {dayjs(row.endTime).format(TIME_FORMAT)}
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    <Link href={`/meetings/${row.id}`}>
-                      <IconButton>
-                        <Edit />
-                      </IconButton>
-                    </Link>
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    <Stack direction="row" spacing={2}>
-                      <Box
-                        onClick={() => {
-                          setSelectedMeetings([row]);
-                          setAcceptMeetingsDialogOpen(true);
+              {meetings.map((row) => {
+                const isSelected = !!selectedMeetings.find(
+                  (meeting) => meeting.id === row.id,
+                );
+                return (
+                  <TableRow
+                    key={row.id}
+                    sx={{
+                      "&:last-child td, &:last-child th": { border: 0 },
+                      backgroundColor: (theme) =>
+                        isSelected
+                          ? `${theme.palette.primary.main}${LIGHT_HEX_OPACITY}`
+                          : undefined,
+                    }}
+                  >
+                    <TableCell padding="checkbox" align="center">
+                      <Checkbox
+                        color="primary"
+                        inputProps={{
+                          "aria-label": "Termine auswählen",
                         }}
-                        sx={{
-                          cursor: "pointer",
-                        }}
-                      >
-                        <CheckIcon />
-                      </Box>
-                      <Box
-                        onClick={() => {
-                          setSelectedMeetings([row]);
-                          setRejectMeetingsDialogOpen(true);
-                        }}
-                        sx={{
-                          cursor: "pointer",
-                        }}
-                      >
-                        <DeclineIcon />
-                      </Box>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ))}
+                        onChange={() => handleCheckboxClick(row)}
+                        checked={selectedMeetings.includes(row)}
+                      />
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      {row.patient?.firstName} {row.patient?.lastName}
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      {row.professional?.firstName} {row.professional?.lastName}
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      {dayjs(row.date).format(DATE_FORMAT)},<br />
+                      {dayjs(row.startTime).format(TIME_FORMAT)} -{" "}
+                      {dayjs(row.endTime).format(TIME_FORMAT)}
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      <Link href={`/meetings/${row.id}`}>
+                        <IconButton>
+                          <Edit />
+                        </IconButton>
+                      </Link>
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      <Stack direction="row" spacing={2}>
+                        <Box
+                          onClick={() => {
+                            setSelectedMeetings([row]);
+                            setAcceptMeetingsDialogOpen(true);
+                          }}
+                          sx={{
+                            cursor: "pointer",
+                          }}
+                        >
+                          <CheckIcon />
+                        </Box>
+                        <Box
+                          onClick={() => {
+                            setSelectedMeetings([row]);
+                            setRejectMeetingsDialogOpen(true);
+                          }}
+                          sx={{
+                            cursor: "pointer",
+                          }}
+                        >
+                          <DeclineIcon />
+                        </Box>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>

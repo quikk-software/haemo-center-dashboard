@@ -7,3 +7,5 @@ export const theme = createTheme({
     secondary: { main: "#FFDFDF" },
   },
 });
+
+export const LIGHT_HEX_OPACITY = "14";
