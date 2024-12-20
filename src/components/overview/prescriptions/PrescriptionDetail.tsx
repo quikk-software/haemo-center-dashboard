@@ -12,6 +12,7 @@ import useUpdatePrescription from "@/api/prescriptions/useUpdatePrescription";
 import { useGetPrescription } from "@/api/prescriptions/useGetPrescription";
 import useDeletePrescription from "@/api/prescriptions/useDeletePrescription";
 import { useRouter } from "next/router";
+import { useSnackbarComponent } from "@/components/layout/Snackbar";
 
 const PrescriptionDetail: React.FunctionComponent = () => {
   const [preparation, setPreparation] = useState<string | undefined>(undefined);
@@ -19,6 +20,7 @@ const PrescriptionDetail: React.FunctionComponent = () => {
 
   const prescriptionId = useQuery("id");
   const router = useRouter();
+  const { displaySuccess, displayError } = useSnackbarComponent();
 
   const { fetch, data: prescription, isLoading } = useGetPrescription();
   const { request: updatePrescription } = useUpdatePrescription();
@@ -131,9 +133,14 @@ const PrescriptionDetail: React.FunctionComponent = () => {
                   variant="contained"
                   color="secondary"
                   onClick={() => {
-                    deletePrescription(Number(prescriptionId)).then(() =>
-                      router.back(),
-                    );
+                    deletePrescription(Number(prescriptionId))
+                      .then(() => {
+                        displaySuccess("Rezept erfolgreich abgelehnt!");
+                        router.back();
+                      })
+                      .catch(() =>
+                        displayError("Rezept konnte nicht abgelehnt werden!"),
+                      );
                   }}
                 >
                   Ablehnen
@@ -152,7 +159,14 @@ const PrescriptionDetail: React.FunctionComponent = () => {
                       risk: "",
                       dosageUnit: "",
                       prescriptionId: Number(prescriptionId),
-                    }).then(() => router.back());
+                    })
+                      .then(() => {
+                        displaySuccess("Rezept erfolgreich freigegeben!");
+                        router.back();
+                      })
+                      .catch(() =>
+                        displayError("Rezept konnte nicht freigegeben werden!"),
+                      );
                   }}
                 >
                   Freigeben

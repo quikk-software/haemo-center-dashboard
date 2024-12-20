@@ -12,11 +12,14 @@ import { getDateFormat, getTimeFormat } from "@/dayjs";
 import useUpdateMeetingState from "@/api/scheduling/useUpdateMeetingState";
 import { useGetMeeting } from "@/api/scheduling/useGetMeeting";
 import { useRouter } from "next/router";
+import { useSnackbarComponent } from "@/components/layout/Snackbar";
 
 const MeetingDetail: React.FunctionComponent = () => {
   const meetingId = useQuery("id");
 
   const router = useRouter();
+  const { displaySuccess, displayError } = useSnackbarComponent();
+
   const { fetch, data: meeting, isLoading } = useGetMeeting();
 
   const { request } = useUpdateMeetingState();
@@ -90,7 +93,13 @@ const MeetingDetail: React.FunctionComponent = () => {
                   color="secondary"
                   disabled={isCreatedState}
                   onClick={() => {
-                    handleMeetingStateClick(Number(meetingId));
+                    handleMeetingStateClick(Number(meetingId))
+                      .then(() =>
+                        displaySuccess("Termin erfolgreich abgelehnt!"),
+                      )
+                      .catch(() => {
+                        displayError("Termin konnte nicht abgelehnt werden!");
+                      });
                   }}
                 >
                   Ablehnen
@@ -103,7 +112,13 @@ const MeetingDetail: React.FunctionComponent = () => {
                   color="primary"
                   disabled={isCreatedState || isAcceptedState}
                   onClick={() => {
-                    handleMeetingStateClick(Number(meetingId), "ACCEPTED");
+                    handleMeetingStateClick(Number(meetingId), "ACCEPTED")
+                      .then(() =>
+                        displaySuccess("Termin erfolgreich akzeptiert!"),
+                      )
+                      .catch(() => {
+                        displayError("Termin konnte nicht akzeptiert werden!");
+                      });
                   }}
                 >
                   Akzeptieren
