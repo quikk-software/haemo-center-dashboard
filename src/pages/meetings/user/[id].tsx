@@ -1,7 +1,7 @@
 import React from "react";
 import MeetingTable from "@/components/overview/meetings/MeetingTable";
 
-const PrescriptionsOfUser: React.FC = () => {
+const PrescriptionsOfUser: React.FunctionComponent = () => {
   return <MeetingTable />;
 };
 

@@ -28,7 +28,7 @@ export const useListMeetings = ({
   ) => {
     const response = await handleFn(
       async () =>
-        await schedulingApi.api.v2MeetingCenterAllMeetingsList(
+        await schedulingApi.api.v2MeetingsCenterAllMeetingsList(
           {
             pageNumber: customPageNumber ?? pagination.pageNumber,
             pageSize: customPageSize ?? pagination.pageSize,

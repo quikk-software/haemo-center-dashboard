@@ -11,7 +11,6 @@ export const usePagination = (
   const [pageSize, setPageSize] = useState<number>(initialPageSize);
 
   const handlePaginationPayload = (payload: any) => {
-    console.log({ payload });
     setCount(payload?.count ?? 0);
     setHasPreviousPage(payload?.hasPreviousPage ?? false);
     setHasNextPage(payload?.hasNextPage ?? false);

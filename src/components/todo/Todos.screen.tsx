@@ -8,12 +8,13 @@ import {
   setRefetchUsers,
   setRefetchPrescriptions,
   setRefetchMeetings,
+  setMeetings,
 } from "@/components/todo/todoSlice";
 import { Store } from "@/redux";
 import PrescriptionTodoTable from "@/components/todo/PrescriptionTodoTable";
 import useListAllPrescriptionsV2 from "@/api/prescriptions/useListAllPrescriptionsV2";
-import useListAllMeetingsV2 from "@/api/scheduling/useListAllMeetingsV2";
 import MeetingTodoTable from "@/components/todo/MeetingTodoTable";
+import { useListMeetings } from "@/api/scheduling/useListMeetings";
 
 const TodosScreen: React.FunctionComponent = () => {
   const dispatch = useDispatch();
@@ -27,7 +28,10 @@ const TodosScreen: React.FunctionComponent = () => {
     query: "enabled:false",
   });
   const { request: fetchPrescriptions } = useListAllPrescriptionsV2();
-  const { request: fetchMeetings } = useListAllMeetingsV2();
+  const { fetch: fetchMeetings } = useListMeetings({
+    pageNumber: 1,
+    pageSize: 999,
+  });
 
   useEffect(() => {
     fetchUsers();
@@ -36,11 +40,9 @@ const TodosScreen: React.FunctionComponent = () => {
       pageSize: 999,
       isAccepted: false,
     });
-    fetchMeetings({
-      pageNumber: 1,
-      pageSize: 999,
-      state: "PENDING",
-    });
+    fetchMeetings("PENDING", 1, 999).then((meetings) =>
+      dispatch(setMeetings(meetings)),
+    );
   }, []);
 
   useEffect(() => {
@@ -65,11 +67,9 @@ const TodosScreen: React.FunctionComponent = () => {
     if (!refetchMeetings) {
       return;
     }
-    fetchMeetings({
-      pageNumber: 1,
-      pageSize: 999,
-      state: "PENDING",
-    }).finally(() => dispatch(setRefetchMeetings(false)));
+    fetchMeetings("PENDING", 1, 999)
+      .then((meetings) => dispatch(setMeetings(meetings)))
+      .finally(() => dispatch(setRefetchMeetings(false)));
   }, [refetchMeetings]);
 
   useEffect(() => {

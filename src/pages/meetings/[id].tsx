@@ -1,7 +1,7 @@
 import React from "react";
 import MeetingDetail from "@/components/overview/meetings/MeetingDetail";
 
-const Meeting: React.FC = () => {
+const Meeting: React.FunctionComponent = () => {
   return <MeetingDetail />;
 };
 
