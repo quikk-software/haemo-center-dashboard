@@ -25,7 +25,7 @@ const MeetingDetail: React.FunctionComponent = () => {
     fetch(Number(meetingId));
   }, [meetingId]);
 
-  if (!meeting && isLoading) {
+  if (isLoading) {
     return <>Lädt...</>;
   }
 

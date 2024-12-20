@@ -1,102 +1,112 @@
-import React, { useCallback, useEffect } from "react";
-import useTableConfig from "@/components/overview/table/useTableConfig";
-import useGetUsers from "@/api/users/useGetUsers";
-import { useDispatch, useSelector } from "react-redux";
-import { Store } from "@/redux";
-import Table from "@/components/overview/table/Table";
-import { createColumns } from "@/components/overview/prescriptions/prescriptionTable.coldef";
-import useGetAllPrescriptions from "@/api/prescriptions/useGetAllPrescriptions";
-import {
-  GridColDef,
-  GridPaginationModel,
-  GridValueGetterParams,
-} from "@mui/x-data-grid";
-import { useResolveSchedulingProfessionalName } from "@/api/scheduling/useResolveSchedulingUserName";
-import {
-  setPrescriptionTableFilter,
-  setPrescriptionTableSort,
-} from "@/components/overview/prescriptions/prescriptionSlice";
-import logger from "@/core/logger";
-import {
-  setMeetingTableFilter,
-  setMeetingTableSort,
-} from "@/components/overview/meetings/meetingSlice";
+import React, { useEffect } from "react";
 
-const PrescriptionOverview: React.FC = () => {
-  const {
-    tableSettings: {
-      pageSize,
-      pageNumber,
-      hasNextPage,
-      hasPreviousPage,
-      count,
-    },
-  } = useSelector((state: Store) => state.table);
+import {
+  Chip,
+  Grid,
+  IconButton,
+  TablePagination,
+  Typography,
+} from "@mui/material";
+import Paper from "@mui/material/Paper";
+import Table from "@mui/material/Table";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TableCell from "@mui/material/TableCell";
+import TableBody from "@mui/material/TableBody";
+import { DATE_FORMAT, dayjs, TIME_FORMAT } from "@/dayjs/Dayjs";
+import Link from "@/components/common/Link";
+import { Edit } from "@mui/icons-material";
+import TableContainer from "@mui/material/TableContainer";
+import { useListPrescriptions } from "@/api/prescriptions/useListPrescriptions";
 
-  const dispatch = useDispatch();
-  const { request } = useGetAllPrescriptions();
-  const { allPrescriptions, prescriptionTableFilter, prescriptionTableSort } =
-    useSelector((store: Store) => store.prescriptions);
+const PAGE_SIZE = 5;
 
-  const reloadData = useCallback(
-    (sort: "asc" | "desc" | undefined = undefined) =>
-      request({ pageSize, pageNumber, sort }),
-    [pageSize, pageNumber],
-  );
+const PrescriptionOverview: React.FunctionComponent = () => {
+  const { fetch, data, pageNumber, count } = useListPrescriptions({
+    pageNumber: 1,
+    pageSize: PAGE_SIZE,
+  });
 
   useEffect(() => {
-    request({ pageSize, pageNumber });
-
-    return () => {
-      dispatch(setPrescriptionTableSort());
-      dispatch(setPrescriptionTableFilter());
-    };
+    fetch(undefined, "desc", 1, PAGE_SIZE);
   }, []);
 
+  const handleChangePage = (
+    _event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number,
+  ) => {
+    fetch(undefined, "desc", newPage + 1, PAGE_SIZE);
+  };
+
   return (
-    <Table
-      rows={allPrescriptions}
-      // @ts-ignore
-      columns={createColumns((resolveName) => request()) ?? []}
-      title={"Übersicht Rezepte"}
-      onPaginationModelChange={(model, details) => {
-        request({
-          pageSize: model.pageSize,
-          pageNumber: model.page,
-          sort: prescriptionTableSort,
-          isAccepted: prescriptionTableFilter,
-        });
-      }}
-      onSortModelChange={(model) => {
-        const sort =
-          model.find((m) => m.field === "createdAt")?.sort ?? undefined;
-        dispatch(setPrescriptionTableSort(sort));
-        request({
-          pageSize,
-          pageNumber,
-          sort,
-          isAccepted: prescriptionTableFilter,
-        });
-      }}
-      onFilterModelChange={(model) => {
-        logger.debug({ model });
-        const isAcceptedFilter = model.items.find(
-          (i) => i.field === "isAccepted",
-        )?.value;
-        const isAccepted =
-          isAcceptedFilter === "" || isAcceptedFilter === undefined
-            ? undefined
-            : Boolean(isAcceptedFilter === "true");
-        logger.debug({ isAccepted });
-        dispatch(setPrescriptionTableFilter(isAccepted));
-        request({
-          pageSize,
-          pageNumber,
-          sort: prescriptionTableSort,
-          isAccepted,
-        });
-      }}
-    />
+    <Grid container spacing={3}>
+      <Grid item xs={12}>
+        <Typography variant="h3" component="h3">
+          Übersicht Rezepte
+        </Typography>
+      </Grid>
+      <Grid item xs={12}>
+        <TableContainer component={Paper}>
+          <Table aria-label="Rezepte">
+            <TableHead>
+              <TableRow>
+                <TableCell>Name</TableCell>
+                <TableCell>Angefordert am</TableCell>
+                <TableCell>Freigegeben</TableCell>
+                <TableCell>Präparat</TableCell>
+                <TableCell />
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.map((row) => {
+                return (
+                  <TableRow
+                    key={row.id}
+                    sx={{
+                      "&:last-child td, &:last-child th": { border: 0 },
+                    }}
+                  >
+                    <TableCell component="th" scope="row">
+                      {row.patient?.firstName} {row.patient?.lastName}
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      {dayjs(row.createdAt).format(DATE_FORMAT)}
+                      ,<br />
+                      {dayjs(row.createdAt).format(TIME_FORMAT)}
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={row.isAccepted ? "Ja" : "Nein"}
+                        color={row.isAccepted ? "success" : "error"}
+                      />
+                    </TableCell>
+                    <TableCell>{row.preparation}</TableCell>
+                    <TableCell component="th" scope="row" align="right">
+                      <Link href={`/prescriptions/${row.id}`}>
+                        <IconButton>
+                          <Edit />
+                        </IconButton>
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          component="div"
+          count={count}
+          page={pageNumber - 1}
+          onPageChange={handleChangePage}
+          rowsPerPage={PAGE_SIZE}
+          rowsPerPageOptions={[]}
+          labelDisplayedRows={({ from, to, count }) =>
+            `${from}-${to} von ${count}`
+          }
+        />
+      </Grid>
+    </Grid>
   );
 };
 

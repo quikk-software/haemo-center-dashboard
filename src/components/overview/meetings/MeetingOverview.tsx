@@ -60,7 +60,7 @@ const MeetingOverview: React.FunctionComponent = () => {
       </Grid>
       <Grid item xs={12}>
         <TableContainer component={Paper}>
-          <Table aria-label="Termine To Do's">
+          <Table aria-label="Termine">
             <TableHead>
               <TableRow>
                 <TableCell>Name</TableCell>
@@ -95,7 +95,7 @@ const MeetingOverview: React.FunctionComponent = () => {
                       <Chip label={row.timeFrameType} />
                     </TableCell>
                     <TableCell>{getStatus(row.state)}</TableCell>
-                    <TableCell component="th" scope="row">
+                    <TableCell component="th" scope="row" align="right">
                       <Link href={`/meetings/${row.id}`}>
                         <IconButton>
                           <Edit />

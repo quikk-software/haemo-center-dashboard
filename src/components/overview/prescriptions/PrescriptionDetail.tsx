@@ -1,167 +1,166 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import useQuery from "@/utils/useQuery";
-import { useDispatch, useSelector } from "react-redux";
-import { Store } from "@/redux";
-import logger from "@/core/logger";
-import { setPrescription } from "@/components/overview/prescriptions/prescriptionSlice";
-import { Button, Grid, TextField, Typography } from "@mui/material";
-import { theme } from "@/theme";
-import useUpdatePrescription from "@/api/prescriptions/useUpdatePrescription";
-import { produce } from "immer";
-import { PatchPrescriptionRequest } from "@/@types/prescription";
 import {
-  useResolvePrescriptionProfessionalName,
-  useResolvePrescriptionPatientName,
-} from "@/api/prescriptions/useResolvePrescriptionUserName";
+  Button,
+  Card,
+  CardContent,
+  Grid,
+  TextField,
+  Typography,
+} from "@mui/material";
+import useUpdatePrescription from "@/api/prescriptions/useUpdatePrescription";
+import { useGetPrescription } from "@/api/prescriptions/useGetPrescription";
+import useDeletePrescription from "@/api/prescriptions/useDeletePrescription";
+import { useRouter } from "next/router";
 
 const PrescriptionDetail: React.FunctionComponent = () => {
-  const id = useQuery("id");
-  const dispatch = useDispatch();
+  const [preparation, setPreparation] = useState<string | undefined>(undefined);
+  const [dosage, setDosage] = useState<string | undefined>(undefined);
 
-  const { request: patientNameRequest } = useResolvePrescriptionPatientName();
-  const { request: professionalNameRequest } =
-    useResolvePrescriptionProfessionalName();
+  const prescriptionId = useQuery("id");
+  const router = useRouter();
 
-  const {
-    prescriptionPatientName,
-    prescriptionProfessionalName,
-    prescription,
-    prescriptions,
-    allPrescriptions,
-  } = useSelector((store: Store) => store.prescriptions);
+  const { fetch, data: prescription, isLoading } = useGetPrescription();
+  const { request: updatePrescription } = useUpdatePrescription();
+  const { request: deletePrescription } = useDeletePrescription();
 
   useEffect(() => {
-    if (!prescription) {
-      return;
-    }
-    patientNameRequest(String(prescription.patientId));
-    professionalNameRequest(String(prescription.professionalId));
-    dispatch(setPrescription(prescription));
-  }, [dispatch, prescription]);
-
-  const updatePrescription = (
-    updatedPrescription: Partial<PatchPrescriptionRequest>,
-  ) => {
-    if (!prescription) {
-      logger.debug(
-        "Prescription does not exist. Cannot update prescription details.",
-      );
-      return;
-    }
-
-    const nextPrescription = produce(prescription, (draft) => {
-      Object.keys(updatedPrescription).forEach(
-        // @ts-ignore
-        (key) => (draft[key] = updatedPrescription[key]),
-      );
-    });
-    dispatch(setPrescription(nextPrescription));
-  };
-
-  const { request } = useUpdatePrescription();
+    fetch(Number(prescriptionId));
+  }, [prescriptionId]);
 
   useEffect(() => {
-    // Prescription Id is always a number
+    setPreparation(prescription?.preparation);
+  }, [prescription?.preparation]);
 
-    const prescriptionCandidate = [...prescriptions, ...allPrescriptions].find(
-      (m) => m.id === Number(id),
-    );
-    if (id !== undefined && prescriptionCandidate !== undefined) {
-      dispatch(setPrescription(prescriptionCandidate));
-    } else {
-      logger.error(
-        "No prescriptions stored. Please access prescriptions first.",
-      );
-    }
-  }, []);
+  useEffect(() => {
+    setDosage(prescription?.dosage);
+  }, [prescription?.dosage]);
 
-  if (!prescription) {
-    return <>Das Rezept mit der Nummer {id} konnte nicht geladen werden.</>;
+  if (isLoading) {
+    return <>Lädt...</>;
   }
 
-  const { preparation, dosage, bodyWeight, bodyHeight, note } = prescription;
+  if (!prescription) {
+    return (
+      <>
+        Das Rezept mit der Nummer {prescriptionId} konnte nicht geladen werden.
+      </>
+    );
+  }
+
+  const acceptIsDisabled = !preparation || !dosage;
 
   return (
     <Grid container spacing={3}>
       <Grid item xs={12}>
-        <Typography variant="h4" color={theme.palette.text.primary}>
-          Rezeptdetails
-        </Typography>
+        <Typography variant="h3">Rezeptdetails</Typography>
       </Grid>
       <Grid item xs={12}>
-        <Typography variant="h5" color={theme.palette.text.primary}>
-          Patient
-        </Typography>
-      </Grid>
-      <Grid item xs={12}>
-        {prescriptionPatientName !== null && (
-          <TextField
-            label="Patient"
-            defaultValue={prescriptionPatientName}
-            value={prescriptionPatientName}
-            fullWidth
-            disabled
-          />
-        )}
-      </Grid>
-      <Grid item xs={6}>
-        <TextField label="Größe" value={bodyHeight} fullWidth disabled />
-      </Grid>
-      <Grid item xs={6}>
-        <TextField label="Gewicht" value={bodyWeight} fullWidth disabled />
-      </Grid>
-      <Grid item xs={12}>
-        <Typography variant="h5" color={theme.palette.text.primary}>
-          Präparat
-        </Typography>
-      </Grid>
-      <Grid item xs={6}>
-        {prescriptionProfessionalName !== null && (
-          <TextField
-            label="Arzt"
-            value={prescriptionProfessionalName}
-            fullWidth
-            disabled
-          />
-        )}
-      </Grid>
-      <Grid item xs={6}>
-        <TextField
-          label="Präparat"
-          value={preparation}
-          fullWidth
-          onChange={(e) => updatePrescription({ preparation: e.target.value })}
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <TextField
-          label="Dosierung"
-          value={dosage}
-          fullWidth
-          onChange={(e) => updatePrescription({ dosage: e.target.value })}
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <TextField label="Notiz" value={note} fullWidth disabled />
-      </Grid>
-      <Grid item xs={12}>
-        <Button
-          fullWidth
-          variant="contained"
-          color="primary"
-          onClick={() =>
-            request({
-              preparation: preparation ?? "",
-              dosage: dosage ?? "",
-              dosageUnit: "",
-              risk: "",
-              ...prescription,
-              prescriptionId: Number(id),
-            })
-          }
-        >
-          Speichern
-        </Button>
+        <Card>
+          <CardContent>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Typography variant="h4">Patient</Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Patient"
+                  defaultValue={`${prescription.patient?.firstName} ${prescription.patient?.lastName}}`.trim()}
+                  value={`${prescription.patient?.firstName} ${prescription.patient?.lastName}}`.trim()}
+                  fullWidth
+                  disabled
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Größe"
+                  value={prescription.bodyHeight}
+                  fullWidth
+                  disabled
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Gewicht"
+                  value={prescription.bodyWeight}
+                  fullWidth
+                  disabled
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="h4">Präparat</Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Patient"
+                  defaultValue={`${prescription.professional?.firstName} ${prescription.professional?.lastName}}`.trim()}
+                  value={`${prescription.professional?.firstName} ${prescription.professional?.lastName}}`.trim()}
+                  fullWidth
+                  disabled
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Präparat"
+                  defaultValue={prescription.preparation}
+                  value={preparation}
+                  fullWidth
+                  onChange={(e) => setPreparation(e.target.value ?? undefined)}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Dosierung"
+                  defaultValue={prescription.dosage}
+                  value={dosage}
+                  fullWidth
+                  onChange={(e) => setDosage(e.target.value ?? undefined)}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Notiz"
+                  value={prescription.note}
+                  fullWidth
+                  disabled
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => {
+                    deletePrescription(Number(prescriptionId)).then(() =>
+                      router.back(),
+                    );
+                  }}
+                >
+                  Ablehnen
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  disabled={acceptIsDisabled}
+                  onClick={() => {
+                    updatePrescription({
+                      preparation: preparation?.trim() ?? "",
+                      dosage: dosage?.trim() ?? "",
+                      risk: "",
+                      dosageUnit: "",
+                      prescriptionId: Number(prescriptionId),
+                    }).then(() => router.back());
+                  }}
+                >
+                  Freigeben
+                </Button>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
       </Grid>
     </Grid>
   );

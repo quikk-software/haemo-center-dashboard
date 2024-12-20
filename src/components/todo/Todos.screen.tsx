@@ -9,12 +9,13 @@ import {
   setRefetchPrescriptions,
   setRefetchMeetings,
   setMeetings,
+  setPrescriptions,
 } from "@/components/todo/todoSlice";
 import { Store } from "@/redux";
 import PrescriptionTodoTable from "@/components/todo/PrescriptionTodoTable";
-import useListAllPrescriptionsV2 from "@/api/prescriptions/useListAllPrescriptionsV2";
 import MeetingTodoTable from "@/components/todo/MeetingTodoTable";
 import { useListMeetings } from "@/api/scheduling/useListMeetings";
+import { useListPrescriptions } from "@/api/prescriptions/useListPrescriptions";
 
 const TodosScreen: React.FunctionComponent = () => {
   const dispatch = useDispatch();
@@ -27,7 +28,10 @@ const TodosScreen: React.FunctionComponent = () => {
     pageSize: 999,
     query: "enabled:false",
   });
-  const { request: fetchPrescriptions } = useListAllPrescriptionsV2();
+  const { fetch: fetchPrescriptions } = useListPrescriptions({
+    pageNumber: 1,
+    pageSize: 999,
+  });
   const { fetch: fetchMeetings } = useListMeetings({
     pageNumber: 1,
     pageSize: 999,
@@ -35,11 +39,9 @@ const TodosScreen: React.FunctionComponent = () => {
 
   useEffect(() => {
     fetchUsers();
-    fetchPrescriptions({
-      pageNumber: 1,
-      pageSize: 999,
-      isAccepted: false,
-    });
+    fetchPrescriptions(false, "asc", 1, 999).then((prescriptions) =>
+      dispatch(setPrescriptions(prescriptions)),
+    );
     fetchMeetings("PENDING", 1, 999).then((meetings) =>
       dispatch(setMeetings(meetings)),
     );
@@ -56,11 +58,9 @@ const TodosScreen: React.FunctionComponent = () => {
     if (!refetchPrescriptions) {
       return;
     }
-    fetchPrescriptions({
-      pageNumber: 1,
-      pageSize: 999,
-      isAccepted: false,
-    }).finally(() => dispatch(setRefetchPrescriptions(false)));
+    fetchPrescriptions(false, "asc", 1, 999)
+      .then((prescriptions) => dispatch(setPrescriptions(prescriptions)))
+      .finally(() => dispatch(setRefetchPrescriptions(false)));
   }, [refetchPrescriptions]);
 
   useEffect(() => {

@@ -161,22 +161,16 @@ export interface FullRequestParams extends Omit<RequestInit, "body"> {
   cancelToken?: CancelToken;
 }
 
-export type RequestParams = Omit<
-  FullRequestParams,
-  "body" | "method" | "query" | "path"
->;
+export type RequestParams = Omit<FullRequestParams, "body" | "method" | "query" | "path">;
 
 export interface ApiConfig<SecurityDataType = unknown> {
   baseUrl?: string;
   baseApiParams?: Omit<RequestParams, "baseUrl" | "cancelToken" | "signal">;
-  securityWorker?: (
-    securityData: SecurityDataType | null,
-  ) => Promise<RequestParams | void> | RequestParams | void;
+  securityWorker?: (securityData: SecurityDataType | null) => Promise<RequestParams | void> | RequestParams | void;
   customFetch?: typeof fetch;
 }
 
-export interface HttpResponse<D extends unknown, E extends unknown = unknown>
-  extends Response {
+export interface HttpResponse<D extends unknown, E extends unknown = unknown> extends Response {
   data: D;
   error: E;
 }
@@ -195,8 +189,7 @@ export class HttpClient<SecurityDataType = unknown> {
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
-  private customFetch = (...fetchParams: Parameters<typeof fetch>) =>
-    fetch(...fetchParams);
+  private customFetch = (...fetchParams: Parameters<typeof fetch>) => fetch(...fetchParams);
 
   private baseApiParams: RequestParams = {
     credentials: "same-origin",
@@ -229,15 +222,9 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected toQueryString(rawQuery?: QueryParamsType): string {
     const query = rawQuery || {};
-    const keys = Object.keys(query).filter(
-      (key) => "undefined" !== typeof query[key],
-    );
+    const keys = Object.keys(query).filter((key) => "undefined" !== typeof query[key]);
     return keys
-      .map((key) =>
-        Array.isArray(query[key])
-          ? this.addArrayQueryParam(query, key)
-          : this.addQueryParam(query, key),
-      )
+      .map((key) => (Array.isArray(query[key]) ? this.addArrayQueryParam(query, key) : this.addQueryParam(query, key)))
       .join("&");
   }
 
@@ -248,13 +235,8 @@ export class HttpClient<SecurityDataType = unknown> {
 
   private contentFormatters: Record<ContentType, (input: any) => any> = {
     [ContentType.Json]: (input: any) =>
-      input !== null && (typeof input === "object" || typeof input === "string")
-        ? JSON.stringify(input)
-        : input,
-    [ContentType.Text]: (input: any) =>
-      input !== null && typeof input !== "string"
-        ? JSON.stringify(input)
-        : input,
+      input !== null && (typeof input === "object" || typeof input === "string") ? JSON.stringify(input) : input,
+    [ContentType.Text]: (input: any) => (input !== null && typeof input !== "string" ? JSON.stringify(input) : input),
     [ContentType.FormData]: (input: any) =>
       Object.keys(input || {}).reduce((formData, key) => {
         const property = input[key];
@@ -271,10 +253,7 @@ export class HttpClient<SecurityDataType = unknown> {
     [ContentType.UrlEncoded]: (input: any) => this.toQueryString(input),
   };
 
-  protected mergeRequestParams(
-    params1: RequestParams,
-    params2?: RequestParams,
-  ): RequestParams {
+  protected mergeRequestParams(params1: RequestParams, params2?: RequestParams): RequestParams {
     return {
       ...this.baseApiParams,
       ...params1,
@@ -287,9 +266,7 @@ export class HttpClient<SecurityDataType = unknown> {
     };
   }
 
-  protected createAbortSignal = (
-    cancelToken: CancelToken,
-  ): AbortSignal | undefined => {
+  protected createAbortSignal = (cancelToken: CancelToken): AbortSignal | undefined => {
     if (this.abortControllers.has(cancelToken)) {
       const abortController = this.abortControllers.get(cancelToken);
       if (abortController) {
@@ -333,26 +310,15 @@ export class HttpClient<SecurityDataType = unknown> {
     const payloadFormatter = this.contentFormatters[type || ContentType.Json];
     const responseFormat = format || requestParams.format;
 
-    return this.customFetch(
-      `${baseUrl || this.baseUrl || ""}${path}${queryString ? `?${queryString}` : ""}`,
-      {
-        ...requestParams,
-        headers: {
-          ...(requestParams.headers || {}),
-          ...(type && type !== ContentType.FormData
-            ? { "Content-Type": type }
-            : {}),
-        },
-        signal:
-          (cancelToken
-            ? this.createAbortSignal(cancelToken)
-            : requestParams.signal) || null,
-        body:
-          typeof body === "undefined" || body === null
-            ? null
-            : payloadFormatter(body),
+    return this.customFetch(`${baseUrl || this.baseUrl || ""}${path}${queryString ? `?${queryString}` : ""}`, {
+      ...requestParams,
+      headers: {
+        ...(requestParams.headers || {}),
+        ...(type && type !== ContentType.FormData ? { "Content-Type": type } : {}),
       },
-    ).then(async (response) => {
+      signal: (cancelToken ? this.createAbortSignal(cancelToken) : requestParams.signal) || null,
+      body: typeof body === "undefined" || body === null ? null : payloadFormatter(body),
+    }).then(async (response) => {
       const r = response.clone() as HttpResponse<T, E>;
       r.data = null as unknown as T;
       r.error = null as unknown as E;
@@ -388,9 +354,7 @@ export class HttpClient<SecurityDataType = unknown> {
  * @version 0.1.0
  * @baseUrl http://localhost:3007/
  */
-export class Api<
-  SecurityDataType extends unknown,
-> extends HttpClient<SecurityDataType> {
+export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
   api = {
     /**
      * @description The requesting user needs to be a center and can only delete prescriptions of related professionals.
@@ -445,6 +409,24 @@ export class Api<
       }),
 
     /**
+     * @description The requesting user must either be the patient, the professional or the center of the prescription, else an Unauthorized-Exception will be thrown
+     *
+     * @tags Prescriptions
+     * @name V2PrescriptionsDetail
+     * @summary Gets a prescription by its ID.
+     * @request GET:/api/v2/prescriptions/{prescriptionId}
+     * @secure
+     */
+    v2PrescriptionsDetail: (prescriptionId: number, params: RequestParams = {}) =>
+      this.request<GetPrescriptionResponseV2, void>({
+        path: `/api/v2/prescriptions/${prescriptionId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description The requesting user must be a patient, else an Unauthorized-Exception will be thrown.
      *
      * @tags Prescriptions
@@ -453,10 +435,7 @@ export class Api<
      * @request POST:/api/v1/prescriptions
      * @secure
      */
-    v1PrescriptionsCreate: (
-      data: PostPrescriptionRequest,
-      params: RequestParams = {},
-    ) =>
+    v1PrescriptionsCreate: (data: PostPrescriptionRequest, params: RequestParams = {}) =>
       this.request<PostPrescriptionResponse, void>({
         path: `/api/v1/prescriptions`,
         method: "POST",
@@ -503,10 +482,7 @@ export class Api<
      * @request PATCH:/api/v1/prescriptions
      * @secure
      */
-    v1PrescriptionsPartialUpdate: (
-      data: PatchPrescriptionRequest,
-      params: RequestParams = {},
-    ) =>
+    v1PrescriptionsPartialUpdate: (data: PatchPrescriptionRequest, params: RequestParams = {}) =>
       this.request<void, void>({
         path: `/api/v1/prescriptions`,
         method: "PATCH",
@@ -587,10 +563,7 @@ export class Api<
      * @request PATCH:/api/v1/prescriptions/center
      * @secure
      */
-    v1PrescriptionsCenterPartialUpdate: (
-      data: PatchPrescriptionRequest,
-      params: RequestParams = {},
-    ) =>
+    v1PrescriptionsCenterPartialUpdate: (data: PatchPrescriptionRequest, params: RequestParams = {}) =>
       this.request<void, void>({
         path: `/api/v1/prescriptions/center`,
         method: "PATCH",
@@ -688,10 +661,7 @@ export class Api<
      * @request GET:/api/v1/prescriptionUsers/center/{prescriptionUserId}
      * @secure
      */
-    v1PrescriptionUsersCenterDetail: (
-      prescriptionUserId: number,
-      params: RequestParams = {},
-    ) =>
+    v1PrescriptionUsersCenterDetail: (prescriptionUserId: number, params: RequestParams = {}) =>
       this.request<GetPrescriptionUserResponse, void>({
         path: `/api/v1/prescriptionUsers/center/${prescriptionUserId}`,
         method: "GET",
@@ -708,10 +678,7 @@ export class Api<
      * @request GET:/api/v1/prescriptionUsers/center/users/{userId}
      * @secure
      */
-    v1PrescriptionUsersCenterUsersDetail: (
-      userId: string,
-      params: RequestParams = {},
-    ) =>
+    v1PrescriptionUsersCenterUsersDetail: (userId: string, params: RequestParams = {}) =>
       this.request<GetPrescriptionUserResponse, void>({
         path: `/api/v1/prescriptionUsers/center/users/${userId}`,
         method: "GET",
@@ -756,10 +723,7 @@ export class Api<
      * @request POST:/api/v1/prescriptionUsers
      * @secure
      */
-    v1PrescriptionUsersCreate: (
-      data: PostPrescriptionUserRequest,
-      params: RequestParams = {},
-    ) =>
+    v1PrescriptionUsersCreate: (data: PostPrescriptionUserRequest, params: RequestParams = {}) =>
       this.request<PostPrescriptionUserResponse, void>({
         path: `/api/v1/prescriptionUsers`,
         method: "POST",
@@ -797,10 +761,7 @@ export class Api<
      * @request PATCH:/api/v1/prescriptionUsers
      * @secure
      */
-    v1PrescriptionUsersPartialUpdate: (
-      data: PatchPrescriptiongUserRequest,
-      params: RequestParams = {},
-    ) =>
+    v1PrescriptionUsersPartialUpdate: (data: PatchPrescriptiongUserRequest, params: RequestParams = {}) =>
       this.request<void, void>({
         path: `/api/v1/prescriptionUsers`,
         method: "PATCH",
@@ -837,10 +798,7 @@ export class Api<
      * @request POST:/api/v1/disclaimers
      * @secure
      */
-    v1DisclaimersCreate: (
-      data: PostDisclaimerTrackerRequest,
-      params: RequestParams = {},
-    ) =>
+    v1DisclaimersCreate: (data: PostDisclaimerTrackerRequest, params: RequestParams = {}) =>
       this.request<PostDisclaimerTrackerResponse, void>({
         path: `/api/v1/disclaimers`,
         method: "POST",
