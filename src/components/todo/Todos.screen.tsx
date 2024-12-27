@@ -16,6 +16,7 @@ import PrescriptionTodoTable from "@/components/todo/PrescriptionTodoTable";
 import MeetingTodoTable from "@/components/todo/MeetingTodoTable";
 import { useListMeetings } from "@/api/scheduling/useListMeetings";
 import { useListPrescriptions } from "@/api/prescriptions/useListPrescriptions";
+import TodosSearchField from "@/components/todo/TodosSearchField";
 
 const TodosScreen: React.FunctionComponent = () => {
   const dispatch = useDispatch();
@@ -78,7 +79,9 @@ const TodosScreen: React.FunctionComponent = () => {
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12}></Grid>
+      <Grid item xs={12}>
+        <TodosSearchField />
+      </Grid>
       <Grid item xs={12}>
         <Grid container spacing={3}>
           <Grid item xs={6}>

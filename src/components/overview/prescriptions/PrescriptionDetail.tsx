@@ -55,7 +55,8 @@ const PrescriptionDetail: React.FunctionComponent = () => {
     );
   }
 
-  const acceptIsDisabled = !preparation || !dosage;
+  const acceptIsDisabled = !preparation || !dosage || prescription.isAccepted;
+  const rejectIsDisabled = prescription.isAccepted;
 
   return (
     <Grid container spacing={3}>
@@ -192,6 +193,7 @@ const PrescriptionDetail: React.FunctionComponent = () => {
                   fullWidth
                   variant="contained"
                   color="secondary"
+                  disabled={rejectIsDisabled}
                   onClick={() => {
                     deletePrescription(Number(prescriptionId), true)
                       .then(() => {

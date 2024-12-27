@@ -29,7 +29,7 @@ const MeetingOverview: React.FunctionComponent = () => {
   });
 
   useEffect(() => {
-    fetch(["PENDING", "ACCEPTED"], 1, selectedPageSize);
+    fetch(["PENDING", "ACCEPTED"], "desc", 1, selectedPageSize);
   }, [selectedPageSize]);
 
   const getStatus = (status?: string) => {
@@ -49,13 +49,13 @@ const MeetingOverview: React.FunctionComponent = () => {
     _event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number,
   ) => {
-    fetch(["PENDING", "ACCEPTED"], newPage + 1, selectedPageSize);
+    fetch(["PENDING", "ACCEPTED"], "desc", newPage + 1, selectedPageSize);
   };
 
   return (
     <Grid container spacing={3}>
       <Grid item xs={12}>
-        <Typography variant="h3" component="h3">
+        <Typography variant="h4" component="h4">
           Übersicht Termine
         </Typography>
       </Grid>

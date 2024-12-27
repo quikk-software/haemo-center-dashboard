@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Badge,
@@ -38,7 +38,9 @@ const UserTodoTable: React.FunctionComponent = () => {
   const [confirmUsersDialogOpen, setConfirmUsersDialogOpen] = useState(false);
 
   const dispatch = useDispatch();
-  const { users, usersTotalCount } = useSelector((s: Store) => s.todo);
+  const { users, filteredUsers, usersTotalCount } = useSelector(
+    (s: Store) => s.todo,
+  );
 
   const { request: activateUser } = useActivateUser();
 
@@ -101,6 +103,10 @@ const UserTodoTable: React.FunctionComponent = () => {
       });
   };
 
+  const userList = useMemo(
+    () => (filteredUsers !== undefined ? filteredUsers : users),
+    [filteredUsers, users],
+  );
   const disabled = selectedUsers.length === 0;
 
   return (
@@ -200,7 +206,7 @@ const UserTodoTable: React.FunctionComponent = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {users.map((row) => {
+              {userList.map((row) => {
                 const isSelected = !!selectedUsers.find(
                   (user) => user.id === row.id,
                 );

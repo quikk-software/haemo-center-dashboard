@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Box,
@@ -47,7 +47,9 @@ const MeetingTodoTable: React.FunctionComponent = () => {
     useState(false);
 
   const dispatch = useDispatch();
-  const { meetings, meetingsTotalCount } = useSelector((s: Store) => s.todo);
+  const { meetings, meetingsTotalCount, filteredMeetings } = useSelector(
+    (s: Store) => s.todo,
+  );
 
   const { request: updateMeeting } = useUpdateMeetingState();
 
@@ -144,6 +146,10 @@ const MeetingTodoTable: React.FunctionComponent = () => {
       });
   };
 
+  const meetingList = useMemo(
+    () => (filteredMeetings !== undefined ? filteredMeetings : meetings),
+    [filteredMeetings, meetings],
+  );
   const disabled = selectedMeetings.length === 0;
 
   return (
@@ -281,7 +287,7 @@ const MeetingTodoTable: React.FunctionComponent = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {meetings.map((row) => {
+              {meetingList.map((row) => {
                 const isSelected = !!selectedMeetings.find(
                   (meeting) => meeting.id === row.id,
                 );

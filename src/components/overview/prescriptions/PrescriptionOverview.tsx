@@ -43,7 +43,7 @@ const PrescriptionOverview: React.FunctionComponent = () => {
   return (
     <Grid container spacing={3}>
       <Grid item xs={12}>
-        <Typography variant="h3" component="h3">
+        <Typography variant="h4" component="h4">
           Übersicht Rezepte
         </Typography>
       </Grid>

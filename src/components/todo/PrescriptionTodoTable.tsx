@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Box,
@@ -43,9 +43,8 @@ const PrescriptionTodoTable: React.FunctionComponent = () => {
     useState(false);
 
   const dispatch = useDispatch();
-  const { prescriptions, prescriptionsTotalCount } = useSelector(
-    (s: Store) => s.todo,
-  );
+  const { prescriptions, prescriptionsTotalCount, filteredPrescriptions } =
+    useSelector((s: Store) => s.todo);
 
   const { request: deletePrescription } = useDeletePrescription();
 
@@ -110,6 +109,13 @@ const PrescriptionTodoTable: React.FunctionComponent = () => {
       });
   };
 
+  const prescriptionList = useMemo(
+    () =>
+      filteredPrescriptions !== undefined
+        ? filteredPrescriptions
+        : prescriptions,
+    [filteredPrescriptions, prescriptions],
+  );
   const disabled = selectedPrescriptions.length === 0;
 
   return (
@@ -211,7 +217,7 @@ const PrescriptionTodoTable: React.FunctionComponent = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {prescriptions.map((row) => {
+              {prescriptionList.map((row) => {
                 const isSelected = !!selectedPrescriptions.find(
                   (prescription) => prescription.id === row.id,
                 );
