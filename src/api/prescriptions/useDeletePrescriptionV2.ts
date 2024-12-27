@@ -13,7 +13,7 @@ export const useDeletePrescriptionV2 = () => {
     prescriptionId: number,
     triggerNotification: boolean,
   ) => {
-    const response = await handleFn(
+    await handleFn(
       async () =>
         await prescriptionApi.api.v2PrescriptionsCenterDelete(
           prescriptionId,

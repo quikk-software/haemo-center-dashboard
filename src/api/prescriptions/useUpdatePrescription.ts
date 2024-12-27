@@ -1,41 +1,29 @@
-import { getApi, prescriptionApi } from "@/@types";
+import { prescriptionApi, getApi } from "@/@types";
 import { useDispatch, useSelector } from "react-redux";
 import { Store } from "@/redux";
-import { useCallback, useState } from "react";
-import { Dispatch } from "redux";
+import { useApiStates } from "@/api/useApiStates";
 import { PatchPrescriptionRequest } from "@/@types/prescription";
 
-const useUpdatePrescription = () => {
-  const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
+export const useUpdatePrescription = () => {
   const dispatch = useDispatch();
+  const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
 
-  const [response, setResponse] = useState<boolean | undefined>(undefined);
+  const { handleFn, ...apiStates } = useApiStates();
 
-  const request = useCallback(
-    async (prescription: PatchPrescriptionRequest) => {
-      await updatePrescription(
-        prescription,
-        accessToken,
-        refreshToken,
-        dispatch,
-      );
-    },
-    [accessToken, dispatch, refreshToken],
-  );
+  const mutate = async (prescription: PatchPrescriptionRequest) => {
+    await handleFn(
+      async () =>
+        await prescriptionApi.api.v1PrescriptionsCenterPartialUpdate(
+          prescription,
+          {
+            ...(await getApi(accessToken, refreshToken, dispatch)),
+          },
+        ),
+    );
+  };
 
-  return { request, response };
+  return {
+    ...apiStates,
+    mutate,
+  };
 };
-
-export const updatePrescription = async (
-  prescription: PatchPrescriptionRequest,
-  accessToken: string | null,
-  refreshToken: string | null,
-  dispatch: Dispatch,
-) => {
-  // TODO: usePagination verwenden für die Params!
-  await prescriptionApi.api.v1PrescriptionsCenterPartialUpdate(prescription, {
-    ...(await getApi(accessToken, refreshToken, dispatch)),
-  });
-};
-
-export default useUpdatePrescription;

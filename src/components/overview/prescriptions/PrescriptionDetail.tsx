@@ -9,22 +9,28 @@ import {
   Typography,
 } from "@mui/material";
 import { Delete } from "@mui/icons-material";
-import useUpdatePrescription from "@/api/prescriptions/useUpdatePrescription";
+import { useUpdatePrescription } from "@/api/prescriptions/useUpdatePrescription";
 import { useGetPrescription } from "@/api/prescriptions/useGetPrescription";
 import { useRouter } from "next/router";
 import { useSnackbarComponent } from "@/components/layout/Snackbar";
 import { useDeletePrescriptionV2 } from "@/api/prescriptions/useDeletePrescriptionV2";
+import PrescriptionActionDialog from "@/components/overview/prescriptions/PrescriptionActionDialog";
 
 const PrescriptionDetail: React.FunctionComponent = () => {
   const [preparation, setPreparation] = useState<string | undefined>(undefined);
   const [dosage, setDosage] = useState<string | undefined>(undefined);
+  const [rejectPrescriptionsDialogOpen, setRejectPrescriptionsDialogOpen] =
+    useState(false);
+  const [deletePrescriptionsDialogOpen, setDeletePrescriptionsDialogOpen] =
+    useState(false);
 
   const prescriptionId = useQuery("id");
   const router = useRouter();
   const { displaySuccess, displayError } = useSnackbarComponent();
 
   const { fetch, data: prescription, isLoading } = useGetPrescription();
-  const { request: updatePrescription } = useUpdatePrescription();
+  const { mutate: updatePrescription, isLoading: updatePrescriptionIsLoading } =
+    useUpdatePrescription();
   const {
     mutate: deletePrescription,
     isSuccess: deletePrescriptionIsSuccess,
@@ -55,6 +61,24 @@ const PrescriptionDetail: React.FunctionComponent = () => {
     );
   }
 
+  const handleRejectPrescriptionClick = () => {
+    deletePrescription(Number(prescriptionId), true)
+      .then(() => {
+        displaySuccess("Rezept erfolgreich abgelehnt!");
+        router.back();
+      })
+      .catch(() => displayError("Rezept konnte nicht abgelehnt werden!"));
+  };
+
+  const handleDeletePrescriptionClick = () => {
+    deletePrescription(Number(prescriptionId), false)
+      .then(() => {
+        displaySuccess("Rezept erfolgreich gelöscht!");
+        router.back();
+      })
+      .catch(() => displayError("Rezept konnte nicht gelöscht werden!"));
+  };
+
   const acceptIsDisabled = !preparation || !dosage || prescription.isAccepted;
   const rejectIsDisabled = prescription.isAccepted;
 
@@ -62,7 +86,7 @@ const PrescriptionDetail: React.FunctionComponent = () => {
     <Grid container spacing={3}>
       <Grid item xs={6}>
         <Typography variant="h3">Rezeptdetails</Typography>
-      </Grid>{" "}
+      </Grid>
       <Grid
         item
         xs={6}
@@ -77,16 +101,7 @@ const PrescriptionDetail: React.FunctionComponent = () => {
           startIcon={<Delete />}
           color={"inherit"}
           disabled={deletePrescriptionIsLoading || deletePrescriptionIsSuccess}
-          onClick={() => {
-            deletePrescription(Number(prescriptionId), false)
-              .then(() => {
-                displaySuccess("Rezept erfolgreich gelöscht!");
-                router.back();
-              })
-              .catch(() =>
-                displayError("Rezept konnte nicht gelöscht werden!"),
-              );
-          }}
+          onClick={() => setDeletePrescriptionsDialogOpen(true)}
         >
           Rezept löschen
         </Button>
@@ -194,16 +209,7 @@ const PrescriptionDetail: React.FunctionComponent = () => {
                   variant="contained"
                   color="secondary"
                   disabled={rejectIsDisabled}
-                  onClick={() => {
-                    deletePrescription(Number(prescriptionId), true)
-                      .then(() => {
-                        displaySuccess("Rezept erfolgreich abgelehnt!");
-                        router.back();
-                      })
-                      .catch(() =>
-                        displayError("Rezept konnte nicht abgelehnt werden!"),
-                      );
-                  }}
+                  onClick={() => setRejectPrescriptionsDialogOpen(true)}
                 >
                   Ablehnen
                 </Button>
@@ -211,6 +217,22 @@ const PrescriptionDetail: React.FunctionComponent = () => {
             </Grid>
           </CardContent>
         </Card>
+        <PrescriptionActionDialog
+          title="Rezept ablehnen"
+          description="Du bist dabei folgendes Rezept zu abzulehnen. Bitte bestätige diesen Vorgang."
+          isOpen={rejectPrescriptionsDialogOpen}
+          setIsOpen={setRejectPrescriptionsDialogOpen}
+          callback={handleRejectPrescriptionClick}
+          isLoading={updatePrescriptionIsLoading}
+        />
+        <PrescriptionActionDialog
+          title="Rezept löschen"
+          description="Du bist dabei folgendes Rezept zu löschen. Bitte bestätige diesen Vorgang."
+          isOpen={deletePrescriptionsDialogOpen}
+          setIsOpen={setDeletePrescriptionsDialogOpen}
+          callback={handleDeletePrescriptionClick}
+          isLoading={deletePrescriptionIsLoading}
+        />
       </Grid>
     </Grid>
   );
