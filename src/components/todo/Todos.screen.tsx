@@ -39,11 +39,11 @@ const TodosScreen: React.FunctionComponent = () => {
 
   useEffect(() => {
     fetchUsers();
-    fetchPrescriptions(false, "asc", 1, 999).then((prescriptions) =>
-      dispatch(setPrescriptions(prescriptions)),
+    fetchPrescriptions(false, "desc", 1, 999).then(({ prescriptions, count }) =>
+      dispatch(setPrescriptions({ prescriptions, count })),
     );
-    fetchMeetings("PENDING", 1, 999).then((meetings) =>
-      dispatch(setMeetings(meetings)),
+    fetchMeetings(["PENDING"], "desc", 1, 999).then(({ meetings, count }) =>
+      dispatch(setMeetings({ meetings, count })),
     );
   }, []);
 
@@ -58,7 +58,7 @@ const TodosScreen: React.FunctionComponent = () => {
     if (!refetchPrescriptions) {
       return;
     }
-    fetchPrescriptions(false, "asc", 1, 999)
+    fetchPrescriptions(false, "desc", 1, 999)
       .then((prescriptions) => dispatch(setPrescriptions(prescriptions)))
       .finally(() => dispatch(setRefetchPrescriptions(false)));
   }, [refetchPrescriptions]);
@@ -67,13 +67,13 @@ const TodosScreen: React.FunctionComponent = () => {
     if (!refetchMeetings) {
       return;
     }
-    fetchMeetings("PENDING", 1, 999)
+    fetchMeetings(["PENDING"], "desc", 1, 999)
       .then((meetings) => dispatch(setMeetings(meetings)))
       .finally(() => dispatch(setRefetchMeetings(false)));
   }, [refetchMeetings]);
 
   useEffect(() => {
-    dispatch(setUsers(users));
+    dispatch(setUsers({ users, count: users.length }));
   }, [users]);
 
   return (

@@ -46,7 +46,10 @@ export const useListPrescriptions = ({
 
     pagination.handlePaginationPayload(response?.data);
 
-    return response.data?.prescriptions ?? [];
+    return {
+      prescriptions: response.data?.prescriptions ?? [],
+      count: response.data.count,
+    };
   };
 
   return {

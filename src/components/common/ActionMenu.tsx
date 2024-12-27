@@ -1,5 +1,5 @@
 import { IconButton, Menu } from "@mui/material";
-import { MoreVert } from "@mui/icons-material";
+import { Edit } from "@mui/icons-material";
 import React, { PropsWithChildren, useCallback, useMemo } from "react";
 
 const ActionMenu: React.FC<PropsWithChildren> = ({ children }) => {
@@ -20,7 +20,7 @@ const ActionMenu: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <>
       <IconButton onClick={handleClick}>
-        <MoreVert />
+        <Edit />
       </IconButton>
       <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleClose}>
         {children}

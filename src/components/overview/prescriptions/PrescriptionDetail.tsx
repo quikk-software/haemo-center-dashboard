@@ -8,11 +8,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { Delete } from "@mui/icons-material";
 import useUpdatePrescription from "@/api/prescriptions/useUpdatePrescription";
 import { useGetPrescription } from "@/api/prescriptions/useGetPrescription";
-import useDeletePrescription from "@/api/prescriptions/useDeletePrescription";
 import { useRouter } from "next/router";
 import { useSnackbarComponent } from "@/components/layout/Snackbar";
+import { useDeletePrescriptionV2 } from "@/api/prescriptions/useDeletePrescriptionV2";
 
 const PrescriptionDetail: React.FunctionComponent = () => {
   const [preparation, setPreparation] = useState<string | undefined>(undefined);
@@ -24,7 +25,11 @@ const PrescriptionDetail: React.FunctionComponent = () => {
 
   const { fetch, data: prescription, isLoading } = useGetPrescription();
   const { request: updatePrescription } = useUpdatePrescription();
-  const { request: deletePrescription } = useDeletePrescription();
+  const {
+    mutate: deletePrescription,
+    isSuccess: deletePrescriptionIsSuccess,
+    isLoading: deletePrescriptionIsLoading,
+  } = useDeletePrescriptionV2();
 
   useEffect(() => {
     fetch(Number(prescriptionId));
@@ -54,8 +59,36 @@ const PrescriptionDetail: React.FunctionComponent = () => {
 
   return (
     <Grid container spacing={3}>
-      <Grid item xs={12}>
+      <Grid item xs={6}>
         <Typography variant="h3">Rezeptdetails</Typography>
+      </Grid>{" "}
+      <Grid
+        item
+        xs={6}
+        display="flex"
+        alignItems="center"
+        justifyContent="flex-end"
+        sx={{
+          color: (theme) => theme.palette.text.secondary,
+        }}
+      >
+        <Button
+          startIcon={<Delete />}
+          color={"inherit"}
+          disabled={deletePrescriptionIsLoading || deletePrescriptionIsSuccess}
+          onClick={() => {
+            deletePrescription(Number(prescriptionId), false)
+              .then(() => {
+                displaySuccess("Rezept erfolgreich gelöscht!");
+                router.back();
+              })
+              .catch(() =>
+                displayError("Rezept konnte nicht gelöscht werden!"),
+              );
+          }}
+        >
+          Rezept löschen
+        </Button>
       </Grid>
       <Grid item xs={12}>
         <Card>
@@ -67,7 +100,7 @@ const PrescriptionDetail: React.FunctionComponent = () => {
               <Grid item xs={12}>
                 <TextField
                   label="Patient"
-                  defaultValue={`${prescription.patient?.firstName} ${prescription.patient?.lastName}}`.trim()}
+                  defaultValue={`${prescription.patient?.firstName} ${prescription.patient?.lastName}`.trim()}
                   value={`${prescription.patient?.firstName} ${prescription.patient?.lastName}}`.trim()}
                   fullWidth
                   disabled
@@ -127,25 +160,7 @@ const PrescriptionDetail: React.FunctionComponent = () => {
                   disabled
                 />
               </Grid>
-              <Grid item xs={6}>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => {
-                    deletePrescription(Number(prescriptionId))
-                      .then(() => {
-                        displaySuccess("Rezept erfolgreich abgelehnt!");
-                        router.back();
-                      })
-                      .catch(() =>
-                        displayError("Rezept konnte nicht abgelehnt werden!"),
-                      );
-                  }}
-                >
-                  Ablehnen
-                </Button>
-              </Grid>
+
               <Grid item xs={6}>
                 <Button
                   fullWidth
@@ -170,6 +185,25 @@ const PrescriptionDetail: React.FunctionComponent = () => {
                   }}
                 >
                   Freigeben
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => {
+                    deletePrescription(Number(prescriptionId), true)
+                      .then(() => {
+                        displaySuccess("Rezept erfolgreich abgelehnt!");
+                        router.back();
+                      })
+                      .catch(() =>
+                        displayError("Rezept konnte nicht abgelehnt werden!"),
+                      );
+                  }}
+                >
+                  Ablehnen
                 </Button>
               </Grid>
             </Grid>

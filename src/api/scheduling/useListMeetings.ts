@@ -22,7 +22,8 @@ export const useListMeetings = ({
   const pagination = usePagination(pageNumber, pageSize);
 
   const fetch = async (
-    customState?: string,
+    customStates?: string[],
+    customSort?: "asc" | "desc",
     customPageNumber?: number,
     customPageSize?: number,
   ) => {
@@ -32,7 +33,8 @@ export const useListMeetings = ({
           {
             pageNumber: customPageNumber ?? pagination.pageNumber,
             pageSize: customPageSize ?? pagination.pageSize,
-            state: customState,
+            states: customStates,
+            sort: customSort,
           },
           {
             ...(await getApi(accessToken, refreshToken, dispatch)),
@@ -44,7 +46,10 @@ export const useListMeetings = ({
 
     pagination.handlePaginationPayload(response?.data);
 
-    return response.data?.meetings ?? [];
+    return {
+      meetings: response.data?.meetings ?? [],
+      count: response.data.count,
+    };
   };
 
   return {

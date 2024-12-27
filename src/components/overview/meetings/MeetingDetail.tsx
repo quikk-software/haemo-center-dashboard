@@ -90,25 +90,6 @@ const MeetingDetail: React.FunctionComponent = () => {
                 <Button
                   fullWidth
                   variant="contained"
-                  color="secondary"
-                  disabled={isCreatedState}
-                  onClick={() => {
-                    handleMeetingStateClick(Number(meetingId))
-                      .then(() =>
-                        displaySuccess("Termin erfolgreich abgelehnt!"),
-                      )
-                      .catch(() => {
-                        displayError("Termin konnte nicht abgelehnt werden!");
-                      });
-                  }}
-                >
-                  Ablehnen
-                </Button>
-              </Grid>
-              <Grid item xs={6}>
-                <Button
-                  fullWidth
-                  variant="contained"
                   color="primary"
                   disabled={isCreatedState || isAcceptedState}
                   onClick={() => {
@@ -122,6 +103,25 @@ const MeetingDetail: React.FunctionComponent = () => {
                   }}
                 >
                   Akzeptieren
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  color="secondary"
+                  disabled={isCreatedState}
+                  onClick={() => {
+                    handleMeetingStateClick(Number(meetingId))
+                      .then(() =>
+                        displaySuccess("Termin erfolgreich abgelehnt!"),
+                      )
+                      .catch(() => {
+                        displayError("Termin konnte nicht abgelehnt werden!");
+                      });
+                  }}
+                >
+                  Ablehnen
                 </Button>
               </Grid>
             </Grid>

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   Chip,
@@ -18,18 +18,19 @@ import Link from "@/components/common/Link";
 import { Edit } from "@mui/icons-material";
 import TableContainer from "@mui/material/TableContainer";
 import { useListMeetings } from "@/api/scheduling/useListMeetings";
-
-const PAGE_SIZE = 5;
+import { DEFAULT_PAGE_SIZE, PAGE_SIZES } from "@/constants";
 
 const MeetingOverview: React.FunctionComponent = () => {
+  const [selectedPageSize, setSelectedPageSize] = useState(DEFAULT_PAGE_SIZE);
+
   const { fetch, data, pageNumber, count } = useListMeetings({
     pageNumber: 1,
-    pageSize: PAGE_SIZE,
+    pageSize: selectedPageSize,
   });
 
   useEffect(() => {
-    fetch(undefined, 1, PAGE_SIZE);
-  }, []);
+    fetch(["PENDING", "ACCEPTED"], 1, selectedPageSize);
+  }, [selectedPageSize]);
 
   const getStatus = (status?: string) => {
     switch (status) {
@@ -48,7 +49,7 @@ const MeetingOverview: React.FunctionComponent = () => {
     _event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number,
   ) => {
-    fetch(undefined, newPage + 1, PAGE_SIZE);
+    fetch(["PENDING", "ACCEPTED"], newPage + 1, selectedPageSize);
   };
 
   return (
@@ -113,8 +114,16 @@ const MeetingOverview: React.FunctionComponent = () => {
           count={count}
           page={pageNumber - 1}
           onPageChange={handleChangePage}
-          rowsPerPage={PAGE_SIZE}
-          rowsPerPageOptions={[]}
+          rowsPerPage={selectedPageSize}
+          rowsPerPageOptions={PAGE_SIZES}
+          onRowsPerPageChange={(event) =>
+            setSelectedPageSize(
+              event.target.value
+                ? Number(event.target.value)
+                : DEFAULT_PAGE_SIZE,
+            )
+          }
+          labelRowsPerPage="Ergebnisse pro Seite"
           labelDisplayedRows={({ from, to, count }) =>
             `${from}-${to} von ${count}`
           }

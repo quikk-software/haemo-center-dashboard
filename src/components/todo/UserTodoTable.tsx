@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Alert,
+  Badge,
   Box,
   Checkbox,
   Grid,
@@ -27,6 +28,7 @@ import useActivateUser from "@/api/users/useActivateUser";
 import { setRefetchUsers } from "@/components/todo/todoSlice";
 import Link from "@/components/common/Link";
 import { LIGHT_HEX_OPACITY } from "@/theme";
+import CustomBadge from "@/components/todo/CustomBadge";
 
 const UserTodoTable: React.FunctionComponent = () => {
   const [selectedUsers, setSelectedUsers] = useState<GetUserResponse[]>([]);
@@ -36,7 +38,7 @@ const UserTodoTable: React.FunctionComponent = () => {
   const [confirmUsersDialogOpen, setConfirmUsersDialogOpen] = useState(false);
 
   const dispatch = useDispatch();
-  const { users } = useSelector((s: Store) => s.todo);
+  const { users, usersTotalCount } = useSelector((s: Store) => s.todo);
 
   const { request: activateUser } = useActivateUser();
 
@@ -117,7 +119,7 @@ const UserTodoTable: React.FunctionComponent = () => {
                   <LaunchIcon />
                 </IconButton>
               </Link>
-              Nutzer
+              <CustomBadge label={usersTotalCount ?? 0}>Nutzer</CustomBadge>
             </Typography>
             <Stack direction="row" spacing={2} alignItems="center">
               <Stack
@@ -193,7 +195,8 @@ const UserTodoTable: React.FunctionComponent = () => {
                 </TableCell>
                 <TableCell>Name</TableCell>
                 <TableCell>Geburtsdatum</TableCell>
-                <TableCell />
+                <TableCell>Terminart</TableCell>
+                <TableCell>Status</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -229,7 +232,7 @@ const UserTodoTable: React.FunctionComponent = () => {
                       {dayjs(row.birthDay).format(DATE_FORMAT)}
                     </TableCell>
                     <TableCell component="th" scope="row">
-                      <Stack direction="row" spacing={2}>
+                      <Stack direction="row" spacing={8}>
                         <Box
                           onClick={() => {
                             setSelectedUsers([row]);

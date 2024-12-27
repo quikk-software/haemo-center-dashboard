@@ -27,6 +27,7 @@ import DeclinePrescriptionsDialog from "@/components/todo/DeclinePrescriptionsDi
 import DeclineIcon from "@/components/todo/DeclineIcon";
 import useDeletePrescription from "@/api/prescriptions/useDeletePrescription";
 import { LIGHT_HEX_OPACITY } from "@/theme";
+import CustomBadge from "@/components/todo/CustomBadge";
 
 const PrescriptionTodoTable: React.FunctionComponent = () => {
   const [selectedPrescriptions, setSelectedPrescriptions] = useState<
@@ -42,7 +43,9 @@ const PrescriptionTodoTable: React.FunctionComponent = () => {
     useState(false);
 
   const dispatch = useDispatch();
-  const { prescriptions } = useSelector((s: Store) => s.todo);
+  const { prescriptions, prescriptionsTotalCount } = useSelector(
+    (s: Store) => s.todo,
+  );
 
   const { request: deletePrescription } = useDeletePrescription();
 
@@ -125,7 +128,9 @@ const PrescriptionTodoTable: React.FunctionComponent = () => {
                   <LaunchIcon />
                 </IconButton>
               </Link>
-              Rezepte
+              <CustomBadge label={prescriptionsTotalCount ?? 0}>
+                Rezepte
+              </CustomBadge>
             </Typography>
             <Stack direction="row" spacing={2} alignItems="center">
               <Stack
@@ -256,7 +261,7 @@ const PrescriptionTodoTable: React.FunctionComponent = () => {
                       </Link>
                     </TableCell>
                     <TableCell component="th" scope="row">
-                      <Stack direction="row" spacing={2}>
+                      <Stack direction="row" spacing={8}>
                         <Box
                           onClick={() => {
                             setSelectedPrescriptions([row]);

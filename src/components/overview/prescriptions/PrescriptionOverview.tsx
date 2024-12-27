@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   Chip,
   Grid,
   IconButton,
   TablePagination,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import Paper from "@mui/material/Paper";
@@ -18,24 +19,25 @@ import Link from "@/components/common/Link";
 import { Edit } from "@mui/icons-material";
 import TableContainer from "@mui/material/TableContainer";
 import { useListPrescriptions } from "@/api/prescriptions/useListPrescriptions";
-
-const PAGE_SIZE = 5;
+import { DEFAULT_PAGE_SIZE, PAGE_SIZES } from "@/constants";
 
 const PrescriptionOverview: React.FunctionComponent = () => {
+  const [selectedPageSize, setSelectedPageSize] = useState(DEFAULT_PAGE_SIZE);
+
   const { fetch, data, pageNumber, count } = useListPrescriptions({
     pageNumber: 1,
-    pageSize: PAGE_SIZE,
+    pageSize: selectedPageSize,
   });
 
   useEffect(() => {
-    fetch(undefined, "desc", 1, PAGE_SIZE);
-  }, []);
+    fetch(undefined, "desc", 1, selectedPageSize);
+  }, [selectedPageSize]);
 
   const handleChangePage = (
     _event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number,
   ) => {
-    fetch(undefined, "desc", newPage + 1, PAGE_SIZE);
+    fetch(undefined, "desc", newPage + 1, selectedPageSize);
   };
 
   return (
@@ -54,6 +56,8 @@ const PrescriptionOverview: React.FunctionComponent = () => {
                 <TableCell>Angefordert am</TableCell>
                 <TableCell>Freigegeben</TableCell>
                 <TableCell>Präparat</TableCell>
+                <TableCell>Dosis</TableCell>
+                <TableCell>Notiz</TableCell>
                 <TableCell />
               </TableRow>
             </TableHead>
@@ -81,7 +85,33 @@ const PrescriptionOverview: React.FunctionComponent = () => {
                       />
                     </TableCell>
                     <TableCell>{row.preparation}</TableCell>
-                    <TableCell component="th" scope="row" align="right">
+                    <TableCell>{row.dosage}</TableCell>
+                    <TableCell
+                      component="th"
+                      scope="row"
+                      sx={{
+                        maxWidth: 200,
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      <Tooltip title={row.note}>
+                        <Typography>{row.note}</Typography>
+                      </Tooltip>
+                    </TableCell>
+                    <TableCell
+                      component="th"
+                      scope="row"
+                      align="right"
+                      sx={{
+                        position: "sticky",
+                        right: 0,
+                        backgroundColor: (theme) =>
+                          theme.palette.background.paper,
+                        zIndex: 2,
+                      }}
+                    >
                       <Link href={`/prescriptions/${row.id}`}>
                         <IconButton>
                           <Edit />
@@ -99,8 +129,16 @@ const PrescriptionOverview: React.FunctionComponent = () => {
           count={count}
           page={pageNumber - 1}
           onPageChange={handleChangePage}
-          rowsPerPage={PAGE_SIZE}
-          rowsPerPageOptions={[]}
+          rowsPerPage={selectedPageSize}
+          rowsPerPageOptions={PAGE_SIZES}
+          onRowsPerPageChange={(event) =>
+            setSelectedPageSize(
+              event.target.value
+                ? Number(event.target.value)
+                : DEFAULT_PAGE_SIZE,
+            )
+          }
+          labelRowsPerPage="Ergebnisse pro Seite"
           labelDisplayedRows={({ from, to, count }) =>
             `${from}-${to} von ${count}`
           }

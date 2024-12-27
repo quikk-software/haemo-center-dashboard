@@ -29,6 +29,7 @@ import { DATE_FORMAT, dayjs, TIME_FORMAT } from "@/dayjs/Dayjs";
 import AcceptMeetingsDialog from "@/components/todo/AcceptMeetingsDialog";
 import RejectMeetingsDialog from "@/components/todo/RejectMeetingsDialog";
 import { LIGHT_HEX_OPACITY } from "@/theme";
+import CustomBadge from "@/components/todo/CustomBadge";
 
 const MeetingTodoTable: React.FunctionComponent = () => {
   const [selectedMeetings, setSelectedMeetings] = useState<
@@ -46,7 +47,7 @@ const MeetingTodoTable: React.FunctionComponent = () => {
     useState(false);
 
   const dispatch = useDispatch();
-  const { meetings } = useSelector((s: Store) => s.todo);
+  const { meetings, meetingsTotalCount } = useSelector((s: Store) => s.todo);
 
   const { request: updateMeeting } = useUpdateMeetingState();
 
@@ -161,7 +162,7 @@ const MeetingTodoTable: React.FunctionComponent = () => {
                   <LaunchIcon />
                 </IconButton>
               </Link>
-              Termine
+              <CustomBadge label={meetingsTotalCount ?? 0}>Termine</CustomBadge>
             </Typography>
             <Stack direction="row" spacing={2} alignItems="center">
               <Stack
@@ -276,8 +277,7 @@ const MeetingTodoTable: React.FunctionComponent = () => {
                 <TableCell>Name</TableCell>
                 <TableCell>Arzt</TableCell>
                 <TableCell>Datum</TableCell>
-                <TableCell>Termindetails</TableCell>
-                <TableCell />
+                <TableCell>Status</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -318,14 +318,7 @@ const MeetingTodoTable: React.FunctionComponent = () => {
                       {dayjs(row.endTime).format(TIME_FORMAT)}
                     </TableCell>
                     <TableCell component="th" scope="row">
-                      <Link href={`/meetings/${row.id}`}>
-                        <IconButton>
-                          <Edit />
-                        </IconButton>
-                      </Link>
-                    </TableCell>
-                    <TableCell component="th" scope="row">
-                      <Stack direction="row" spacing={2}>
+                      <Stack direction="row" spacing={8}>
                         <Box
                           onClick={() => {
                             setSelectedMeetings([row]);
