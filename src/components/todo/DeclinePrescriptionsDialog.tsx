@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   Button,
@@ -23,11 +23,25 @@ interface DeclinePrescriptionsDialogProps {
   setIsOpen: (isOpen: boolean) => void;
   callback: () => void;
   isLoading: boolean;
+  handleCheckboxClick: (user: GetPrescriptionResponseV2) => void;
 }
 
 const DeclinePrescriptionsDialog: React.FunctionComponent<
   DeclinePrescriptionsDialogProps
-> = ({ prescriptions, isOpen, setIsOpen, callback, isLoading }) => {
+> = ({
+  prescriptions,
+  isOpen,
+  setIsOpen,
+  callback,
+  isLoading,
+  handleCheckboxClick,
+}) => {
+  useEffect(() => {
+    if (prescriptions.length === 0) {
+      setIsOpen(false);
+    }
+  }, [prescriptions, setIsOpen]);
+
   return (
     <Dialog open={isOpen} onClose={setIsOpen}>
       <DialogTitle>Auswahl bestätigen</DialogTitle>
@@ -46,7 +60,10 @@ const DeclinePrescriptionsDialog: React.FunctionComponent<
                   justifyContent: "flex-start",
                 }}
               >
-                <Checkbox checked={true} />
+                <Checkbox
+                  checked={true}
+                  onClick={() => handleCheckboxClick(prescription)}
+                />
               </Box>
               <ListItemText
                 primary={`${prescription.patient?.firstName} ${prescription.patient?.lastName}`}

@@ -282,6 +282,7 @@ const PrescriptionTodoTable: React.FunctionComponent = () => {
           setIsOpen={setDeclinePrescriptionsDialogOpen}
           callback={() => handleDeclinePrescriptions(selectedPrescriptions)}
           isLoading={declinePrescriptionsIsLoading}
+          handleCheckboxClick={handleCheckboxClick}
         />
       </Grid>
     </Grid>

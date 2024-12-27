@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   Button,
@@ -23,6 +23,7 @@ interface ConfirmUsersDialogProps {
   setIsOpen: (isOpen: boolean) => void;
   callback: () => void;
   isLoading: boolean;
+  handleCheckboxClick: (user: GetUserResponse) => void;
 }
 
 const ConfirmUserDialog: React.FunctionComponent<ConfirmUsersDialogProps> = ({
@@ -31,7 +32,14 @@ const ConfirmUserDialog: React.FunctionComponent<ConfirmUsersDialogProps> = ({
   setIsOpen,
   callback,
   isLoading,
+  handleCheckboxClick,
 }) => {
+  useEffect(() => {
+    if (users.length === 0) {
+      setIsOpen(false);
+    }
+  }, [users, setIsOpen]);
+
   return (
     <Dialog open={isOpen} onClose={setIsOpen}>
       <DialogTitle>Auswahl bestätigen</DialogTitle>
@@ -50,7 +58,10 @@ const ConfirmUserDialog: React.FunctionComponent<ConfirmUsersDialogProps> = ({
                   justifyContent: "flex-start",
                 }}
               >
-                <Checkbox checked={true} />
+                <Checkbox
+                  checked={true}
+                  onClick={() => handleCheckboxClick(user)}
+                />
               </Box>
               <ListItemText
                 primary={`${user.firstName} ${user.lastName}`}

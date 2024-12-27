@@ -362,6 +362,7 @@ const MeetingTodoTable: React.FunctionComponent = () => {
           setIsOpen={setAcceptMeetingsDialogOpen}
           callback={() => handleAcceptMeetingsState(selectedMeetings)}
           isLoading={acceptMeetingsIsLoading}
+          handleCheckboxClick={handleCheckboxClick}
         />
         <RejectMeetingsDialog
           meetings={selectedMeetings}
@@ -369,6 +370,7 @@ const MeetingTodoTable: React.FunctionComponent = () => {
           setIsOpen={setRejectMeetingsDialogOpen}
           callback={() => handleRejectMeetingsState(selectedMeetings)}
           isLoading={rejectMeetingsIsLoading}
+          handleCheckboxClick={handleCheckboxClick}
         />
       </Grid>
     </Grid>

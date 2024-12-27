@@ -255,6 +255,7 @@ const UserTodoTable: React.FunctionComponent = () => {
           setIsOpen={setConfirmUsersDialogOpen}
           callback={() => handleActivateUsers(selectedUsers)}
           isLoading={activateUsersIsLoading}
+          handleCheckboxClick={handleCheckboxClick}
         />
       </Grid>
     </Grid>

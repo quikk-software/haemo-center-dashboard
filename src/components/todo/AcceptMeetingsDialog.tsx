@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   Button,
@@ -23,11 +23,25 @@ interface AcceptMeetingsDialogProps {
   setIsOpen: (isOpen: boolean) => void;
   callback: () => void;
   isLoading: boolean;
+  handleCheckboxClick: (user: GetMeetingResponseV2) => void;
 }
 
 const AcceptMeetingsDialog: React.FunctionComponent<
   AcceptMeetingsDialogProps
-> = ({ meetings, isOpen, setIsOpen, callback, isLoading }) => {
+> = ({
+  meetings,
+  isOpen,
+  setIsOpen,
+  callback,
+  isLoading,
+  handleCheckboxClick,
+}) => {
+  useEffect(() => {
+    if (meetings.length === 0) {
+      setIsOpen(false);
+    }
+  }, [meetings, setIsOpen]);
+
   return (
     <Dialog open={isOpen} onClose={setIsOpen}>
       <DialogTitle>Auswahl bestätigen</DialogTitle>
@@ -46,7 +60,10 @@ const AcceptMeetingsDialog: React.FunctionComponent<
                   justifyContent: "flex-start",
                 }}
               >
-                <Checkbox checked={true} />
+                <Checkbox
+                  checked={true}
+                  onClick={() => handleCheckboxClick(meeting)}
+                />
               </Box>
               <ListItemText
                 primary={`${meeting.patient?.firstName} ${meeting.patient?.lastName}`}
