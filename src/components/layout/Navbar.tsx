@@ -7,10 +7,12 @@ import { useSelector } from "react-redux";
 import { Store } from "@/redux";
 import { ADMIN_ROLE } from "@/auth/auth.constants";
 
+const HEIDELBERG_CENTER_ID = "1a134951-17fd-4ad1-a97f-6e063decfc1a";
+
 const Navbar: React.FC = () => {
   const theme = useTheme();
 
-  const { roles } = useSelector((s: Store) => s.auth);
+  const { roles, userId } = useSelector((s: Store) => s.auth);
 
   return (
     <Typography variant="h6">
@@ -26,7 +28,9 @@ const Navbar: React.FC = () => {
         </Link>
         <Link href="/todos">To Do&apos;s</Link>
         <Link href="/users">Nutzer</Link>
-        <Link href="/meetings">Termine</Link>
+        {userId !== HEIDELBERG_CENTER_ID ? (
+          <Link href="/meetings">Termine</Link>
+        ) : null}
         <Link href="/prescriptions">Rezepte</Link>
         <Link href="/news">News</Link>
         {roles.includes(ADMIN_ROLE) && <Link href="/admin">Admin</Link>}
