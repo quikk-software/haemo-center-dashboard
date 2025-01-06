@@ -201,7 +201,6 @@ const UserTodoTable: React.FunctionComponent = () => {
                 </TableCell>
                 <TableCell>Name</TableCell>
                 <TableCell>Geburtsdatum</TableCell>
-                <TableCell>Terminart</TableCell>
                 <TableCell>Status</TableCell>
               </TableRow>
             </TableHead>

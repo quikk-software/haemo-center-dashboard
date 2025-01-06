@@ -15,6 +15,7 @@ import { useRouter } from "next/router";
 import { useSnackbarComponent } from "@/components/layout/Snackbar";
 import { useDeletePrescriptionV2 } from "@/api/prescriptions/useDeletePrescriptionV2";
 import PrescriptionActionDialog from "@/components/overview/prescriptions/PrescriptionActionDialog";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 const PrescriptionDetail: React.FunctionComponent = () => {
   const [preparation, setPreparation] = useState<string | undefined>(undefined);
@@ -22,6 +23,8 @@ const PrescriptionDetail: React.FunctionComponent = () => {
   const [rejectPrescriptionsDialogOpen, setRejectPrescriptionsDialogOpen] =
     useState(false);
   const [deletePrescriptionsDialogOpen, setDeletePrescriptionsDialogOpen] =
+    useState(false);
+  const [acceptPrescriptionDialogOpen, setAcceptPrescriptionDialogOpen] =
     useState(false);
 
   const prescriptionId = useQuery("id");
@@ -183,22 +186,7 @@ const PrescriptionDetail: React.FunctionComponent = () => {
                   variant="contained"
                   color="primary"
                   disabled={acceptIsDisabled}
-                  onClick={() => {
-                    updatePrescription({
-                      preparation: preparation?.trim() ?? "",
-                      dosage: dosage?.trim() ?? "",
-                      risk: "",
-                      dosageUnit: "",
-                      prescriptionId: Number(prescriptionId),
-                    })
-                      .then(() => {
-                        displaySuccess("Rezept erfolgreich freigegeben!");
-                        router.back();
-                      })
-                      .catch(() =>
-                        displayError("Rezept konnte nicht freigegeben werden!"),
-                      );
-                  }}
+                  onClick={() => setAcceptPrescriptionDialogOpen(true)}
                 >
                   Freigeben
                 </Button>
@@ -206,7 +194,7 @@ const PrescriptionDetail: React.FunctionComponent = () => {
               <Grid item xs={6}>
                 <Button
                   fullWidth
-                  variant="contained"
+                  variant="outlined"
                   color="secondary"
                   disabled={rejectIsDisabled}
                   onClick={() => setRejectPrescriptionsDialogOpen(true)}
@@ -217,9 +205,32 @@ const PrescriptionDetail: React.FunctionComponent = () => {
             </Grid>
           </CardContent>
         </Card>
+        <ConfirmDialog
+          isOpen={acceptPrescriptionDialogOpen}
+          setIsOpen={setAcceptPrescriptionDialogOpen}
+          title="Rezept freigeben"
+          description="Du bist dabei folgendes Rezept freizugeben. Bitte bestätige diesen Vorgang."
+          isLoading={updatePrescriptionIsLoading}
+          callback={() =>
+            updatePrescription({
+              preparation: preparation?.trim() ?? "",
+              dosage: dosage?.trim() ?? "",
+              risk: "",
+              dosageUnit: "",
+              prescriptionId: Number(prescriptionId),
+            })
+              .then(() => {
+                displaySuccess("Rezept erfolgreich freigegeben!");
+                router.back();
+              })
+              .catch(() =>
+                displayError("Rezept konnte nicht freigegeben werden!"),
+              )
+          }
+        />
         <PrescriptionActionDialog
           title="Rezept ablehnen"
-          description="Du bist dabei folgendes Rezept zu abzulehnen. Bitte bestätige diesen Vorgang."
+          description="Du bist dabei folgendes Rezept abzulehnen. Bitte bestätige diesen Vorgang."
           isOpen={rejectPrescriptionsDialogOpen}
           setIsOpen={setRejectPrescriptionsDialogOpen}
           callback={handleRejectPrescriptionClick}

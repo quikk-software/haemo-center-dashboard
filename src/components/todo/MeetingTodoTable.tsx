@@ -3,6 +3,7 @@ import {
   Alert,
   Box,
   Checkbox,
+  Chip,
   Grid,
   IconButton,
   Stack,
@@ -283,6 +284,7 @@ const MeetingTodoTable: React.FunctionComponent = () => {
                 <TableCell>Name</TableCell>
                 <TableCell>Arzt</TableCell>
                 <TableCell>Datum</TableCell>
+                <TableCell>Termindetails</TableCell>
                 <TableCell>Status</TableCell>
               </TableRow>
             </TableHead>
@@ -322,6 +324,9 @@ const MeetingTodoTable: React.FunctionComponent = () => {
                       {dayjs(row.date).format(DATE_FORMAT)},<br />
                       {dayjs(row.startTime).format(TIME_FORMAT)} -{" "}
                       {dayjs(row.endTime).format(TIME_FORMAT)}
+                    </TableCell>
+                    <TableCell>
+                      <Chip label={row.timeFrameType} />
                     </TableCell>
                     <TableCell component="th" scope="row">
                       <Stack direction="row" spacing={8}>
