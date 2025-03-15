@@ -6,6 +6,12 @@ import {
   IconButton,
   TablePagination,
   Typography,
+  Box, 
+  Button,
+  FormControl,
+  Select, 
+  MenuItem, 
+  InputLabel
 } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
@@ -13,12 +19,18 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import TableBody from "@mui/material/TableBody";
-import { DATE_FORMAT, dayjs, TIME_FORMAT } from "@/dayjs/Dayjs";
+import { DATE_FORMAT, TIME_FORMAT } from "@/dayjs/Dayjs";
 import Link from "@/components/common/Link";
-import { Edit } from "@mui/icons-material";
+import { Edit, Filter, FilterAlt } from "@mui/icons-material";
 import TableContainer from "@mui/material/TableContainer";
 import { useListMeetings } from "@/api/scheduling/useListMeetings";
 import { DEFAULT_PAGE_SIZE, PAGE_SIZES } from "@/constants";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs, { Dayjs } from "dayjs";
+import { SelectChangeEvent } from '@mui/material/Select';
+
 
 const MeetingOverview: React.FunctionComponent = () => {
   const [selectedPageSize, setSelectedPageSize] = useState(DEFAULT_PAGE_SIZE);
@@ -28,8 +40,12 @@ const MeetingOverview: React.FunctionComponent = () => {
     pageSize: selectedPageSize,
   });
 
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
+  const [endDate, setEndDate] = useState<Dayjs | null>(null);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+
   useEffect(() => {
-    fetch(["PENDING", "ACCEPTED"], "desc", 1, selectedPageSize);
+    getData(["PENDING", "ACCEPTED"], "desc", 1, selectedPageSize, startDate, endDate);
   }, [selectedPageSize]);
 
   const getStatus = (status?: string) => {
@@ -49,17 +65,50 @@ const MeetingOverview: React.FunctionComponent = () => {
     _event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number,
   ) => {
-    fetch(["PENDING", "ACCEPTED"], "desc", newPage + 1, selectedPageSize);
+    getData(["PENDING", "ACCEPTED"], "desc", newPage + 1, selectedPageSize, startDate, endDate);
+  };
+
+  function getData(states: string[], order: any, pages: number, selectedPageSize: number, startOfDay: Dayjs | null, endOfDay: Dayjs | null) : void {
+    let startDate1 = undefined;
+    let endDate1 = undefined;
+    if(startOfDay) {
+      startDate1 = startOfDay.toDate();
+    }
+    if(endOfDay)  {
+      endDate1 = endOfDay.toDate();
+    }
+    fetch(states, order, pages, selectedPageSize, startDate1, endDate1);
+  }
+
+  const handleFilterChange = (event: SelectChangeEvent<string[]>) => {
+    setSelectedFilters(event.target.value as string[]);
+  };
+
+  const selectCurrentWeek = () => {
+    const startOfWeek = dayjs().startOf("week").add(1, "day");
+    const endOfWeek = dayjs().endOf("week").add(1, "day");
+    setStartDate(startOfWeek);
+    setEndDate(endOfWeek);
+    getData(["PENDING", "ACCEPTED"], "desc", 1, selectedPageSize, startOfWeek, endOfWeek);
+  };
+
+  const selectToday = () => {
+    const today = dayjs();
+    const endOfDay = today.endOf('day');
+    const startOfDay = today.startOf('day');
+    setStartDate(startOfDay);
+    setEndDate(endOfDay);
+    getData(["PENDING", "ACCEPTED"], "desc", 1, selectedPageSize, startOfDay, endOfDay);
   };
 
   return (
     <Grid container spacing={3}>
-      <Grid item xs={12}>
+      <Grid item xs={9}>
         <Typography variant="h4" component="h4">
           Übersicht Termine
         </Typography>
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={9}>
         <TableContainer component={Paper}>
           <Table aria-label="Termine">
             <TableHead>
@@ -128,6 +177,41 @@ const MeetingOverview: React.FunctionComponent = () => {
             `${from}-${to} von ${count}`
           }
         />
+      </Grid>
+      <Grid item xs={3}>
+        <Box display="flex" flexDirection="column" gap={2}>
+          <Button variant="outlined" onClick={selectToday} fullWidth endIcon={<FilterAlt/>} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>Termine Heute</Button>
+          <Button variant="outlined" onClick={selectCurrentWeek} fullWidth endIcon={<FilterAlt/>} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>Termine Diese Woche</Button>
+          <FormControl fullWidth>
+            <InputLabel id="filter-label">Filter auswählen</InputLabel>
+            <Select
+              labelId="filter-label"
+              multiple
+              value={selectedFilters}
+              label="Filter auswählen"
+              onChange={handleFilterChange}
+            >
+              <MenuItem value="value1">Wert 1</MenuItem>
+              <MenuItem value="value2">Wert 2</MenuItem>
+              <MenuItem value="value3">Wert 3</MenuItem>
+            </Select>
+          </FormControl>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label="Von"
+              value={startDate}
+              onChange={(newValue: Dayjs | null) => { setStartDate(newValue), getData(["PENDING", "ACCEPTED"], "desc", 1, selectedPageSize, newValue, endDate)}}
+              slotProps={{ textField: { fullWidth: true } }}
+            />
+            <DatePicker
+              label="Bis"
+              value={endDate}
+              onChange={(newValue: Dayjs | null) => { setEndDate(newValue), getData(["PENDING", "ACCEPTED"], "desc", 1, selectedPageSize, startDate, newValue)}}
+              slotProps={{ textField: { fullWidth: true } }}
+            />
+          </LocalizationProvider>
+
+        </Box>
       </Grid>
     </Grid>
   );

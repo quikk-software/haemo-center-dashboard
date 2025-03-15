@@ -681,6 +681,10 @@ export class Api<
         pageNumber?: number;
         /** The page size. */
         pageSize?: number;
+        /** The start date */
+        startDate?: Date;
+        /** The end date */
+        endDate?: Date;
       },
       params: RequestParams = {},
     ) =>

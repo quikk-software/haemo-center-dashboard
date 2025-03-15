@@ -26,13 +26,17 @@ export const useListMeetings = ({
     customSort?: "asc" | "desc",
     customPageNumber?: number,
     customPageSize?: number,
+    startDate?: Date,
+    endDate?: Date,
   ) => {
     const response = await handleFn(
-      async () =>
+      async () => 
         await schedulingApi.api.v2MeetingsCenterAllMeetingsList(
           {
             pageNumber: customPageNumber ?? pagination.pageNumber,
             pageSize: customPageSize ?? pagination.pageSize,
+            startDate: startDate,
+            endDate: endDate,
             states: customStates,
             sort: customSort,
           },
