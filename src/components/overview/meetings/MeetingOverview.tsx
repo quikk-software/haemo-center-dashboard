@@ -11,7 +11,8 @@ import {
   FormControl,
   Select, 
   MenuItem, 
-  InputLabel
+  InputLabel,
+  Checkbox
 } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
@@ -44,8 +45,10 @@ const MeetingOverview: React.FunctionComponent = () => {
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
 
+  const meetingStatus = ["Ausstehend", "Angefragt", "Bestätigt"];
+
   useEffect(() => {
-    getData(["PENDING", "ACCEPTED"], "desc", 1, selectedPageSize, startDate, endDate);
+    getData(getSelectedMeetingStatus(selectedFilters), "desc", 1, selectedPageSize, startDate, endDate);
   }, [selectedPageSize]);
 
   const getStatus = (status?: string) => {
@@ -65,7 +68,7 @@ const MeetingOverview: React.FunctionComponent = () => {
     _event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number,
   ) => {
-    getData(["PENDING", "ACCEPTED"], "desc", newPage + 1, selectedPageSize, startDate, endDate);
+    getData(getSelectedMeetingStatus(selectedFilters), "desc", newPage + 1, selectedPageSize, startDate, endDate);
   };
 
   function getData(states: string[], order: any, pages: number, selectedPageSize: number, startOfDay: Dayjs | null, endOfDay: Dayjs | null) : void {
@@ -80,16 +83,39 @@ const MeetingOverview: React.FunctionComponent = () => {
     fetch(states, order, pages, selectedPageSize, startDate1, endDate1);
   }
 
+  function getSelectedMeetingStatus(filters : string[]) {
+    if(filters.length === 0) {
+      return ["ACCEPTED", "PENDING", "CREATED"];
+    }
+    let activeFilters : string[] = [];
+    filters.forEach(f => {
+      switch (f) {
+        case "Bestätigt":
+          activeFilters.push("ACCEPTED");
+          break;
+        case "Angefragt":
+          activeFilters.push("PENDING");
+          break;
+        case "Ausstehend":
+        default:
+          activeFilters.push("CREATED");
+          break;
+      }
+    })
+    return activeFilters;
+  }
+
   const handleFilterChange = (event: SelectChangeEvent<string[]>) => {
     setSelectedFilters(event.target.value as string[]);
+    getData(getSelectedMeetingStatus(event.target.value as string[]), "desc", 1, selectedPageSize, startDate, endDate);
   };
 
   const selectCurrentWeek = () => {
-    const startOfWeek = dayjs().startOf("week").add(1, "day");
-    const endOfWeek = dayjs().endOf("week").add(1, "day");
+    const startOfWeek = dayjs().startOf("week");
+    const endOfWeek = dayjs().endOf("week");
     setStartDate(startOfWeek);
     setEndDate(endOfWeek);
-    getData(["PENDING", "ACCEPTED"], "desc", 1, selectedPageSize, startOfWeek, endOfWeek);
+    getData(getSelectedMeetingStatus(selectedFilters), "desc", 1, selectedPageSize, startOfWeek, endOfWeek);
   };
 
   const selectToday = () => {
@@ -98,7 +124,7 @@ const MeetingOverview: React.FunctionComponent = () => {
     const startOfDay = today.startOf('day');
     setStartDate(startOfDay);
     setEndDate(endOfDay);
-    getData(["PENDING", "ACCEPTED"], "desc", 1, selectedPageSize, startOfDay, endOfDay);
+    getData(getSelectedMeetingStatus(selectedFilters), "desc", 1, selectedPageSize, startOfDay, endOfDay);
   };
 
   return (
@@ -180,33 +206,37 @@ const MeetingOverview: React.FunctionComponent = () => {
       </Grid>
       <Grid item xs={3}>
         <Box display="flex" flexDirection="column" gap={2}>
-          <Button variant="outlined" onClick={selectToday} fullWidth endIcon={<FilterAlt/>} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>Termine Heute</Button>
-          <Button variant="outlined" onClick={selectCurrentWeek} fullWidth endIcon={<FilterAlt/>} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>Termine Diese Woche</Button>
+          <Button variant="outlined" onClick={selectToday} fullWidth endIcon={<FilterAlt/>} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '48px', textTransform: 'none', color: 'black', borderColor: 'lightgray' }}>Termine Heute</Button>
+          <Button variant="outlined" onClick={selectCurrentWeek} fullWidth endIcon={<FilterAlt/>} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '48px', textTransform: 'none', color: 'black', borderColor: 'lightgray' }}>Termine diese Woche</Button>
           <FormControl fullWidth>
-            <InputLabel id="filter-label">Filter auswählen</InputLabel>
+            <InputLabel id="filter-label">Status</InputLabel>
             <Select
               labelId="filter-label"
               multiple
               value={selectedFilters}
-              label="Filter auswählen"
+              label="Terminstatus"
               onChange={handleFilterChange}
+              renderValue={(selected) => selected.join(", ")}
             >
-              <MenuItem value="value1">Wert 1</MenuItem>
-              <MenuItem value="value2">Wert 2</MenuItem>
-              <MenuItem value="value3">Wert 3</MenuItem>
+              {meetingStatus.map((status) => (
+                <MenuItem key={status} value={status}>
+                  <Checkbox checked={selectedFilters.includes(status)} />
+                  {status}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               label="Von"
               value={startDate}
-              onChange={(newValue: Dayjs | null) => { setStartDate(newValue), getData(["PENDING", "ACCEPTED"], "desc", 1, selectedPageSize, newValue, endDate)}}
+              onChange={(newValue: Dayjs | null) => { setStartDate(newValue), getData(getSelectedMeetingStatus(selectedFilters), "desc", 1, selectedPageSize, newValue, endDate)}}
               slotProps={{ textField: { fullWidth: true } }}
             />
             <DatePicker
               label="Bis"
               value={endDate}
-              onChange={(newValue: Dayjs | null) => { setEndDate(newValue), getData(["PENDING", "ACCEPTED"], "desc", 1, selectedPageSize, startDate, newValue)}}
+              onChange={(newValue: Dayjs | null) => { setEndDate(newValue), getData(getSelectedMeetingStatus(selectedFilters), "desc", 1, selectedPageSize, startDate, newValue)}}
               slotProps={{ textField: { fullWidth: true } }}
             />
           </LocalizationProvider>
