@@ -28,6 +28,7 @@ export const useListMeetings = ({
     customPageSize?: number,
     startDate?: Date,
     endDate?: Date,
+    professionalIds? : number[],
   ) => {
     const response = await handleFn(
       async () => 
@@ -37,6 +38,7 @@ export const useListMeetings = ({
             pageSize: customPageSize ?? pagination.pageSize,
             startDate: startDate,
             endDate: endDate,
+            professionalIds: professionalIds,
             states: customStates,
             sort: customSort,
           },

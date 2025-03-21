@@ -685,6 +685,8 @@ export class Api<
         startDate?: Date;
         /** The end date */
         endDate?: Date;
+        /** professional Ids */
+        professionalIds?: number[];
       },
       params: RequestParams = {},
     ) =>

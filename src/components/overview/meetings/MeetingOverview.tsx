@@ -12,7 +12,7 @@ import {
   Select, 
   MenuItem, 
   InputLabel,
-  Checkbox
+  Checkbox,
 } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
@@ -31,6 +31,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 import { SelectChangeEvent } from '@mui/material/Select';
+import useGetUsers from "@/api/centers/useGetCenters";
 
 
 const MeetingOverview: React.FunctionComponent = () => {
@@ -43,12 +44,13 @@ const MeetingOverview: React.FunctionComponent = () => {
 
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [selectedStatus, setselectedStatus] = useState<string[]>([]);
+  const [selectedProfessionals, setselectedProfessionals] = useState<string[]>([]);
 
   const meetingStatus = ["Ausstehend", "Angefragt", "Bestätigt"];
 
   useEffect(() => {
-    getData(getSelectedMeetingStatus(selectedFilters), "desc", 1, selectedPageSize, startDate, endDate);
+    getData(getSelectedMeetingStatus(selectedStatus), "desc", 1, selectedPageSize, startDate, endDate, selectedProfessionals);
   }, [selectedPageSize]);
 
   const getStatus = (status?: string) => {
@@ -64,14 +66,25 @@ const MeetingOverview: React.FunctionComponent = () => {
     }
   };
 
+  const uniqueProfessionals = Array.from(
+    data.reduce((map : any, meeting : any) => {
+      const professional = meeting.professional;
+      if (!map.has(professional.id)) {
+        map.set(professional.id, professional);
+      }
+      return map;
+    }, new Map()).values()
+  );
+  
+
   const handleChangePage = (
     _event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number,
   ) => {
-    getData(getSelectedMeetingStatus(selectedFilters), "desc", newPage + 1, selectedPageSize, startDate, endDate);
+    getData(getSelectedMeetingStatus(selectedStatus), "desc", newPage + 1, selectedPageSize, startDate, endDate, selectedProfessionals);
   };
 
-  function getData(states: string[], order: any, pages: number, selectedPageSize: number, startOfDay: Dayjs | null, endOfDay: Dayjs | null) : void {
+  function getData(states: string[], order: any, pages: number, selectedPageSize: number, startOfDay: Dayjs | null, endOfDay: Dayjs | null, professionalIds : string[]) : void {
     let startDate1 = undefined;
     let endDate1 = undefined;
     if(startOfDay) {
@@ -80,7 +93,7 @@ const MeetingOverview: React.FunctionComponent = () => {
     if(endOfDay)  {
       endDate1 = endOfDay.toDate();
     }
-    fetch(states, order, pages, selectedPageSize, startDate1, endDate1);
+    fetch(states, order, pages, selectedPageSize, startDate1, endDate1, professionalIds.map(Number));
   }
 
   function getSelectedMeetingStatus(filters : string[]) {
@@ -105,9 +118,14 @@ const MeetingOverview: React.FunctionComponent = () => {
     return activeFilters;
   }
 
-  const handleFilterChange = (event: SelectChangeEvent<string[]>) => {
-    setSelectedFilters(event.target.value as string[]);
-    getData(getSelectedMeetingStatus(event.target.value as string[]), "desc", 1, selectedPageSize, startDate, endDate);
+  const handleStatusFilterChange = (event: SelectChangeEvent<string[]>) => {
+    setselectedStatus(event.target.value as string[]);
+    getData(getSelectedMeetingStatus(event.target.value as string[]), "desc", 1, selectedPageSize, startDate, endDate, selectedProfessionals);
+  };
+
+  const handleProfessionalFilterChange = (event: SelectChangeEvent<string[]>) => {
+    setselectedProfessionals(event.target.value as string[]);
+    getData(getSelectedMeetingStatus(selectedStatus), "desc", 1, selectedPageSize, startDate, endDate, event.target.value as string[]);
   };
 
   const selectCurrentWeek = () => {
@@ -115,7 +133,7 @@ const MeetingOverview: React.FunctionComponent = () => {
     const endOfWeek = dayjs().endOf("week");
     setStartDate(startOfWeek);
     setEndDate(endOfWeek);
-    getData(getSelectedMeetingStatus(selectedFilters), "desc", 1, selectedPageSize, startOfWeek, endOfWeek);
+    getData(getSelectedMeetingStatus(selectedStatus), "desc", 1, selectedPageSize, startOfWeek, endOfWeek, selectedProfessionals);
   };
 
   const selectToday = () => {
@@ -124,7 +142,7 @@ const MeetingOverview: React.FunctionComponent = () => {
     const startOfDay = today.startOf('day');
     setStartDate(startOfDay);
     setEndDate(endOfDay);
-    getData(getSelectedMeetingStatus(selectedFilters), "desc", 1, selectedPageSize, startOfDay, endOfDay);
+    getData(getSelectedMeetingStatus(selectedStatus), "desc", 1, selectedPageSize, startOfDay, endOfDay, selectedProfessionals);
   };
 
   return (
@@ -133,6 +151,53 @@ const MeetingOverview: React.FunctionComponent = () => {
         <Typography variant="h4" component="h4">
           Übersicht Termine
         </Typography>
+      </Grid>
+      <Grid item xs={12}>
+        <Box display="flex" flexDirection="row" gap={2}>
+          <FormControl fullWidth>
+            <InputLabel id="filter-label">Arzt auswählen</InputLabel>
+            <Select
+              labelId="filter-label"
+              multiple
+              value={selectedProfessionals}
+              label="Arzt auswählen"
+              onChange={handleProfessionalFilterChange}
+              renderValue={(selected) => 
+                uniqueProfessionals
+                  .filter((p : any) => selected.includes(p.id))
+                  .map((p : any) => `${p.firstName} ${p.lastName}`)
+                  .join(', ')
+              }
+            >
+              {uniqueProfessionals.map((professional : any) => (
+                <MenuItem key={professional!.id} value={professional!.id}>
+                  <Checkbox checked={selectedProfessionals.includes(professional!.id)} />
+                  {professional!.firstName + ' ' + professional!.lastName}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Button variant="outlined" onClick={selectToday} fullWidth endIcon={<FilterAlt/>} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', textTransform: 'none', color: 'black', borderColor: 'lightgray' }}>Termine Heute</Button>
+          <Button variant="outlined" onClick={selectCurrentWeek} fullWidth endIcon={<FilterAlt/>} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', textTransform: 'none', color: 'black', borderColor: 'lightgray' }}>Termine diese Woche</Button>
+          <FormControl fullWidth>
+            <InputLabel id="filter-label">Status</InputLabel>
+            <Select
+              labelId="filter-label"
+              multiple
+              value={selectedStatus}
+              label="Terminstatus"
+              onChange={handleStatusFilterChange}
+              renderValue={(selected) => selected.join(", ")}
+            >
+              {meetingStatus.map((status) => (
+                <MenuItem key={status} value={status}>
+                  <Checkbox checked={selectedStatus.includes(status)} />
+                  {status}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
       </Grid>
       <Grid item xs={9}>
         <TableContainer component={Paper}>
@@ -205,43 +270,20 @@ const MeetingOverview: React.FunctionComponent = () => {
         />
       </Grid>
       <Grid item xs={3}>
-        <Box display="flex" flexDirection="column" gap={2}>
-          <Button variant="outlined" onClick={selectToday} fullWidth endIcon={<FilterAlt/>} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '48px', textTransform: 'none', color: 'black', borderColor: 'lightgray' }}>Termine Heute</Button>
-          <Button variant="outlined" onClick={selectCurrentWeek} fullWidth endIcon={<FilterAlt/>} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '48px', textTransform: 'none', color: 'black', borderColor: 'lightgray' }}>Termine diese Woche</Button>
-          <FormControl fullWidth>
-            <InputLabel id="filter-label">Status</InputLabel>
-            <Select
-              labelId="filter-label"
-              multiple
-              value={selectedFilters}
-              label="Terminstatus"
-              onChange={handleFilterChange}
-              renderValue={(selected) => selected.join(", ")}
-            >
-              {meetingStatus.map((status) => (
-                <MenuItem key={status} value={status}>
-                  <Checkbox checked={selectedFilters.includes(status)} />
-                  {status}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               label="Von"
               value={startDate}
-              onChange={(newValue: Dayjs | null) => { setStartDate(newValue), getData(getSelectedMeetingStatus(selectedFilters), "desc", 1, selectedPageSize, newValue, endDate)}}
+              onChange={(newValue: Dayjs | null) => { setStartDate(newValue), getData(getSelectedMeetingStatus(selectedStatus), "desc", 1, selectedPageSize, newValue, endDate, selectedProfessionals)}}
               slotProps={{ textField: { fullWidth: true } }}
             />
             <DatePicker
               label="Bis"
               value={endDate}
-              onChange={(newValue: Dayjs | null) => { setEndDate(newValue), getData(getSelectedMeetingStatus(selectedFilters), "desc", 1, selectedPageSize, startDate, newValue)}}
+              onChange={(newValue: Dayjs | null) => { setEndDate(newValue), getData(getSelectedMeetingStatus(selectedStatus), "desc", 1, selectedPageSize, startDate, newValue, selectedProfessionals)}}
               slotProps={{ textField: { fullWidth: true } }}
             />
           </LocalizationProvider>
-
-        </Box>
       </Grid>
     </Grid>
   );
