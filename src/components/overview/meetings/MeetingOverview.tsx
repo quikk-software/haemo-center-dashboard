@@ -22,7 +22,7 @@ import TableCell from "@mui/material/TableCell";
 import TableBody from "@mui/material/TableBody";
 import { DATE_FORMAT, TIME_FORMAT } from "@/dayjs/Dayjs";
 import Link from "@/components/common/Link";
-import { Edit, Filter, FilterAlt } from "@mui/icons-material";
+import { Edit, FilterAlt, DateRange } from "@mui/icons-material";
 import TableContainer from "@mui/material/TableContainer";
 import { useListMeetings } from "@/api/scheduling/useListMeetings";
 import { DEFAULT_PAGE_SIZE, PAGE_SIZES } from "@/constants";
@@ -31,8 +31,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 import { SelectChangeEvent } from '@mui/material/Select';
-import useGetUsers from "@/api/centers/useGetCenters";
-
+import CloseIcon from '@mui/icons-material/Close';
 
 const MeetingOverview: React.FunctionComponent = () => {
   const [selectedPageSize, setSelectedPageSize] = useState(DEFAULT_PAGE_SIZE);
@@ -152,6 +151,9 @@ const MeetingOverview: React.FunctionComponent = () => {
           Übersicht Termine
         </Typography>
       </Grid>
+      <Grid item xs={3}>
+        <Button component="a" href={`/meetings/timeframes`} variant="contained" onClick={selectToday} fullWidth endIcon={<DateRange/>} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>Zeitfenster verwalten</Button>
+      </Grid>
       <Grid item xs={12}>
         <Box display="flex" flexDirection="row" gap={2}>
           <FormControl fullWidth>
@@ -163,10 +165,14 @@ const MeetingOverview: React.FunctionComponent = () => {
               label="Arzt auswählen"
               onChange={handleProfessionalFilterChange}
               renderValue={(selected) => 
-                uniqueProfessionals
-                  .filter((p : any) => selected.includes(p.id))
-                  .map((p : any) => `${p.firstName} ${p.lastName}`)
-                  .join(', ')
+                <Box sx={{ flexGrow: 1 }}>
+                  {selected.length > 0
+                    ? uniqueProfessionals
+                        .filter((p : any) => selected.includes(p.id))
+                        .map((p : any) => `${p.firstName} ${p.lastName}`)
+                        .join(", ")
+                    : "Bitte auswählen"}
+                </Box>
               }
             >
               {uniqueProfessionals.map((professional : any) => (
@@ -176,6 +182,19 @@ const MeetingOverview: React.FunctionComponent = () => {
                 </MenuItem>
               ))}
             </Select>
+            {selectedProfessionals.length > 0 && (
+            <IconButton
+              size="small"
+              sx={{ position: "absolute", right: 20, top: 12 }}
+              onClick={(e) => { 
+                e.stopPropagation();
+                setselectedProfessionals([]);
+                getData(getSelectedMeetingStatus(selectedStatus), "desc", 1, selectedPageSize, startDate, endDate, []);
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          )}
           </FormControl>
           <Button variant="outlined" onClick={selectToday} fullWidth endIcon={<FilterAlt/>} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', textTransform: 'none', color: 'black', borderColor: 'lightgray' }}>Termine Heute</Button>
           <Button variant="outlined" onClick={selectCurrentWeek} fullWidth endIcon={<FilterAlt/>} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', textTransform: 'none', color: 'black', borderColor: 'lightgray' }}>Termine diese Woche</Button>
@@ -269,7 +288,7 @@ const MeetingOverview: React.FunctionComponent = () => {
           }
         />
       </Grid>
-      <Grid item xs={3}>
+      <Grid item xs={3} spacing={1}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               label="Von"
