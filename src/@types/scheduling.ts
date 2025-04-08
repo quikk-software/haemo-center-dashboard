@@ -1,5 +1,6 @@
 /* eslint-disable */
 /* tslint:disable */
+// @ts-nocheck
 /*
  * ---------------------------------------------------------------
  * ## THIS FILE WAS GENERATED VIA SWAGGER-TYPESCRIPT-API        ##
@@ -176,6 +177,18 @@ export interface PostTimeFrameRequest {
   meetingDuration: number;
   type?: string;
   daysOfWeek: number[];
+}
+
+export interface PostTimeFrameRequestV2 {
+  name: string;
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  endTime: string;
+  meetingDuration: number;
+  type?: string;
+  daysOfWeek: number[];
+  professionalId: number;
 }
 
 export interface PostTimeFrameResponse {
@@ -534,12 +547,12 @@ export class Api<
      * @description The requesting user must be a center and the given user ID a valid scheduling user.
      *
      * @tags Meetings
-     * @name V1MeetingTakenDetail
+     * @name V1MeetingTakenList
      * @summary Gets all taken meetings of a professional.
      * @request GET:/api/v1/meeting/{schedulingUserId}/taken
      * @secure
      */
-    v1MeetingTakenDetail: (
+    v1MeetingTakenList: (
       schedulingUserId?: number,
       query?: {
         /** The current page number. */
@@ -677,16 +690,22 @@ export class Api<
         states?: string[];
         /** Indicator how to sort meetings by date. */
         sort?: string;
+        /**
+         * The start date.
+         * @format date-time
+         */
+        startDate?: string;
+        /**
+         * The end date.
+         * @format date-time
+         */
+        endDate?: string;
+        /** The list of professionals. */
+        professionalIds?: number[];
         /** The current page number. */
         pageNumber?: number;
         /** The page size. */
         pageSize?: number;
-        /** The start date */
-        startDate?: Date;
-        /** The end date */
-        endDate?: Date;
-        /** professional Ids */
-        professionalIds?: number[];
       },
       params: RequestParams = {},
     ) =>
@@ -857,12 +876,12 @@ export class Api<
      * @description The requested user must be a professional.
      *
      * @tags TimeFrame
-     * @name V1TimeFrameProfessionalTimeFrameTypesDetail
+     * @name V1TimeFrameProfessionalTimeFrameTypesList
      * @summary Gets a distinct list of all time frame types of a professional
      * @request GET:/api/v1/timeFrame/professional/{id}/timeFrameTypes
      * @secure
      */
-    v1TimeFrameProfessionalTimeFrameTypesDetail: (
+    v1TimeFrameProfessionalTimeFrameTypesList: (
       id: number,
       params: RequestParams = {},
     ) =>
@@ -955,6 +974,34 @@ export class Api<
       this.request<GetSchedulingUserResponse, void>({
         path: `/api/v1/schedulingUsers/center/users/${userId}`,
         method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Users with center role are allowed to fetch the scheduling users.
+     *
+     * @name V1CenterSchedulingUsersList
+     * @summary Lists scheduling users optionally by role
+     * @request GET:/api/v1/center/schedulingUsers
+     * @secure
+     */
+    v1CenterSchedulingUsersList: (
+      query?: {
+        /** Role of the users to get. */
+        role?: string;
+        /** The current page number. */
+        pageNumber?: number;
+        /** The page size. */
+        pageSize?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ListSchedulingUsersResponse, any>({
+        path: `/api/v1/center/schedulingUsers`,
+        method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -1113,6 +1160,41 @@ export class Api<
       }),
 
     /**
+     * @description The requesting user must be the center of the time frame, else an Unauthorized-Exception will be thrown
+     *
+     * @tags TimeFrame
+     * @name V2TimeFramesDetail
+     * @summary Gets a timeFrame by its ID.
+     * @request GET:/api/v2/time-frames/{id}
+     * @secure
+     */
+    v2TimeFramesDetail: (id: number, params: RequestParams = {}) =>
+      this.request<GetTimeFrameResponse, void>({
+        path: `/api/v2/time-frames/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Requires the requesting user to be the center of the time frame, else an Unauthorized-Exception is thrown. If a TimeFrame is deleted, all empty meetings (no patient assigned) in the TimeFrame also get deleted.
+     *
+     * @tags TimeFrame
+     * @name V2TimeFramesDelete
+     * @summary Deletes a timeFrame by its ID.
+     * @request DELETE:/api/v2/time-frames/{id}
+     * @secure
+     */
+    v2TimeFramesDelete: (id: number, params: RequestParams = {}) =>
+      this.request<void, void>({
+        path: `/api/v2/time-frames/${id}`,
+        method: "DELETE",
+        secure: true,
+        ...params,
+      }),
+
+    /**
      * @description TimeFrames can only be created by professionals. If a TimeFrame is created, the corresponding meetings in the TimeFrame are also created. A TimeFrame canot be longer than 6 months.
      *
      * @tags TimeFrame
@@ -1181,6 +1263,58 @@ export class Api<
         body: data,
         secure: true,
         type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description Time frames can only be created by centers for a given professional. If a time frame is created, the corresponding meetings in the time frame are also created. A time frame cannot be longer than 6 months.
+     *
+     * @tags TimeFrame
+     * @name V2TimeFramesCreate
+     * @summary Creates a new time frame.
+     * @request POST:/api/v2/time-frames
+     * @secure
+     */
+    v2TimeFramesCreate: (
+      data: PostTimeFrameRequestV2,
+      params: RequestParams = {},
+    ) =>
+      this.request<PostTimeFrameResponse, void>({
+        path: `/api/v2/time-frames`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The requesting user must be a center, else an Unauthorized-Exception will be thrown.
+     *
+     * @tags TimeFrame
+     * @name V2TimeFramesList
+     * @summary Lists all time frames of a professional
+     * @request GET:/api/v2/time-frames
+     * @secure
+     */
+    v2TimeFramesList: (
+      query: {
+        /** The current page number. */
+        pageNumber?: number;
+        /** The page size. */
+        pageSize?: number;
+        /** The ID of a professional. */
+        professionalId: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ListTimeFramesResponse, void>({
+        path: `/api/v2/time-frames`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
         ...params,
       }),
 

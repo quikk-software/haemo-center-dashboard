@@ -3,8 +3,6 @@ import React from "react";
 import Head from "next/head";
 import CssBaseline from "@mui/material/CssBaseline";
 import Page from "@/components/layout/Page";
-import pages from "@/routes";
-import { useRouter } from "next/router";
 import { Provider } from "react-redux";
 import store from "@/redux";
 import ErrorBoundary from "@/components/core/ErrorBoundary";

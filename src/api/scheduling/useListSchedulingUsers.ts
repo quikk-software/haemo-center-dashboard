@@ -1,19 +1,19 @@
 import { useState } from "react";
 import { schedulingApi, getApi } from "@/@types";
 import { useDispatch, useSelector } from "react-redux";
-import { GetMeetingResponseV2 } from "@/@types/scheduling";
+import { GetSchedulingUserResponse } from "@/@types/scheduling";
 import { Store } from "@/redux";
 import { useApiStates } from "@/api/useApiStates";
 import { usePagination } from "@/api/usePagination";
 
-export const useListMeetings = ({
+export const useListSchedulingUsers = ({
   pageNumber = 1,
   pageSize = 20,
 }: {
   pageNumber?: number;
   pageSize?: number;
 }) => {
-  const [data, setData] = useState<GetMeetingResponseV2[]>([]);
+  const [data, setData] = useState<GetSchedulingUserResponse[]>([]);
 
   const dispatch = useDispatch();
   const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
@@ -22,25 +22,17 @@ export const useListMeetings = ({
   const pagination = usePagination(pageNumber, pageSize);
 
   const fetch = async (
-    customStates?: string[],
-    customSort?: "asc" | "desc",
+    role?: string,
     customPageNumber?: number,
     customPageSize?: number,
-    startDate?: Date,
-    endDate?: Date,
-    professionalIds?: number[],
   ) => {
     const response = await handleFn(
       async () =>
-        await schedulingApi.api.v2MeetingsCenterAllMeetingsList(
+        await schedulingApi.api.v1CenterSchedulingUsersList(
           {
+            role,
             pageNumber: customPageNumber ?? pagination.pageNumber,
             pageSize: customPageSize ?? pagination.pageSize,
-            startDate: startDate?.toUTCString(),
-            endDate: endDate?.toUTCString(),
-            professionalIds: professionalIds,
-            states: customStates,
-            sort: customSort,
           },
           {
             ...(await getApi(accessToken, refreshToken, dispatch)),
@@ -48,12 +40,12 @@ export const useListMeetings = ({
         ),
     );
 
-    setData(response.data?.meetings ?? []);
+    setData(response.data?.schedulingUsers ?? []);
 
     pagination.handlePaginationPayload(response?.data);
 
     return {
-      meetings: response.data?.meetings ?? [],
+      meetings: response.data?.schedulingUsers ?? [],
       count: response.data.count,
     };
   };

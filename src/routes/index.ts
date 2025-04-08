@@ -67,6 +67,21 @@ const pages: Page[] = [
     description: "Übersicht Termine",
   },
   {
+    title: "Übersicht Zeitfenster",
+    pathname: "/meetings/timeframes",
+    description: "Übersicht Zeitfenster",
+  },
+  {
+    title: "Zeitfenster anlegen",
+    pathname: "/meetings/timeframes/create",
+    description: "Zeitfenster anlegen",
+  },
+  {
+    title: "Zeitfenster einsehen",
+    pathname: "/meetings/timeframes/[id]",
+    description: "Zeitfenster einsehen",
+  },
+  {
     title: "To Do's",
     pathname: "/todos",
     description: "Übersicht To Do's",

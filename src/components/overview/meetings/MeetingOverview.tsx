@@ -6,13 +6,14 @@ import {
   IconButton,
   TablePagination,
   Typography,
-  Box, 
+  Box,
   Button,
   FormControl,
-  Select, 
-  MenuItem, 
+  Select,
+  MenuItem,
   InputLabel,
   Checkbox,
+  Badge,
 } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
@@ -25,13 +26,48 @@ import Link from "@/components/common/Link";
 import { Edit, FilterAlt, DateRange } from "@mui/icons-material";
 import TableContainer from "@mui/material/TableContainer";
 import { useListMeetings } from "@/api/scheduling/useListMeetings";
-import { DEFAULT_PAGE_SIZE, PAGE_SIZES } from "@/constants";
+import { DEFAULT_PAGE_SIZE, PAGE_SIZES, USER_ROLES } from "@/constants";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
-import { SelectChangeEvent } from '@mui/material/Select';
-import CloseIcon from '@mui/icons-material/Close';
+import { SelectChangeEvent } from "@mui/material/Select";
+import CloseIcon from "@mui/icons-material/Close";
+import { DateCalendar, PickersDay } from "@mui/x-date-pickers";
+import { useListSchedulingUsers } from "@/api/scheduling/useListSchedulingUsers";
+
+const ServerDay = (props: any) => {
+  const { highlightedDays = [], day, outsideCurrentMonth, ...other } = props;
+
+  const isSelected =
+    !props.outsideCurrentMonth &&
+    highlightedDays.includes(day.format("YYYY-MM-DD"));
+
+  if (isSelected) {
+    return (
+      <Badge
+        key={props.day.toString()}
+        overlap="circular"
+        variant="dot"
+        color="secondary"
+      >
+        <PickersDay
+          {...other}
+          outsideCurrentMonth={outsideCurrentMonth}
+          day={day}
+        />
+      </Badge>
+    );
+  }
+
+  return (
+    <PickersDay
+      {...other}
+      key={props.day.toString()}
+      outsideCurrentMonth={outsideCurrentMonth}
+      day={day}
+    />
+  );
+};
 
 const MeetingOverview: React.FunctionComponent = () => {
   const [selectedPageSize, setSelectedPageSize] = useState(DEFAULT_PAGE_SIZE);
@@ -40,17 +76,57 @@ const MeetingOverview: React.FunctionComponent = () => {
     pageNumber: 1,
     pageSize: selectedPageSize,
   });
+  const { fetch: fetchAll, data: allMeetings } = useListMeetings({
+    pageNumber: 1,
+    pageSize: 999,
+  });
+  const { fetch: fetchProfessionals, data: professionals } =
+    useListSchedulingUsers({});
 
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [selectedStatus, setselectedStatus] = useState<string[]>([]);
-  const [selectedProfessionals, setselectedProfessionals] = useState<string[]>([]);
+  const [selectedProfessionals, setselectedProfessionals] = useState<string[]>(
+    [],
+  );
+  const [highlightedDays, setHighlightedDays] = useState<Dayjs[]>([]);
 
   const meetingStatus = ["Ausstehend", "Angefragt", "Bestätigt"];
 
   useEffect(() => {
-    getData(getSelectedMeetingStatus(selectedStatus), "desc", 1, selectedPageSize, startDate, endDate, selectedProfessionals);
+    fetchProfessionals(USER_ROLES.professional, 1, 999);
+  }, []);
+
+  useEffect(() => {
+    fetchAll(
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      selectedProfessionals.map(Number),
+    );
+  }, [selectedProfessionals]);
+
+  useEffect(() => {
+    getData(
+      getSelectedMeetingStatus(selectedStatus),
+      "desc",
+      1,
+      selectedPageSize,
+      startDate,
+      endDate,
+      selectedProfessionals,
+    );
   }, [selectedPageSize]);
+
+  useEffect(() => {
+    const acceptedMeetingDates = allMeetings
+      .filter((meeting) => meeting.state === "ACCEPTED")
+      .map((meeting) => dayjs(meeting.date));
+    setHighlightedDays(acceptedMeetingDates);
+  }, [data]);
 
   const getStatus = (status?: string) => {
     switch (status) {
@@ -65,42 +141,56 @@ const MeetingOverview: React.FunctionComponent = () => {
     }
   };
 
-  const uniqueProfessionals = Array.from(
-    data.reduce((map : any, meeting : any) => {
-      const professional = meeting.professional;
-      if (!map.has(professional.id)) {
-        map.set(professional.id, professional);
-      }
-      return map;
-    }, new Map()).values()
-  );
-  
-
   const handleChangePage = (
     _event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number,
   ) => {
-    getData(getSelectedMeetingStatus(selectedStatus), "desc", newPage + 1, selectedPageSize, startDate, endDate, selectedProfessionals);
+    getData(
+      getSelectedMeetingStatus(selectedStatus),
+      "desc",
+      newPage + 1,
+      selectedPageSize,
+      startDate,
+      endDate,
+      selectedProfessionals,
+    );
   };
 
-  function getData(states: string[], order: any, pages: number, selectedPageSize: number, startOfDay: Dayjs | null, endOfDay: Dayjs | null, professionalIds : string[]) : void {
+  function getData(
+    states: string[],
+    order: any,
+    pages: number,
+    selectedPageSize: number,
+    startOfDay: Dayjs | null,
+    endOfDay: Dayjs | null,
+    professionalIds: string[],
+  ): void {
     let startDate1 = undefined;
     let endDate1 = undefined;
-    if(startOfDay) {
+    if (startOfDay) {
       startDate1 = startOfDay.toDate();
     }
-    if(endOfDay)  {
+
+    if (endOfDay) {
       endDate1 = endOfDay.toDate();
     }
-    fetch(states, order, pages, selectedPageSize, startDate1, endDate1, professionalIds.map(Number));
+    fetch(
+      states,
+      order,
+      pages,
+      selectedPageSize,
+      startDate1,
+      endDate1,
+      professionalIds.map(Number),
+    );
   }
 
-  function getSelectedMeetingStatus(filters : string[]) {
-    if(filters.length === 0) {
+  function getSelectedMeetingStatus(filters: string[]) {
+    if (filters.length === 0) {
       return ["ACCEPTED", "PENDING", "CREATED"];
     }
-    let activeFilters : string[] = [];
-    filters.forEach(f => {
+    let activeFilters: string[] = [];
+    filters.forEach((f) => {
       switch (f) {
         case "Bestätigt":
           activeFilters.push("ACCEPTED");
@@ -113,18 +203,36 @@ const MeetingOverview: React.FunctionComponent = () => {
           activeFilters.push("CREATED");
           break;
       }
-    })
+    });
     return activeFilters;
   }
 
   const handleStatusFilterChange = (event: SelectChangeEvent<string[]>) => {
     setselectedStatus(event.target.value as string[]);
-    getData(getSelectedMeetingStatus(event.target.value as string[]), "desc", 1, selectedPageSize, startDate, endDate, selectedProfessionals);
+    getData(
+      getSelectedMeetingStatus(event.target.value as string[]),
+      "desc",
+      1,
+      selectedPageSize,
+      startDate,
+      endDate,
+      selectedProfessionals,
+    );
   };
 
-  const handleProfessionalFilterChange = (event: SelectChangeEvent<string[]>) => {
+  const handleProfessionalFilterChange = (
+    event: SelectChangeEvent<string[]>,
+  ) => {
     setselectedProfessionals(event.target.value as string[]);
-    getData(getSelectedMeetingStatus(selectedStatus), "desc", 1, selectedPageSize, startDate, endDate, event.target.value as string[]);
+    getData(
+      getSelectedMeetingStatus(selectedStatus),
+      "desc",
+      1,
+      selectedPageSize,
+      startDate,
+      endDate,
+      event.target.value as string[],
+    );
   };
 
   const selectCurrentWeek = () => {
@@ -132,16 +240,32 @@ const MeetingOverview: React.FunctionComponent = () => {
     const endOfWeek = dayjs().endOf("week");
     setStartDate(startOfWeek);
     setEndDate(endOfWeek);
-    getData(getSelectedMeetingStatus(selectedStatus), "desc", 1, selectedPageSize, startOfWeek, endOfWeek, selectedProfessionals);
+    getData(
+      getSelectedMeetingStatus(selectedStatus),
+      "desc",
+      1,
+      selectedPageSize,
+      startOfWeek,
+      endOfWeek,
+      selectedProfessionals,
+    );
   };
 
   const selectToday = () => {
     const today = dayjs();
-    const endOfDay = today.endOf('day');
-    const startOfDay = today.startOf('day');
+    const endOfDay = today.endOf("day");
+    const startOfDay = today.startOf("day");
     setStartDate(startOfDay);
     setEndDate(endOfDay);
-    getData(getSelectedMeetingStatus(selectedStatus), "desc", 1, selectedPageSize, startOfDay, endOfDay, selectedProfessionals);
+    getData(
+      getSelectedMeetingStatus(selectedStatus),
+      "desc",
+      1,
+      selectedPageSize,
+      startOfDay,
+      endOfDay,
+      selectedProfessionals,
+    );
   };
 
   return (
@@ -151,9 +275,20 @@ const MeetingOverview: React.FunctionComponent = () => {
           Übersicht Termine
         </Typography>
       </Grid>
-      <Grid item xs={3}>
-        <Button component="a" href={`/meetings/timeframes`} variant="contained" onClick={selectToday} fullWidth endIcon={<DateRange/>} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>Zeitfenster verwalten</Button>
-      </Grid>
+      {selectedProfessionals.length === 1 ? (
+        <Grid item xs={3}>
+          <Link href={`/meetings/timeframes?id=${selectedProfessionals.at(0)}`}>
+            <Button
+              variant="contained"
+              onClick={selectToday}
+              fullWidth
+              endIcon={<DateRange />}
+            >
+              Zeitfenster verwalten
+            </Button>
+          </Link>
+        </Grid>
+      ) : null}
       <Grid item xs={12}>
         <Box display="flex" flexDirection="row" gap={2}>
           <FormControl fullWidth>
@@ -164,40 +299,80 @@ const MeetingOverview: React.FunctionComponent = () => {
               value={selectedProfessionals}
               label="Arzt auswählen"
               onChange={handleProfessionalFilterChange}
-              renderValue={(selected) => 
+              renderValue={(selected) => (
                 <Box sx={{ flexGrow: 1 }}>
                   {selected.length > 0
-                    ? uniqueProfessionals
-                        .filter((p : any) => selected.includes(p.id))
-                        .map((p : any) => `${p.firstName} ${p.lastName}`)
+                    ? professionals
+                        .filter((p: any) => selected.includes(p.id))
+                        .map((p: any) => `${p.firstName} ${p.lastName}`)
                         .join(", ")
                     : "Bitte auswählen"}
                 </Box>
-              }
+              )}
             >
-              {uniqueProfessionals.map((professional : any) => (
+              {professionals.map((professional: any) => (
                 <MenuItem key={professional!.id} value={professional!.id}>
-                  <Checkbox checked={selectedProfessionals.includes(professional!.id)} />
-                  {professional!.firstName + ' ' + professional!.lastName}
+                  <Checkbox
+                    checked={selectedProfessionals.includes(professional!.id)}
+                  />
+                  {professional!.firstName + " " + professional!.lastName}
                 </MenuItem>
               ))}
             </Select>
             {selectedProfessionals.length > 0 && (
-            <IconButton
-              size="small"
-              sx={{ position: "absolute", right: 20, top: 12 }}
-              onClick={(e) => { 
-                e.stopPropagation();
-                setselectedProfessionals([]);
-                getData(getSelectedMeetingStatus(selectedStatus), "desc", 1, selectedPageSize, startDate, endDate, []);
-              }}
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          )}
+              <IconButton
+                size="small"
+                sx={{ position: "absolute", right: 20, top: 12 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setselectedProfessionals([]);
+                  getData(
+                    getSelectedMeetingStatus(selectedStatus),
+                    "desc",
+                    1,
+                    selectedPageSize,
+                    startDate,
+                    endDate,
+                    [],
+                  );
+                }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            )}
           </FormControl>
-          <Button variant="outlined" onClick={selectToday} fullWidth endIcon={<FilterAlt/>} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', textTransform: 'none', color: 'black', borderColor: 'lightgray' }}>Termine Heute</Button>
-          <Button variant="outlined" onClick={selectCurrentWeek} fullWidth endIcon={<FilterAlt/>} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', textTransform: 'none', color: 'black', borderColor: 'lightgray' }}>Termine diese Woche</Button>
+          <Button
+            variant="outlined"
+            onClick={selectToday}
+            fullWidth
+            endIcon={<FilterAlt />}
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              textTransform: "none",
+              color: "black",
+              borderColor: "lightgray",
+            }}
+          >
+            Termine Heute
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={selectCurrentWeek}
+            fullWidth
+            endIcon={<FilterAlt />}
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              textTransform: "none",
+              color: "black",
+              borderColor: "lightgray",
+            }}
+          >
+            Termine diese Woche
+          </Button>
           <FormControl fullWidth>
             <InputLabel id="filter-label">Status</InputLabel>
             <Select
@@ -218,7 +393,7 @@ const MeetingOverview: React.FunctionComponent = () => {
           </FormControl>
         </Box>
       </Grid>
-      <Grid item xs={9}>
+      <Grid item xs={8}>
         <TableContainer component={Paper}>
           <Table aria-label="Termine">
             <TableHead>
@@ -252,7 +427,9 @@ const MeetingOverview: React.FunctionComponent = () => {
                       {dayjs(row.endTime).format(TIME_FORMAT)}
                     </TableCell>
                     <TableCell>
-                      <Chip label={row.timeFrameType} />
+                      {row.timeFrameType ? (
+                        <Chip label={row.timeFrameType} />
+                      ) : null}
                     </TableCell>
                     <TableCell>{getStatus(row.state)}</TableCell>
                     <TableCell component="th" scope="row" align="right">
@@ -288,21 +465,35 @@ const MeetingOverview: React.FunctionComponent = () => {
           }
         />
       </Grid>
-      <Grid item xs={3} spacing={1}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              label="Von"
-              value={startDate}
-              onChange={(newValue: Dayjs | null) => { setStartDate(newValue), getData(getSelectedMeetingStatus(selectedStatus), "desc", 1, selectedPageSize, newValue, endDate, selectedProfessionals)}}
-              slotProps={{ textField: { fullWidth: true } }}
-            />
-            <DatePicker
-              label="Bis"
-              value={endDate}
-              onChange={(newValue: Dayjs | null) => { setEndDate(newValue), getData(getSelectedMeetingStatus(selectedStatus), "desc", 1, selectedPageSize, startDate, newValue, selectedProfessionals)}}
-              slotProps={{ textField: { fullWidth: true } }}
-            />
-          </LocalizationProvider>
+      <Grid item xs={4} spacing={1}>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DateCalendar
+            value={startDate}
+            onChange={(newValue: Dayjs | null) => {
+              setStartDate(newValue);
+              setEndDate(newValue);
+              getData(
+                getSelectedMeetingStatus(selectedStatus),
+                "desc",
+                1,
+                selectedPageSize,
+                newValue,
+                newValue,
+                selectedProfessionals,
+              );
+            }}
+            slots={{
+              day: ServerDay,
+            }}
+            slotProps={{
+              day: {
+                highlightedDays: highlightedDays.map((day) =>
+                  day.format("YYYY-MM-DD"),
+                ),
+              } as any,
+            }}
+          />
+        </LocalizationProvider>
       </Grid>
     </Grid>
   );

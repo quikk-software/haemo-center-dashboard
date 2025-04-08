@@ -97,6 +97,39 @@ const MeetingDetail: React.FunctionComponent = () => {
               <Grid item xs={12}>
                 <Typography variant="h4">Teilnehmer</Typography>
               </Grid>
+              {meeting.patient ? (
+                <Grid item xs={12}>
+                  <TextField
+                    label="Patient"
+                    defaultValue={`${meeting.patient?.firstName} ${meeting.patient?.lastName}`}
+                    fullWidth
+                    disabled
+                  />
+                </Grid>
+              ) : null}
+              <Grid item xs={12}>
+                <TextField
+                  label="Behandler"
+                  defaultValue={`${meeting.professional?.firstName} ${meeting.professional?.lastName}`}
+                  fullWidth
+                  disabled
+                />
+              </Grid>
+              {meeting.timeFrameType ? (
+                <>
+                  <Grid item xs={12}>
+                    <Typography variant="h4">Weitere Informationen</Typography>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      label="Termindetails"
+                      defaultValue={meeting.timeFrameType}
+                      fullWidth
+                      disabled
+                    />
+                  </Grid>
+                </>
+              ) : null}
               <Grid item xs={6}>
                 <Button
                   fullWidth
