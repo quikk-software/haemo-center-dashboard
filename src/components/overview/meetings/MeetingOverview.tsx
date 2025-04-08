@@ -32,6 +32,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 import { SelectChangeEvent } from "@mui/material/Select";
 import CloseIcon from "@mui/icons-material/Close";
+import ClearIcon from "@mui/icons-material/Clear";
 import { DateCalendar, PickersDay } from "@mui/x-date-pickers";
 import { useListSchedulingUsers } from "@/api/scheduling/useListSchedulingUsers";
 
@@ -48,7 +49,7 @@ const ServerDay = (props: any) => {
         key={props.day.toString()}
         overlap="circular"
         variant="dot"
-        color="secondary"
+        color="success"
       >
         <PickersDay
           {...other}
@@ -71,6 +72,13 @@ const ServerDay = (props: any) => {
 
 const MeetingOverview: React.FunctionComponent = () => {
   const [selectedPageSize, setSelectedPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
+  const [endDate, setEndDate] = useState<Dayjs | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
+  const [selectedProfessionals, setselectedProfessionals] = useState<string[]>(
+    [],
+  );
+  const [highlightedDays, setHighlightedDays] = useState<Dayjs[]>([]);
 
   const { fetch, data, pageNumber, count } = useListMeetings({
     pageNumber: 1,
@@ -78,20 +86,12 @@ const MeetingOverview: React.FunctionComponent = () => {
   });
   const { fetch: fetchAll, data: allMeetings } = useListMeetings({
     pageNumber: 1,
-    pageSize: 999,
+    pageSize: 9999,
   });
   const { fetch: fetchProfessionals, data: professionals } =
     useListSchedulingUsers({});
 
-  const [startDate, setStartDate] = useState<Dayjs | null>(null);
-  const [endDate, setEndDate] = useState<Dayjs | null>(null);
-  const [selectedStatus, setselectedStatus] = useState<string[]>([]);
-  const [selectedProfessionals, setselectedProfessionals] = useState<string[]>(
-    [],
-  );
-  const [highlightedDays, setHighlightedDays] = useState<Dayjs[]>([]);
-
-  const meetingStatus = ["Ausstehend", "Angefragt", "Bestätigt"];
+  const meetingStatus = ["Offen", "Angefragt", "Bestätigt"];
 
   useEffect(() => {
     fetchProfessionals(USER_ROLES.professional, 1, 999);
@@ -99,12 +99,12 @@ const MeetingOverview: React.FunctionComponent = () => {
 
   useEffect(() => {
     fetchAll(
+      ["PENDING", "ACCEPTED"],
       undefined,
       undefined,
       undefined,
-      undefined,
-      undefined,
-      undefined,
+      dayjs().toDate(),
+      dayjs().add(6, "month").toDate(),
       selectedProfessionals.map(Number),
     );
   }, [selectedProfessionals]);
@@ -131,13 +131,13 @@ const MeetingOverview: React.FunctionComponent = () => {
   const getStatus = (status?: string) => {
     switch (status) {
       case "CREATED":
-        return <Chip label="Ausstehend" />;
+        return <Chip label="Offen" />;
       case "PENDING":
         return <Chip label="Angefragt" color="secondary" />;
       case "ACCEPTED":
         return <Chip label="Bestätigt" color="success" />;
       default:
-        return <Chip label="Ausstehend" />;
+        return <Chip label="Offen" />;
     }
   };
 
@@ -165,8 +165,8 @@ const MeetingOverview: React.FunctionComponent = () => {
     endOfDay: Dayjs | null,
     professionalIds: string[],
   ): void {
-    let startDate1 = undefined;
-    let endDate1 = undefined;
+    let startDate1 = dayjs().toDate();
+    let endDate1 = dayjs().add(6, "month").toDate();
     if (startOfDay) {
       startDate1 = startOfDay.toDate();
     }
@@ -187,7 +187,7 @@ const MeetingOverview: React.FunctionComponent = () => {
 
   function getSelectedMeetingStatus(filters: string[]) {
     if (filters.length === 0) {
-      return ["ACCEPTED", "PENDING", "CREATED"];
+      return ["ACCEPTED", "PENDING"];
     }
     let activeFilters: string[] = [];
     filters.forEach((f) => {
@@ -208,7 +208,7 @@ const MeetingOverview: React.FunctionComponent = () => {
   }
 
   const handleStatusFilterChange = (event: SelectChangeEvent<string[]>) => {
-    setselectedStatus(event.target.value as string[]);
+    setSelectedStatus(event.target.value as string[]);
     getData(
       getSelectedMeetingStatus(event.target.value as string[]),
       "desc",
@@ -268,6 +268,25 @@ const MeetingOverview: React.FunctionComponent = () => {
     );
   };
 
+  const handleResetFilter = () => {
+    setStartDate(null);
+    setEndDate(null);
+    setselectedProfessionals([]);
+    setSelectedStatus([]);
+    getData(
+      ["ACCEPTED", "PENDING"],
+      "desc",
+      1,
+      selectedPageSize,
+      null,
+      null,
+      [],
+    );
+  };
+
+  const minSelectableDate = dayjs();
+  const maxSelectableDate = dayjs().add(6, "month");
+
   return (
     <Grid container spacing={3}>
       <Grid item xs={9}>
@@ -275,20 +294,20 @@ const MeetingOverview: React.FunctionComponent = () => {
           Übersicht Termine
         </Typography>
       </Grid>
-      {selectedProfessionals.length === 1 ? (
-        <Grid item xs={3}>
-          <Link href={`/meetings/timeframes?id=${selectedProfessionals.at(0)}`}>
-            <Button
-              variant="contained"
-              onClick={selectToday}
-              fullWidth
-              endIcon={<DateRange />}
-            >
-              Zeitfenster verwalten
-            </Button>
-          </Link>
-        </Grid>
-      ) : null}
+
+      <Grid item xs={3}>
+        <Link href={`/meetings/timeframes?id=${selectedProfessionals.at(0)}`}>
+          <Button
+            variant="contained"
+            onClick={selectToday}
+            fullWidth
+            endIcon={<DateRange />}
+            disabled={selectedProfessionals.length !== 1}
+          >
+            Zeitfenster verwalten
+          </Button>
+        </Link>
+      </Grid>
       <Grid item xs={12}>
         <Box display="flex" flexDirection="row" gap={2}>
           <FormControl fullWidth>
@@ -391,6 +410,9 @@ const MeetingOverview: React.FunctionComponent = () => {
               ))}
             </Select>
           </FormControl>
+          <IconButton onClick={handleResetFilter}>
+            <ClearIcon />
+          </IconButton>
         </Box>
       </Grid>
       <Grid item xs={8}>
@@ -468,6 +490,8 @@ const MeetingOverview: React.FunctionComponent = () => {
       <Grid item xs={4} spacing={1}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DateCalendar
+            minDate={minSelectableDate}
+            maxDate={maxSelectableDate}
             value={startDate}
             onChange={(newValue: Dayjs | null) => {
               setStartDate(newValue);

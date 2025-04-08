@@ -23,13 +23,13 @@ import { useSnackbarComponent } from "@/components/layout/Snackbar";
 import { useRouter } from "next/router";
 
 const weekdayMap: { [key: string]: number } = {
-  monday: 0,
-  tuesday: 1,
-  wednesday: 2,
-  thursday: 3,
-  friday: 4,
-  saturday: 5,
-  sunday: 6,
+  montag: 0,
+  dienstag: 1,
+  mittwoch: 2,
+  donnerstag: 3,
+  freitag: 4,
+  samstag: 5,
+  sonntag: 6,
 };
 
 const TimeframeDetails: React.FunctionComponent = () => {
@@ -133,7 +133,7 @@ const TimeframeDetails: React.FunctionComponent = () => {
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <TextField
-                label="Name"
+                label="Name des Zeitfensters"
                 fullWidth
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -141,7 +141,7 @@ const TimeframeDetails: React.FunctionComponent = () => {
             </Grid>
             <Grid item xs={6}>
               <TextField
-                label="Termindetails"
+                label="Termindetails (optional)"
                 fullWidth
                 value={timeFrameType}
                 onChange={(e) => setTimeFrameType(e.target.value)}
@@ -220,17 +220,6 @@ const TimeframeDetails: React.FunctionComponent = () => {
                 onChange={(e) => setMeetingDuration(e.target.value)}
               />
             </Grid>
-
-            <Grid item xs={6}>
-              <Button
-                fullWidth
-                variant="outlined"
-                color="secondary"
-                onClick={() => router.back()}
-              >
-                Abbrechen
-              </Button>
-            </Grid>
             <Grid item xs={6}>
               <Button
                 fullWidth
@@ -240,6 +229,16 @@ const TimeframeDetails: React.FunctionComponent = () => {
                 disabled={isLoading || isInvalid}
               >
                 {isLoading ? "Speichert..." : "Veröffentlichen"}
+              </Button>
+            </Grid>
+            <Grid item xs={6}>
+              <Button
+                fullWidth
+                variant="outlined"
+                color="secondary"
+                onClick={() => router.back()}
+              >
+                Zurück
               </Button>
             </Grid>
           </Grid>
