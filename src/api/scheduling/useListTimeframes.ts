@@ -1,19 +1,19 @@
 import { useState } from "react";
 import { schedulingApi, getApi } from "@/@types";
 import { useDispatch, useSelector } from "react-redux";
-import { GetMeetingResponseV2 } from "@/@types/scheduling";
+import { GetTimeFrameResponse } from "@/@types/scheduling";
 import { Store } from "@/redux";
 import { useApiStates } from "@/api/useApiStates";
 import { usePagination } from "@/api/usePagination";
 
-export const useListMeetings = ({
+export const useListTimeframes = ({
   pageNumber = 1,
   pageSize = 20,
 }: {
   pageNumber?: number;
   pageSize?: number;
 }) => {
-  const [data, setData] = useState<GetMeetingResponseV2[]>([]);
+  const [data, setData] = useState<GetTimeFrameResponse[]>([]);
 
   const dispatch = useDispatch();
   const { accessToken, refreshToken } = useSelector((s: Store) => s.auth);
@@ -22,25 +22,17 @@ export const useListMeetings = ({
   const pagination = usePagination(pageNumber, pageSize);
 
   const fetch = async (
-    customStates?: string[],
-    customSort?: "asc" | "desc",
+    professionalId: number,
     customPageNumber?: number,
     customPageSize?: number,
-    startDate?: Date,
-    endDate?: Date,
-    professionalIds?: number[],
   ) => {
     const response = await handleFn(
       async () =>
-        await schedulingApi.api.v2MeetingsCenterAllMeetingsList(
+        await schedulingApi.api.v2TimeFramesList(
           {
             pageNumber: customPageNumber ?? pagination.pageNumber,
             pageSize: customPageSize ?? pagination.pageSize,
-            startDate: startDate?.toUTCString(),
-            endDate: endDate?.toUTCString(),
-            professionalIds: professionalIds,
-            states: customStates,
-            sort: customSort,
+            professionalId,
           },
           {
             ...(await getApi(accessToken, refreshToken, dispatch)),
@@ -48,12 +40,12 @@ export const useListMeetings = ({
         ),
     );
 
-    setData(response.data?.meetings ?? []);
+    setData(response.data?.timeFrames ?? []);
 
     pagination.handlePaginationPayload(response?.data);
 
     return {
-      meetings: response.data?.meetings ?? [],
+      meetings: response.data?.timeFrames ?? [],
       count: response.data.count,
     };
   };
