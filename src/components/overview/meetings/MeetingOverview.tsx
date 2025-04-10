@@ -21,7 +21,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import TableBody from "@mui/material/TableBody";
-import { DATE_FORMAT, TIME_FORMAT } from "@/dayjs/Dayjs";
+import { DATE_FORMAT, TIME_FORMAT, dayjs } from "@/dayjs/Dayjs";
 import Link from "@/components/common/Link";
 import { Edit, FilterAlt, DateRange } from "@mui/icons-material";
 import TableContainer from "@mui/material/TableContainer";
@@ -29,12 +29,12 @@ import { useListMeetings } from "@/api/scheduling/useListMeetings";
 import { DEFAULT_PAGE_SIZE, PAGE_SIZES, USER_ROLES } from "@/constants";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs, { Dayjs } from "dayjs";
 import { SelectChangeEvent } from "@mui/material/Select";
 import CloseIcon from "@mui/icons-material/Close";
 import ClearIcon from "@mui/icons-material/Clear";
 import { DateCalendar, PickersDay } from "@mui/x-date-pickers";
 import { useListSchedulingUsers } from "@/api/scheduling/useListSchedulingUsers";
+import { Dayjs } from "dayjs";
 
 const ServerDay = (props: any) => {
   const { highlightedDays = [], day, outsideCurrentMonth, ...other } = props;
@@ -488,7 +488,7 @@ const MeetingOverview: React.FunctionComponent = () => {
         />
       </Grid>
       <Grid item xs={4} spacing={1}>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="de">
           <DateCalendar
             minDate={minSelectableDate}
             maxDate={maxSelectableDate}

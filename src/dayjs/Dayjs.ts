@@ -6,6 +6,8 @@ import updateLocale from "dayjs/plugin/updateLocale";
 import relativeTime from "dayjs/plugin/relativeTime";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 
+dayjs.locale("de");
+
 dayjs.extend(customParseFormat);
 dayjs.extend(updateLocale);
 dayjs.extend(relativeTime);

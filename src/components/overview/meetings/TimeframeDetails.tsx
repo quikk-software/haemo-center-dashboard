@@ -15,12 +15,12 @@ import {
 import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import dayjs from "dayjs";
 import { useCreateTimeFrame } from "@/api/scheduling/useCreateTimeFrame";
 import { DATE_FORMAT } from "@/dayjs";
 import useQuery from "@/utils/useQuery";
 import { useSnackbarComponent } from "@/components/layout/Snackbar";
 import { useRouter } from "next/router";
+import { dayjs } from "@/dayjs/Dayjs";
 
 const weekdayMap: { [key: string]: number } = {
   montag: 0,
@@ -126,7 +126,7 @@ const TimeframeDetails: React.FunctionComponent = () => {
     !professionalId;
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="de">
       <Card>
         <CardHeader title="Zeitraum" />
         <CardContent>
