@@ -16,20 +16,26 @@ import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useCreateTimeFrame } from "@/api/scheduling/useCreateTimeFrame";
-import { DATE_FORMAT } from "@/dayjs";
+import {
+  BACKEND_DATE_FORMAT,
+  DATE_FORMAT,
+  SCHEDULING_DATE_FORMAT,
+  TIME_FORMAT,
+} from "@/dayjs";
 import useQuery from "@/utils/useQuery";
 import { useSnackbarComponent } from "@/components/layout/Snackbar";
 import { useRouter } from "next/router";
 import { dayjs } from "@/dayjs/Dayjs";
+import { Dayjs } from "dayjs";
 
 const weekdayMap: { [key: string]: number } = {
-  montag: 0,
-  dienstag: 1,
-  mittwoch: 2,
-  donnerstag: 3,
-  freitag: 4,
-  samstag: 5,
-  sonntag: 6,
+  montag: 1,
+  dienstag: 2,
+  mittwoch: 3,
+  donnerstag: 4,
+  freitag: 5,
+  samstag: 6,
+  sonntag: 0,
 };
 
 const TimeframeDetails: React.FunctionComponent = () => {
@@ -45,10 +51,10 @@ const TimeframeDetails: React.FunctionComponent = () => {
   const router = useRouter();
 
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
-  const [startDate, setStartDate] = useState<any>(null);
-  const [endDate, setEndDate] = useState<any>(null);
-  const [startTime, setStartTime] = useState<any>(null);
-  const [endTime, setEndTime] = useState<any>(null);
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
+  const [endDate, setEndDate] = useState<Dayjs | null>(null);
+  const [startTime, setStartTime] = useState<Dayjs | null>(null);
+  const [endTime, setEndTime] = useState<Dayjs | null>(null);
   const [meetingDuration, setMeetingDuration] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [timeFrameType, setTimeFrameType] = useState<string>("");
@@ -86,12 +92,24 @@ const TimeframeDetails: React.FunctionComponent = () => {
       return;
     }
 
+    const formattedStartTime = startTime.format(SCHEDULING_DATE_FORMAT);
+    const formattedEndTime = endTime.format(SCHEDULING_DATE_FORMAT);
+
+    const formattedStartDate = startDate
+      .startOf("day")
+      .add(1, "day")
+      .format(BACKEND_DATE_FORMAT);
+    const formattedEndDate = endDate
+      .startOf("day")
+      .add(1, "day")
+      .format(BACKEND_DATE_FORMAT);
+
     const payload = {
       name,
-      startDate: dayjs(startDate).format("YYYY-MM-DD"),
-      endDate: dayjs(endDate).format("YYYY-MM-DD"),
-      startTime: dayjs(startTime).format("YYYY-MM-DD HH:mm"),
-      endTime: dayjs(endTime).format("YYYY-MM-DD HH:mm"),
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
+      startTime: formattedStartTime,
+      endTime: formattedEndTime,
       meetingDuration: parseInt(meetingDuration, 10),
       daysOfWeek: selectedDays.map((day) => weekdayMap[day]),
       type: timeFrameType || undefined,

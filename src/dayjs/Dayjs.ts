@@ -5,9 +5,11 @@ import "dayjs/locale/en";
 import updateLocale from "dayjs/plugin/updateLocale";
 import relativeTime from "dayjs/plugin/relativeTime";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import utc from "dayjs/plugin/utc";
 
 dayjs.locale("de");
 
+dayjs.extend(utc);
 dayjs.extend(customParseFormat);
 dayjs.extend(updateLocale);
 dayjs.extend(relativeTime);
@@ -46,6 +48,7 @@ dayjs.updateLocale("de", {
   },
 });
 
+const SCHEDULING_DATE_FORMAT = "YYYY-MM-DD HH:mm:ss";
 const BACKEND_DATE_FORMAT = "YYYY-MM-DD";
 const DATE_FORMAT = "DD.MM.YYYY";
 const TIME_FORMAT = "HH:mm";
@@ -65,6 +68,7 @@ const getTimeFormat = (date?: Dayjs | string) => {
 
 export {
   dayjs,
+  SCHEDULING_DATE_FORMAT,
   BACKEND_DATE_FORMAT,
   DATE_FORMAT,
   TIME_FORMAT,
