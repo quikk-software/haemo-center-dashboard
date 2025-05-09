@@ -10,6 +10,8 @@
     "start": "next start",
     "generate-user": "npx swagger-typescript-api generate -p http://localhost:3004/api-docs/swagger.json -o ./src/@types -n user.ts",
     "generate-feed": "npx swagger-typescript-api generate -p http://localhost:3005/api-docs/swagger.json -o ./src/@types -n feed.ts",
+    "generate-messaging": "npx swagger-typescript-api generate -p http://localhost:3003/api-docs/swagger.json -o ./src/@types -n messaging.ts",
+    "generate-document": "npx swagger-typescript-api generate -p http://localhost:3002/api-docs/swagger.json -o ./src/@types -n document.ts",
     "generate-prescription": "npx swagger-typescript-api generate -p http://localhost:3007/api-docs/swagger.json -o ./src/@types -n prescription.ts",
     "generate-scheduling": "npx swagger-typescript-api generate -p http://localhost:3001/api-docs/swagger.json -o ./src/@types -n scheduling.ts"
   },

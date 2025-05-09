@@ -1,5 +1,7 @@
 import { Api as UserApi } from "./user";
 import { Api as FeedApi } from "./feed";
+import { Api as MessagingApi } from "./messaging";
+import { Api as DocumentApi } from "./document";
 import { Api as PrescriptionApi } from "./prescription";
 import { Api as SchedulingApi } from "./scheduling";
 import {
@@ -16,6 +18,14 @@ const userApi = new UserApi({
 
 const feedApi = new FeedApi({
   baseUrl: Api.FEED_API,
+});
+
+const messagingApi = new MessagingApi({
+  baseUrl: Api.MESSAGING_API,
+});
+
+const documentApi = new DocumentApi({
+  baseUrl: Api.DOCUMENT_API,
 });
 
 const prescriptionApi = new PrescriptionApi({
@@ -58,4 +68,12 @@ const getApi = async (
   return params;
 };
 
-export { userApi, feedApi, prescriptionApi, schedulingApi, getApi };
+export {
+  userApi,
+  feedApi,
+  messagingApi,
+  documentApi,
+  prescriptionApi,
+  schedulingApi,
+  getApi,
+};
