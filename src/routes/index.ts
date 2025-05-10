@@ -57,6 +57,11 @@ const pages: Page[] = [
     ],
   },
   {
+    title: "Chats",
+    pathname: "/chats",
+    description: "Übersicht Chats",
+  },
+  {
     title: "Übersicht Rezepte",
     pathname: "/prescriptions",
     description: "Übersicht Rezepte",

@@ -32,6 +32,7 @@ const Navbar: React.FC = () => {
           <Link href="/meetings">Termine</Link>
         ) : null}
         <Link href="/prescriptions">Rezepte</Link>
+        <Link href="/chats">Chats</Link>
         <Link href="/news">News</Link>
         {roles.includes(ADMIN_ROLE) && <Link href="/admin">Admin</Link>}
       </Stack>

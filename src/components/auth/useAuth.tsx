@@ -20,7 +20,11 @@ import { useRouter } from "next/router";
 import { Store } from "@/redux";
 import { getLoginURL } from "@/api/urls";
 import { useSnackbarComponent } from "@/components/layout/Snackbar";
-import { ADMIN_ROLE, CENTER_ROLE } from "@/components/auth/auth.constants";
+import {
+  ADMIN_ROLE,
+  CENTER_ROLE,
+  EMPLOYEE_ROLE,
+} from "@/components/auth/auth.constants";
 import { isPublicUrl } from "@/components/auth/AuthGuard";
 
 const useAuth = () => {
@@ -126,7 +130,10 @@ const useAuth = () => {
 
   useEffect(() => {
     if (
-      roles.some((role) => role === CENTER_ROLE || role === ADMIN_ROLE) ||
+      roles.some(
+        (role) =>
+          role === CENTER_ROLE || role === ADMIN_ROLE || role === EMPLOYEE_ROLE,
+      ) ||
       isPublicUrl(router.pathname)
     ) {
       return;
